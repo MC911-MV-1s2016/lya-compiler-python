@@ -1,22 +1,17 @@
-
-
 # -----------------------------------------------------------------------------
-# lyacompiler.py
+# calc.py
 #
-# Compiler for the scripting language Lya.
+# A simple calculator with variables.   This is from O'Reilly's
+# "Lex and Yacc", p. 63.
 # -----------------------------------------------------------------------------
+
+import sys
+sys.path.insert(0,"../..")
+
+if sys.version_info[0] >= 3:
+    raw_input = input
 
 tokens = (
-    # RESERVED WORDS
-    'ARRAY', 'BY', 'CHARS', 'DCL', 'DO', 'DOWN', 'ELSE', 'ELSIF', 'END', 'EXIT',
-    'FI', 'FOR', 'IF', 'IN', 'LOC', 'TYPE', 'OD', 'PROC', 'REF', 'RESULT', 'RETURN',
-    'RETURNS', 'SYS', 'THEN', 'TO', 'WHILE',
-
-    # PREDEFINED WORDS
-    'BOOL', 'CHAR', 'FALSE', 'INT', 'LENGTH', 'LOWER', 'NULL', 'NUM', 'PRED',
-    'PRINT', 'READ', 'SUCC', 'TRUE', 'UPPER',
-
-    # LEGACY (base code)
     'NAME','NUMBER',
     'PLUS','MINUS','TIMES','DIVIDE','EQUALS',
     'LPAREN','RPAREN',
@@ -24,51 +19,6 @@ tokens = (
 
 # Tokens
 
-# RESERVED WORDS
-t_ARRAY     = r'ARRAY'
-t_BY        = r'BY'
-t_CHARS     = r'CHARS'
-t_DCL       = r'DCL'
-t_DO        = r'DO'
-t_DOWN      = r'DOWN'
-t_ELSE      = r'ELSE'
-t_ELSIF     = r'ELSIF'
-t_END       = r'END'
-t_EXIT      = r'EXIT'
-t_FI        = r'FI'
-t_FOR       = r'FOR'
-t_IF        = r'IF'
-t_IN        = r'IN'
-t_LOC       = r'LOC'
-t_TYPE      = r'TYPE'
-t_OD        = r'OD'
-t_PROC      = r'PROC'
-t_REF       = r'REF'
-t_RESULT    = r'RESULT'
-t_RETURN    = r'RETURN' #we'll possibly have to switch this line with the following
-t_RETURNS   = r'RETURNS'
-t_SYN       = r'SYN'
-t_THEN      = r'THEN'
-t_TO        = r'TO'
-t_WHILE     = r'WHILE'
-
-# PREDEFINED WORDS
-t_BOOL      = r'BOOL'
-t_CHAR      = r'CHAR'
-t_FALSE     = r'FALSE'
-t_INT       = r'INT'
-t_LENGTH    = r'LENGTH'
-t_LOWER     = r'LOWER'
-t_NULL      = r'NULL'
-t_NUM       = r'NUM'
-t_PRED      = r'PRED'
-t_PRINT     = r'PRINT'
-t_READ      = r'READ'
-t_SUCC      = r'SUCC'
-t_TRUE      = r'TRUE'
-t_UPPER     = r'UPPER'
-
-#T0D0
 t_PLUS    = r'\+'
 t_MINUS   = r'-'
 t_TIMES   = r'\*'
@@ -83,11 +33,10 @@ def t_NUMBER(t):
     try:
         t.value = int(t.value)
     except ValueError:
-        print("Integer value too large %d", t.value)
+        print("Integer value too large %s" % t.value)
         t.value = 0
     return t
 
-# Ignored characters
 t_ignore = " \t"
 
 def t_newline(t):
@@ -100,7 +49,7 @@ def t_error(t):
     
 # Build the lexer
 import ply.lex as lex
-lexer = lex.lex()
+lex.lex(optimize=1)
 
 # Parsing rules
 
@@ -130,6 +79,7 @@ def p_expression_binop(t):
     elif t[2] == '-': t[0] = t[1] - t[3]
     elif t[2] == '*': t[0] = t[1] * t[3]
     elif t[2] == '/': t[0] = t[1] / t[3]
+    elif t[2] == '<': t[0] = t[1] < t[3]
 
 def p_expression_uminus(t):
     'expression : MINUS expression %prec UMINUS'
@@ -152,15 +102,18 @@ def p_expression_name(t):
         t[0] = 0
 
 def p_error(t):
-    print("Syntax error at '%s'" % t.value)
+    if t:
+        print("Syntax error at '%s'" % t.value)
+    else:
+        print("Syntax error at EOF")
 
 import ply.yacc as yacc
-parser = yacc.yacc()
+yacc.yacc(optimize=1)
 
-while True:
+while 1:
     try:
-        s = input('calc > ')   # Use raw_input on Python 2
+        s = raw_input('calc > ')
     except EOFError:
         break
-    parser.parse(s)
+    yacc.parse(s)
 

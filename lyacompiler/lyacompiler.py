@@ -6,20 +6,22 @@
 # Compiler for the scripting language Lya.
 # -----------------------------------------------------------------------------
 
+# T0D0: multiple relational/logical/concatenation/monadic operators
 tokens = (
     # RESERVED WORDS
     'ARRAY', 'BY', 'CHARS', 'DCL', 'DO', 'DOWN', 'ELSE', 'ELSIF', 'END', 'EXIT',
-    'FI', 'FOR', 'IF', 'IN', 'LOC', 'TYPE', 'OD', 'PROC', 'REF', 'RESULT', 'RETURN',
-    'RETURNS', 'SYS', 'THEN', 'TO', 'WHILE',
+    'FI', 'FOR', 'IF', 'IN', 'LOC', 'TYPE', 'OD', 'PROC', 'REF', 'RESULT', 'RETURNS',
+    'RETURN', 'SYS', 'THEN', 'TO', 'TYPE', 'WHILE',
 
     # PREDEFINED WORDS
     'BOOL', 'CHAR', 'FALSE', 'INT', 'LENGTH', 'LOWER', 'NULL', 'NUM', 'PRED',
     'PRINT', 'READ', 'SUCC', 'TRUE', 'UPPER',
 
-    # LEGACY (base code)
-    'NAME','NUMBER',
-    'PLUS','MINUS','TIMES','DIVIDE','EQUALS',
-    'LPAREN','RPAREN',
+    # SYMBOLS
+    'LPAREN', 'RPAREN', 'LCURL', 'RCURL', 'SEMICOL', 'EQUALS',
+    'PLUS','MINUS','TIMES','DIVIDE',
+
+    'NAME', 'NUMBER',
     )
 
 # Tokens
@@ -45,10 +47,11 @@ t_OD        = r'OD'
 t_PROC      = r'PROC'
 t_REF       = r'REF'
 t_RESULT    = r'RESULT'
-t_RETURN    = r'RETURN' #we'll possibly have to switch this line with the following
 t_RETURNS   = r'RETURNS'
+t_RETURN    = r'RETURN'
 t_SYN       = r'SYN'
 t_THEN      = r'THEN'
+t_TYPE      = r'TYPE'
 t_TO        = r'TO'
 t_WHILE     = r'WHILE'
 
@@ -68,14 +71,19 @@ t_SUCC      = r'SUCC'
 t_TRUE      = r'TRUE'
 t_UPPER     = r'UPPER'
 
-#T0D0
+# SYMBOLS
+t_LPAREN    = r'\('
+t_RPAREN    = r'\)'
+t_LCURL     = r'\{'
+t_RCURL     = r'\}'
+t_SEMICOL   = r';'
 t_PLUS    = r'\+'
 t_MINUS   = r'-'
 t_TIMES   = r'\*'
 t_DIVIDE  = r'/'
 t_EQUALS  = r'='
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
+
+# VARIABLES AND IDENTIFIERS
 t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 def t_NUMBER(t):
@@ -102,6 +110,7 @@ def t_error(t):
 import ply.lex as lex
 lexer = lex.lex()
 
+# T0D0
 # Parsing rules
 
 precedence = (

@@ -317,7 +317,7 @@ def p_location(self, t):
                 |           array_slice
                 |           call_action'''
 
-#T0D0 CHECK ARROW
+#TODO CHECK ARROW
 def p_dereferenced_reference(self, t):
     '''dereferenced_reference:      primitive_value ARROW'''
 
@@ -377,7 +377,7 @@ def p_literal(self, t):
                 |           character_string_literal'''
 
 ###########################################################
-#T0D0: find out what ICONST is
+#TODO: find out what ICONST is
 def p_integer_literal(self, t):
     '''integer_literal:     ICONST'''
 ###########################################################
@@ -386,7 +386,7 @@ def p_boolean_literal(self, t):
     '''boolean_literal:     FALSE | TRUE'''
 
 ###########################################################
-#T0D0: check the meaning of this rule
+#TODO: check the meaning of this rule
 def p_character_literal(self, t):
     '''character_literal:   SINGQUO character SINGQUO
                 |           SINGQUO CIRCUMF LPAREN integer_literal RPAREN SINGQUO '''
@@ -737,7 +737,7 @@ def p_character_string_null(self, t):
     '''character_string:'''
 
 
-#T0D0: create the functions
+#TODO: create the functions
 ##########################################################################
 def p_expression_name(self, t):
     'expression : NAME'

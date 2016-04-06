@@ -111,7 +111,7 @@ t_END_COMMENT   = r'\*/'
 t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 def t_ICONST(self, t):
-    r'-?\d+'
+    r'\d+'
     try:
         t.value = int(t.value)
     except ValueError:

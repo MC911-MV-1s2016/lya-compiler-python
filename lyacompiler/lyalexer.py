@@ -201,17 +201,31 @@ class LyaLexer(object):
         t.lexer.skip(1)
 
 
-if __name__ == '__main__':
-    # Build the lexer and try it out
-    m = LyaLexer()
-    m.build()  # Build the lexer
-    m.test("""/* example1: */
-dcl m,n,s int;
+lya_examples = ["example1.lya",
+                "example2.lya",
+                "example3.lya",
+                "example4.lya",
+                "factorial.lya",
+                "fibonacci.lya",
+                "gcd.lya",
+                "palindrome.lya",
+                "bubble_sort.lya",
+                "armstrong_number.lya",
+                "gen_prime.lya",
+                "int_stack.lya"
+                ]
 
-read(m,n);
-s = 0;
-do while m <= n;
-  s += m * n;
-  print(m,s);
-  m += 1;
-od;""")     # Test it
+if __name__ == '__main__':
+
+    # Build the lexer
+    lyalexer = LyaLexer()
+    lyalexer.build()
+
+    file_name = "./lyaexamples/" + lya_examples[1]
+    file = open(file_name)
+    lya_source = file.read()
+
+    print(lya_source)
+
+    lyalexer.test(lya_source)
+

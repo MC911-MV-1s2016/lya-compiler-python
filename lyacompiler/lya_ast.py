@@ -1,84 +1,22 @@
 #-----------------------------------------------------------------
-# ** ATTENTION **
-# This code was automatically generated from the file:
-# _c_ast.cfg
-#
-# Do not modify it directly. Modify the configuration file and
-# run the generator again.
-# ** ** *** ** **
-#
-# pycparser: c_ast.py
-#
 # AST Node classes.
-#
-# Copyright (C) 2008-2015, Eli Bendersky
-# License: BSD
-#-----------------------------------------------------------------
+##-----------------------------------------------------------------
 
 
 import sys
 
 
-class Node(object):
-    __slots__ = ()
-    """ Abstract base class for AST nodes.
-    """
-    def children(self):
-        """ A sequence of all children that are Nodes
-        """
-        pass
-
-    def show(self, buf=sys.stdout, offset=0, attrnames=False, nodenames=False, showcoord=False, _my_node_name=None):
-        """ Pretty print the Node and all its attributes and
-            children (recursively) to a buffer.
-
-            buf:
-                Open IO buffer into which the Node is printed.
-
-            offset:
-                Initial offset (amount of leading spaces)
-
-            attrnames:
-                True if you want to see the attribute names in
-                name=value pairs. False to only see the values.
-
-            nodenames:
-                True if you want to see the actual node names
-                within their parents.
-
-            showcoord:
-                Do you want the coordinates of each Node to be
-                displayed.
-        """
-        lead = ' ' * offset
-        if nodenames and _my_node_name is not None:
-            buf.write(lead + self.__class__.__name__+ ' <' + _my_node_name + '>: ')
-        else:
-            buf.write(lead + self.__class__.__name__+ ': ')
-
-        if self.attr_names:
-            if attrnames:
-                nvlist = [(n, getattr(self,n)) for n in self.attr_names]
-                attrstr = ', '.join('%s=%s' % nv for nv in nvlist)
-            else:
-                vlist = [getattr(self, n) for n in self.attr_names]
-                attrstr = ', '.join('%s' % v for v in vlist)
-            buf.write(attrstr)
-
-        if showcoord:
-            buf.write(' (at %s)' % self.coord)
-        buf.write('\n')
-
-        for (child_name, child) in self.children():
-            child.show(
-                buf,
-                offset=offset + 2,
-                attrnames=attrnames,
-                nodenames=nodenames,
-                showcoord=showcoord,
-                _my_node_name=child_name)
+class Node:
+    def __init__(self,type,children=None,leaf=None):
+         self.type = type
+         if children:
+              self.children = children
+         else:
+              self.children = [ ]
+         self.leaf = leaf
 
 
+#functional?
 class NodeVisitor(object):
     """ A base NodeVisitor class for visiting c_ast nodes.
         Subclass it and define your own visit_XXX methods, where

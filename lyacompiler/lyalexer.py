@@ -3,7 +3,7 @@
 # IC - UNICAMP
 #
 # RA094139 - Marcelo Mingatos de Toledo
-# RA? - Victor PumpItUp
+# RA093175 - Victor Fernando Pompeo Barbosa
 #
 # lyalexer.py
 # Tokenizer for the Lya scripting language.
@@ -19,10 +19,10 @@ class LyaLexer(object):
     def build(self, **kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
 
-    def reset_lineno(self):
-        """ Resets the internal line number counter of the lexer.
-        """
-        self.lexer.lineno = 1
+    # def reset_lineno(self):
+    #     """ Resets the internal line number counter of the lexer.
+    #     """
+    #     self.lexer.lineno = 1
 
     def input(self, text):
         self.lexer.input(text)
@@ -129,7 +129,8 @@ class LyaLexer(object):
     t_ignore = " \t"
 
     def add_lineno(self, newlines_count):
-        self.lexer.lineno += newlines_count
+        #self.lexer.lineno += newlines_count
+        self.lexer.lineno += 1
 
     # Newlines
     @TOKEN(end_of_line)

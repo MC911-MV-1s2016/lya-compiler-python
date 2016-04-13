@@ -51,6 +51,8 @@ class LyaParser(object):
         """program : statement_list"""
         p[0] = ('program', p[1])
 
+    #### Statement
+
     def p_statement_list(self, p):
         """statement_list : statement_list statement
                           | statement"""
@@ -75,6 +77,8 @@ class LyaParser(object):
         """declaration_statement : DCL declaration_list SEMICOL"""
         p[0] = ('declaration-statement', () + ('declaration-list',) + (p[2],))
 
+    #### Declaration
+
     def p_declaration_list(self, p):
         """declaration_list : declaration_list COMMA declaration
                             | declaration"""
@@ -84,25 +88,121 @@ class LyaParser(object):
             p[0] = p[1] + (p[3])
 
     def p_declaration(self, p):
-        """declaration : identifier_list"""
-        p[0] = ('declaration', p[1])
+        """declaration : identifier_list mode"""
+        p[0] = ('declaration', p[1], p[2])
 
     def p_declaration_initialization(self, p):
-        """declaration : identifier_list initialization"""
-        p[0] = ('declaration_initialization', (p[1], p[2]))
+        """declaration : identifier_list mode initialization"""
+        p[0] = ('declaration_initialization', (p[1], p[2], p[3]))
 
     def p_initialization(self, p):
         """initialization : ASSIGN expression"""
         p[0] = ('initialization', p[2])
 
+    #### Identifier
+
     def p_identifier_list(self, p):
-        """identifier_list : ID
-                           | identifier_list COMMA ID"""
+        """identifier_list : identifier
+                           | identifier_list COMMA identifier"""
         if len(p) == 2:
             p[0] = ('identifier-list', ('identifier', p[1]))
         else:
             p[0] = p[1] + (('identifier', p[3]),)
 
+    def p_identifier(self, p):
+        """identifier : ID"""
+        p[0] = ('identifier', p[1])
+
+    ##### Mode
+
+    def p_newmode_statement(self, p):
+        """newmode_statement : TYPE newmode_list"""
+
+    def p_newmode_list(self, p):
+        """newmode_list : newmode_list COMMA mode_definition
+                        | mode_definition"""
+
+    def p_mode_definition(self, p):
+        """mode_definition : identifier_list EQUALS mode"""
+
+    def p_mode(self, p):
+        """mode : mode_name
+                | discrete_mode"""
+                # | reference_mode
+                # | composite_mode"""
+        p[0] = ('mode', p[1])
+
+    def p_discrete_mode(self, p):
+        """discrete_mode : integer_mode
+                         | boolean_mode
+                         | character_mode"""
+                         # | discrete_range_mode"""
+        p[0] = ('discrete-mode', p[1])
+
+    def p_integer_mode(self, p):
+        """integer_mode : INT"""
+        p[0] = p[1]
+
+    def p_boolean_mode(self, p):
+        """boolean_mode : BOOL"""
+        p[0] = p[1]
+
+    def p_character_mode(self, p):
+        """character_mode : CHAR"""
+        p[0] = p[1]
+
+    # def p_discrete_range_mode(self, p):
+    #     """discrete_range_mode : discrete_mode_name  LPAREN literal_range RPAREN
+    #                            | discrete_mode LPAREN literal_range RPAREN"""
+
+    def p_mode_name(self, p):
+        """mode_name : identifier"""
+        p[0] = ('mode-name', p[1])
+
+    def p_discrete_mode_name(self, p):
+        """discrete_mode_name : identifier"""
+        p[0] = ('discrete-mode-name', p[1])
+
+    # def p_literal_range(self, p):
+    #     """literal_range : lower_bound COLON upper_bound"""
+    #
+    # def p_lower_bound(self, p):
+    #     """lower_bound : expression"""
+    #
+    # def p_upper_bound(self, p):
+    #     """upper_bound : expression"""
+    #
+    # def p_reference_mode(self, p):
+    #     """reference_mode : REF mode"""
+    #
+    # def p_composite_mode(self, p):
+    #     """composite_mode : string_mode
+    #                       | array_mode"""
+    #
+    # def p_string_mode(self, p):
+    #     """string_mode : CHARS LBRACK string_length RBRACK"""
+    #
+    # def p_string_length(self, p):
+    #     """string_length : integer_literal"""
+    #
+    # def p_array_mode(self, p):
+    #     """array_mode : ARRAY LBRACK index_mode_list RBRACK"""
+    #
+    # def p_index_mode_list_rec(self, p):
+    #     # the first line might need to be reversed depending on the parsing rules
+    #     """index_mode_list : intex_mode_list COMMA index_mode"""
+    #
+    # def p_index_mode_list(self, p):
+    #     """index_mode_list : index_mode"""
+    #
+    # def p_index_mode(self, p):
+    #     """index_mode : discrete_mode
+    #                  | literal_range"""
+    #
+    # def p_element_mode(self, p):
+    #     """element_mode : mode"""
+
+    ####### Expression (Fake)
     def p_expression_plus(self, p):
         'expression : expression PLUS term'
         p[0] = ('plus-expression', p[1], p[3])
@@ -171,7 +271,7 @@ if __name__ == "__main__":
     # file = open(file_name)
     # lya_source = file.read()
 
-    lya_source = """dcl var1; dcl var2, varx;\ndcl var3, var4 = 3;\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
+    lya_source = """dcl var1 int;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
     print(lya_source)
 

@@ -113,7 +113,7 @@ class LyaLexer(object):
     end_of_line = r'\n'
 
     # Comment
-    bracketed_comment = r'/\*(.*?)\*/'
+    bracketed_comment = r'/\*(.|\n)*?\*/'
     line_end_comment = r'//(.*?)' + end_of_line
     comment = bracketed_comment + '|' + line_end_comment
 
@@ -128,20 +128,17 @@ class LyaLexer(object):
     # Ignores
     t_ignore = " \t"
 
-    def add_lineno(self, newlines_count):
-        #self.lexer.lineno += newlines_count
-        self.lexer.lineno += 1
-
     # Newlines
     @TOKEN(end_of_line)
     def t_NEWLINE(self, t):
-        self.add_lineno(t.value.count(self.end_of_line))
+        t.lexer.lineno += len(t.value)
         pass
 
     # Comments
     @TOKEN(comment)
     def t_COMMENT(self, t):
-        self.add_lineno(t.value.count(self.end_of_line))
+        newlines_count = t.value.count('\n')
+        t.lexer.lineno += newlines_count
         pass
 
     # Regular expression rules for simple tokens

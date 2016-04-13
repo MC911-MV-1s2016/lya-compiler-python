@@ -5,9 +5,9 @@ _tabversion = '3.8'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'FDC39DEB9E2262AD7105565079304AEE'
+_lr_signature = '4AB95261F568E78E2657E1B6243C128F'
     
-_lr_action_items = {'CHAR':([8,9,10,26,],[21,-11,-13,-12,]),'MINUS':([30,31,32,33,34,39,40,41,42,43,],[-34,35,-33,-30,35,-35,-29,-28,-32,-31,]),'DCL':([0,1,2,4,11,13,],[3,-3,-4,3,-2,-5,]),'COMMA':([6,7,8,9,10,14,15,16,18,19,20,21,22,23,24,25,26,27,30,31,32,33,39,40,41,42,43,],[12,-7,17,-11,-13,-20,-19,-26,-22,-23,-18,-25,-24,-21,-8,-6,-12,-9,-34,-10,-33,-30,-35,-29,-28,-32,-31,]),'ID':([3,8,9,10,12,17,26,],[10,10,-11,-13,10,10,-12,]),'SEMICOL':([6,7,10,14,15,16,18,19,20,21,22,23,24,25,27,30,31,32,33,39,40,41,42,43,],[13,-7,-13,-20,-19,-26,-22,-23,-18,-25,-24,-21,-8,-6,-9,-34,-10,-33,-30,-35,-29,-28,-32,-31,]),'ASSIGN':([10,14,15,16,18,19,20,21,22,23,24,],[-13,-20,-19,-26,-22,-23,-18,-25,-24,-21,28,]),'DIVIDE':([30,32,33,39,40,41,42,43,],[-34,-33,37,-35,37,37,-32,-31,]),'$end':([1,2,4,5,11,13,],[-3,-4,-1,0,-2,-5,]),'INT':([8,9,10,26,],[19,-11,-13,-12,]),'LPAREN':([28,29,35,36,37,38,],[29,29,29,29,29,29,]),'PLUS':([30,31,32,33,34,39,40,41,42,43,],[-34,36,-33,-30,36,-35,-29,-28,-32,-31,]),'BOOL':([8,9,10,26,],[22,-11,-13,-12,]),'ICONST':([28,29,35,36,37,38,],[30,30,30,30,30,30,]),'TIMES':([30,32,33,39,40,41,42,43,],[-34,-33,38,-35,38,38,-32,-31,]),'RPAREN':([30,32,33,34,39,40,41,42,43,],[-34,-33,-30,39,-35,-29,-28,-32,-31,]),}
+_lr_action_items = {'ICONST':([24,34,38,45,47,48,50,51,],[35,35,35,35,35,35,35,35,]),'MINUS':([35,37,39,40,49,52,53,54,55,56,57,],[-41,-37,50,-40,50,50,-39,-38,-42,-36,-35,]),'INT':([8,9,12,14,41,],[18,-20,-18,18,-19,]),'LPAREN':([24,34,38,45,47,48,50,51,],[38,38,38,38,38,38,38,38,]),'$end':([1,3,4,6,7,16,30,32,],[-5,0,-3,-1,-4,-2,-12,-6,]),'SEMICOL':([9,10,11,13,15,17,18,19,20,21,22,25,26,28,33,35,36,37,39,40,42,43,44,46,52,53,54,55,56,57,],[-20,30,-14,32,-8,-27,-30,-26,-33,-32,-25,-29,-28,-31,-9,-41,-16,-37,-17,-40,-13,-7,-10,-15,-11,-39,-38,-42,-36,-35,]),'TIMES':([35,37,40,53,54,55,56,57,],[-41,48,-40,-39,-38,-42,48,48,]),'CHAR':([8,9,12,14,41,],[21,-20,-18,21,-19,]),'DIVIDE':([35,37,40,53,54,55,56,57,],[-41,47,-40,-39,-38,-42,47,47,]),'SYN':([0,1,4,6,7,16,30,32,],[2,-5,-3,2,-4,-2,-12,-6,]),'RPAREN':([35,37,40,49,53,54,55,56,57,],[-41,-37,-40,55,-39,-38,-42,-36,-35,]),'ASSIGN':([8,9,12,17,18,19,20,21,22,23,25,26,28,33,41,],[24,-20,-18,-27,-30,-26,-33,-32,-25,34,-29,-28,-31,45,-19,]),'PLUS':([35,37,39,40,49,52,53,54,55,56,57,],[-41,-37,51,-40,51,51,-39,-38,-42,-36,-35,]),'ID':([2,5,8,9,12,14,27,29,31,41,],[9,9,9,-20,-18,9,9,9,9,-19,]),'DCL':([0,1,4,6,7,16,30,32,],[5,-5,-3,5,-4,-2,-12,-6,]),'COMMA':([8,9,10,11,12,13,14,15,17,18,19,20,21,22,25,26,28,33,35,36,37,39,40,41,42,43,44,46,52,53,54,55,56,57,],[27,-20,29,-14,-18,31,27,-8,-27,-30,-26,-33,-32,-25,-29,-28,-31,-9,-41,-16,-37,-17,-40,-19,-13,-7,-10,-15,-11,-39,-38,-42,-36,-35,]),'BOOL':([8,9,12,14,41,],[28,-20,-18,28,-19,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'declaration_list':([3,],[6,]),'integer_mode':([8,],[14,]),'discrete_mode':([8,],[15,]),'identifier':([3,8,12,17,],[9,16,9,26,]),'statement_list':([0,],[4,]),'identifier_list':([3,12,],[8,8,]),'factor':([28,29,35,36,37,38,],[32,32,32,32,42,43,]),'statement':([0,4,],[1,11,]),'character_mode':([8,],[18,]),'initialization':([24,],[27,]),'declaration':([3,12,],[7,25,]),'declaration_statement':([0,4,],[2,2,]),'mode_name':([8,],[20,]),'boolean_mode':([8,],[23,]),'mode':([8,],[24,]),'expression':([28,29,],[31,34,]),'term':([28,29,35,36,],[33,33,40,41,]),'program':([0,],[5,]),}
+_lr_goto_items = {'declaration_list':([5,],[13,]),'synonym_statement':([0,6,],[1,1,]),'constant_expression':([24,34,],[36,46,]),'expression':([24,34,38,45,],[39,39,49,52,]),'synonym_definition':([2,29,],[11,42,]),'identifier':([2,5,8,14,27,29,31,],[12,12,20,20,41,12,12,]),'initialization':([33,],[44,]),'declaration_statement':([0,6,],[7,7,]),'boolean_mode':([8,14,],[26,26,]),'integer_mode':([8,14,],[17,17,]),'statement_list':([0,],[6,]),'program':([0,],[3,]),'statement':([0,6,],[4,16,]),'term':([24,34,38,45,50,51,],[37,37,37,37,56,57,]),'factor':([24,34,38,45,47,48,50,51,],[40,40,40,40,53,54,40,40,]),'declaration':([5,31,],[15,43,]),'identifier_list':([2,5,29,31,],[8,14,8,14,]),'mode':([8,14,],[23,33,]),'discrete_mode':([8,14,],[19,19,]),'character_mode':([8,14,],[25,25,]),'synonym_list':([2,],[10,]),'mode_name':([8,14,],[22,22,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -30,35 +30,42 @@ _lr_productions = [
   ('statement_list -> statement_list statement','statement_list',2,'p_statement_list','parser.py',57),
   ('statement_list -> statement','statement_list',1,'p_statement_list','parser.py',58),
   ('statement -> declaration_statement','statement',1,'p_statement','parser.py',69),
+  ('statement -> synonym_statement','statement',1,'p_statement','parser.py',70),
   ('declaration_statement -> DCL declaration_list SEMICOL','declaration_statement',3,'p_declaration_statement','parser.py',77),
-  ('declaration_list -> declaration_list COMMA declaration','declaration_list',3,'p_declaration_list','parser.py',83),
-  ('declaration_list -> declaration','declaration_list',1,'p_declaration_list','parser.py',84),
-  ('declaration -> identifier_list mode','declaration',2,'p_declaration','parser.py',91),
-  ('declaration -> identifier_list mode initialization','declaration',3,'p_declaration_initialization','parser.py',95),
-  ('initialization -> ASSIGN expression','initialization',2,'p_initialization','parser.py',99),
-  ('identifier_list -> identifier','identifier_list',1,'p_identifier_list','parser.py',105),
-  ('identifier_list -> identifier_list COMMA identifier','identifier_list',3,'p_identifier_list','parser.py',106),
-  ('identifier -> ID','identifier',1,'p_identifier','parser.py',113),
-  ('newmode_statement -> TYPE newmode_list','newmode_statement',2,'p_newmode_statement','parser.py',119),
-  ('newmode_list -> newmode_list COMMA mode_definition','newmode_list',3,'p_newmode_list','parser.py',122),
-  ('newmode_list -> mode_definition','newmode_list',1,'p_newmode_list','parser.py',123),
-  ('mode_definition -> identifier_list EQUALS mode','mode_definition',3,'p_mode_definition','parser.py',126),
-  ('mode -> mode_name','mode',1,'p_mode','parser.py',129),
-  ('mode -> discrete_mode','mode',1,'p_mode','parser.py',130),
-  ('discrete_mode -> integer_mode','discrete_mode',1,'p_discrete_mode','parser.py',136),
-  ('discrete_mode -> boolean_mode','discrete_mode',1,'p_discrete_mode','parser.py',137),
-  ('discrete_mode -> character_mode','discrete_mode',1,'p_discrete_mode','parser.py',138),
-  ('integer_mode -> INT','integer_mode',1,'p_integer_mode','parser.py',143),
-  ('boolean_mode -> BOOL','boolean_mode',1,'p_boolean_mode','parser.py',147),
-  ('character_mode -> CHAR','character_mode',1,'p_character_mode','parser.py',151),
-  ('mode_name -> identifier','mode_name',1,'p_mode_name','parser.py',159),
-  ('discrete_mode_name -> identifier','discrete_mode_name',1,'p_discrete_mode_name','parser.py',163),
-  ('expression -> expression PLUS term','expression',3,'p_expression_plus','parser.py',207),
-  ('expression -> expression MINUS term','expression',3,'p_expression_minus','parser.py',211),
-  ('expression -> term','expression',1,'p_expression_term','parser.py',215),
-  ('term -> term TIMES factor','term',3,'p_term_times','parser.py',219),
-  ('term -> term DIVIDE factor','term',3,'p_term_div','parser.py',223),
-  ('term -> factor','term',1,'p_term_factor','parser.py',227),
-  ('factor -> ICONST','factor',1,'p_factor_num','parser.py',231),
-  ('factor -> LPAREN expression RPAREN','factor',3,'p_factor_expr','parser.py',235),
+  ('declaration_list -> declaration_list COMMA declaration','declaration_list',3,'p_declaration_list','parser.py',87),
+  ('declaration_list -> declaration','declaration_list',1,'p_declaration_list','parser.py',88),
+  ('declaration -> identifier_list mode','declaration',2,'p_declaration','parser.py',95),
+  ('declaration -> identifier_list mode initialization','declaration',3,'p_declaration_initialization','parser.py',99),
+  ('initialization -> ASSIGN expression','initialization',2,'p_initialization','parser.py',103),
+  ('synonym_statement -> SYN synonym_list SEMICOL','synonym_statement',3,'p_synonym_statement','parser.py',109),
+  ('synonym_list -> synonym_list COMMA synonym_definition','synonym_list',3,'p_synonym_list','parser.py',113),
+  ('synonym_list -> synonym_definition','synonym_list',1,'p_synonym_list','parser.py',114),
+  ('synonym_definition -> identifier_list mode ASSIGN constant_expression','synonym_definition',4,'p_synonym_definition_mode','parser.py',121),
+  ('synonym_definition -> identifier_list ASSIGN constant_expression','synonym_definition',3,'p_synonym_definition','parser.py',125),
+  ('constant_expression -> expression','constant_expression',1,'p_constant_expression','parser.py',129),
+  ('identifier_list -> identifier','identifier_list',1,'p_identifier_list','parser.py',135),
+  ('identifier_list -> identifier_list COMMA identifier','identifier_list',3,'p_identifier_list','parser.py',136),
+  ('identifier -> ID','identifier',1,'p_identifier','parser.py',143),
+  ('newmode_statement -> TYPE newmode_list','newmode_statement',2,'p_newmode_statement','parser.py',149),
+  ('newmode_list -> newmode_list COMMA mode_definition','newmode_list',3,'p_newmode_list','parser.py',152),
+  ('newmode_list -> mode_definition','newmode_list',1,'p_newmode_list','parser.py',153),
+  ('mode_definition -> identifier_list EQUALS mode','mode_definition',3,'p_mode_definition','parser.py',156),
+  ('mode -> mode_name','mode',1,'p_mode','parser.py',159),
+  ('mode -> discrete_mode','mode',1,'p_mode','parser.py',160),
+  ('discrete_mode -> integer_mode','discrete_mode',1,'p_discrete_mode','parser.py',166),
+  ('discrete_mode -> boolean_mode','discrete_mode',1,'p_discrete_mode','parser.py',167),
+  ('discrete_mode -> character_mode','discrete_mode',1,'p_discrete_mode','parser.py',168),
+  ('integer_mode -> INT','integer_mode',1,'p_integer_mode','parser.py',173),
+  ('boolean_mode -> BOOL','boolean_mode',1,'p_boolean_mode','parser.py',177),
+  ('character_mode -> CHAR','character_mode',1,'p_character_mode','parser.py',181),
+  ('mode_name -> identifier','mode_name',1,'p_mode_name','parser.py',189),
+  ('discrete_mode_name -> identifier','discrete_mode_name',1,'p_discrete_mode_name','parser.py',193),
+  ('expression -> expression PLUS term','expression',3,'p_expression_plus','parser.py',237),
+  ('expression -> expression MINUS term','expression',3,'p_expression_minus','parser.py',241),
+  ('expression -> term','expression',1,'p_expression_term','parser.py',245),
+  ('term -> term TIMES factor','term',3,'p_term_times','parser.py',249),
+  ('term -> term DIVIDE factor','term',3,'p_term_div','parser.py',253),
+  ('term -> factor','term',1,'p_term_factor','parser.py',257),
+  ('factor -> ICONST','factor',1,'p_factor_num','parser.py',261),
+  ('factor -> LPAREN expression RPAREN','factor',3,'p_factor_expr','parser.py',265),
 ]

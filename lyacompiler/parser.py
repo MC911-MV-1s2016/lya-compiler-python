@@ -66,8 +66,8 @@ class LyaParser(object):
 
 
     def p_statement(self, p):
-        """statement : declaration_statement"""
-                     # | synonym_statement
+        """statement : declaration_statement
+                     | synonym_statement"""
                      # | newmode_statement
                      # | procedure_statement
                      # | action_statement"""
@@ -76,6 +76,10 @@ class LyaParser(object):
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
         p[0] = ('declaration-statement', () + ('declaration-list',) + (p[2],))
+
+    # def p_synonym_statement(self, p):
+    #     """synonym_statement : SYN synonym_list SEMICOL"""
+    #     p[0] = ('synonym-statement', () + ('synonym-list',) + (p[2],))
 
     #### Declaration
 
@@ -98,6 +102,32 @@ class LyaParser(object):
     def p_initialization(self, p):
         """initialization : ASSIGN expression"""
         p[0] = ('initialization', p[2])
+
+    #### Synonym
+
+    def p_synonym_statement(self, p):
+        """synonym_statement : SYN synonym_list SEMICOL"""
+        p[0] = ('synonym-statement', () + ('synonym-list',) + (p[2],))
+
+    def p_synonym_list(self, p):
+        """synonym_list : synonym_list COMMA synonym_definition
+                        | synonym_definition"""
+        if len(p) == 2:
+                        p[0] = p[1]
+        else:
+                        p[0] = p[1] + (p[3])
+
+    def p_synonym_definition_mode(self, p):
+        """synonym_definition : identifier_list mode ASSIGN constant_expression"""
+        p[0] = ('synonym-definition-mode', p[1], p[2], p[4])
+
+    def p_synonym_definition(self, p):
+        """synonym_definition : identifier_list ASSIGN constant_expression"""
+        p[0] = ('synonym-definition', p[1], p[3])
+
+    def p_constant_expression(self, p):
+        """constant_expression : expression"""
+        p[0] = p[1]
 
     #### Identifier
 
@@ -271,7 +301,16 @@ if __name__ == "__main__":
     # file = open(file_name)
     # lya_source = file.read()
 
-    lya_source = """dcl var1 int;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
+    lya_source = """
+    syn top int = 10;
+    syn topdabalada = 1000;
+    dcl var1 int;
+    """
+    # dcl var2, varx char;
+    # dcl var3, var4 int = 10;"
+    # dcl car
+    ""
+    #dcl var5 int = 3 + 5 * (10 - 20);"""
 
     print(lya_source)
 

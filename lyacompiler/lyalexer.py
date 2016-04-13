@@ -121,7 +121,9 @@ class LyaLexer(object):
         'DBLQUO', 'CIRCUMF', 'AND', 'OR', 'EQUALS', 'DIF',
         'GTR', 'GEQ', 'LSS', 'LEQ', 'CONCAT', 'NOT', 'ARROW',
 
-        'ID', 'ICONST', 'CCONST', 'SCONST'
+        'ID', 'ICONST', 'CCONST', 'SCONST',
+
+        'PLUSASSIGN', 'MINUSASSIGN', 'TIMESASSIGN', 'DIVIDEASSIGN', 'CONCATASSIGN', 'PERCASSIGN'
 
     ] + list(reserved.values())
 
@@ -142,14 +144,14 @@ class LyaLexer(object):
 
     ascii_character = r'[\x00-\x7F]'
     char_cconst = sing_quo + ascii_character + sing_quo
-    int_cconst = r"'(\^" + int_digits + r")'"
+    int_cconst = r"'\^\(\d+\)'"
     cconst = char_cconst + reg_or + int_cconst
 
     # String literal
     character_string = ascii_character + r'*'
-    sconst = double_quo + character_string + double_quo
+    sconst = double_quo + character_string + r'[^"]' + double_quo
 
-    unterminated_string = double_quo + character_string + reg_or + character_string + double_quo
+    unterminated_string = double_quo + character_string #+ reg_or + character_string + double_quo
 
     # Identifier
     identifier = r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -157,13 +159,13 @@ class LyaLexer(object):
     # Comment
     comt_start = r'/\*'
     comt_end = r'\*/'
-    # bracketed_comment = r'/\*(.|\n)*?\*/'
-    # line_end_comment = r'//(.*?)' + end_of_line
-    bracketed_comment = comt_start + character_string + comt_end
-    line_end_comment = r'//' + character_string + end_of_line
+    bracketed_comment = r'/\*(\*(?!\/)|[^*])*\*/'
+    line_end_comment = r'//(.*?)' + end_of_line
+    # bracketed_comment = comt_start + character_string + comt_end
+    # line_end_comment = r'//' + character_string + end_of_line
     comment = bracketed_comment + reg_or + line_end_comment
 
-    unterminated_comment = comt_start + character_string + reg_or + character_string + comt_end
+    unterminated_comment = comt_start + character_string #+ reg_or + r'(?!\n)' + character_string + comt_end
 
     # Ignores
     t_ignore = ' \t'
@@ -199,6 +201,12 @@ class LyaLexer(object):
     t_CONCAT            = r'&'
     t_NOT               = r'!'
     t_ARROW             = r'->'
+    t_PLUSASSIGN        = r'\+='
+    t_MINUSASSIGN       = r'-='
+    t_TIMESASSIGN       = r'\*='
+    t_DIVIDEASSIGN      = r'/='
+    t_CONCATASSIGN      = r'&='
+    t_PERCASSIGN        = r'%='
 
     # Regular expression rule with some action code
 
@@ -233,6 +241,19 @@ class LyaLexer(object):
         return t
 
     # Error handling rule
+
+    @TOKEN(unterminated_comment)
+    def t_UNTERMINATED_COMMENT(self, t):
+        msg = "%d: Unterminated comment" % t.lineno
+        print(msg)
+        pass
+
+    @TOKEN(unterminated_string)
+    def t_UNTERMINATED_STRING(self, t):
+        msg = "%d: Unterminated string" % t.lineno
+        print(msg)
+        pass
+
     def t_error(self, t):
         print("Illegal character '%s'" % t.value[0])
         t.lexer.skip(1)
@@ -264,5 +285,5 @@ if __name__ == '__main__':
 
     print(lya_source)
 
-    lyalexer.test(lya_source)
+    lyalexer.test("+= -= *= /= &= %=")#lya_source)
 

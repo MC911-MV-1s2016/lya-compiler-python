@@ -225,6 +225,7 @@ class LyaLexer(object):
 
     @TOKEN(iconst)
     def t_ICONST(self, t):
+        t.value = int(t.value)
         return t
 
     @TOKEN(cconst)
@@ -285,5 +286,5 @@ if __name__ == '__main__':
 
     print(lya_source)
 
-    lyalexer.test("+= -= *= /= &= %=")#lya_source)
+    lyalexer.test("3 + 5 * (10 - 20)")#lya_source)
 

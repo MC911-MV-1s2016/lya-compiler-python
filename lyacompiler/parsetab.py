@@ -5,9 +5,9 @@ _tabversion = '3.8'
 
 _lr_method = 'LALR'
 
-_lr_signature = '3659CE35F8520F5AC3422755DFBABA33'
+_lr_signature = 'C1483F22987FCC1986EAEE472E95DB70'
     
-_lr_action_items = {'$end':([1,2,3,5,11,12,13,14,15,],[-7,-6,-3,0,-5,-4,-8,-2,-1,]),'RPAREN':([1,2,3,8,11,12,13,14,15,],[-7,-6,-3,13,-5,-4,-8,-2,-1,]),'MINUS':([1,2,3,5,8,11,12,13,14,15,],[-7,-6,-3,9,9,-5,-4,-8,-2,-1,]),'TIMES':([1,2,3,11,12,13,14,15,],[-7,-6,7,-5,-4,-8,7,7,]),'LPAREN':([0,4,6,7,9,10,],[4,4,4,4,4,4,]),'DIVIDE':([1,2,3,11,12,13,14,15,],[-7,-6,6,-5,-4,-8,6,6,]),'ICONST':([0,4,6,7,9,10,],[1,1,1,1,1,1,]),'PLUS':([1,2,3,5,8,11,12,13,14,15,],[-7,-6,-3,10,10,-5,-4,-8,-2,-1,]),}
+_lr_action_items = {'ASSIGN':([7,9,22,],[-11,13,-12,]),'COMMA':([6,7,8,9,15,16,18,19,20,21,22,28,29,30,31,32,],[-7,-11,12,14,-9,-6,-18,-19,-15,-10,-12,-20,-17,-16,-13,-14,]),'MINUS':([18,19,20,21,23,28,29,30,31,32,],[-18,-19,-15,27,27,-20,-17,-16,-13,-14,]),'TIMES':([18,19,20,28,29,30,31,32,],[-18,-19,25,-20,-17,-16,25,25,]),'SEMICOL':([6,7,8,9,15,16,18,19,20,21,22,28,29,30,31,32,],[-7,-11,11,-8,-9,-6,-18,-19,-15,-10,-12,-20,-17,-16,-13,-14,]),'ICONST':([13,17,24,25,26,27,],[19,19,19,19,19,19,]),'RPAREN':([18,19,20,23,28,29,30,31,32,],[-18,-19,-15,28,-20,-17,-16,-13,-14,]),'PLUS':([18,19,20,21,23,28,29,30,31,32,],[-18,-19,-15,26,26,-20,-17,-16,-13,-14,]),'DIVIDE':([18,19,20,28,29,30,31,32,],[-18,-19,24,-20,-17,-16,24,24,]),'DCL':([0,2,4,5,10,11,],[3,-4,3,-3,-2,-5,]),'LPAREN':([13,17,24,25,26,27,],[17,17,17,17,17,17,]),'$end':([1,2,4,5,10,11,],[0,-4,-1,-3,-2,-5,]),'ID':([3,12,14,],[7,7,22,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'expression':([0,4,],[5,8,]),'factor':([0,4,6,7,9,10,],[2,2,11,12,2,2,]),'term':([0,4,9,10,],[3,3,14,15,]),}
+_lr_goto_items = {'program':([0,],[1,]),'initialization':([9,],[15,]),'declaration_statement':([0,4,],[2,2,]),'statement_list':([0,],[4,]),'factor':([13,17,24,25,26,27,],[18,18,29,30,18,18,]),'declaration':([3,12,],[6,16,]),'declaration_list':([3,],[8,]),'expression':([13,17,],[21,23,]),'term':([13,17,26,27,],[20,20,31,32,]),'identifier_list':([3,12,],[9,9,]),'statement':([0,4,],[5,10,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -25,13 +25,25 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> expression","S'",1,None,None,None),
-  ('expression -> expression PLUS term','expression',3,'p_expression_plus','parser.py',51),
-  ('expression -> expression MINUS term','expression',3,'p_expression_minus','parser.py',55),
-  ('expression -> term','expression',1,'p_expression_term','parser.py',59),
-  ('term -> term TIMES factor','term',3,'p_term_times','parser.py',63),
-  ('term -> term DIVIDE factor','term',3,'p_term_div','parser.py',67),
-  ('term -> factor','term',1,'p_term_factor','parser.py',71),
-  ('factor -> ICONST','factor',1,'p_factor_num','parser.py',75),
-  ('factor -> LPAREN expression RPAREN','factor',3,'p_factor_expr','parser.py',79),
+  ("S' -> program","S'",1,None,None,None),
+  ('program -> statement_list','program',1,'p_program','parser.py',51),
+  ('statement_list -> statement_list statement','statement_list',2,'p_statement_list','parser.py',55),
+  ('statement_list -> statement','statement_list',1,'p_statement_list','parser.py',56),
+  ('statement -> declaration_statement','statement',1,'p_statement','parser.py',67),
+  ('declaration_statement -> DCL declaration_list SEMICOL','declaration_statement',3,'p_declaration_statement','parser.py',75),
+  ('declaration_list -> declaration_list COMMA declaration','declaration_list',3,'p_declaration_list','parser.py',79),
+  ('declaration_list -> declaration','declaration_list',1,'p_declaration_list','parser.py',80),
+  ('declaration -> identifier_list','declaration',1,'p_declaration','parser.py',87),
+  ('declaration -> identifier_list initialization','declaration',2,'p_declaration_initialization','parser.py',91),
+  ('initialization -> ASSIGN expression','initialization',2,'p_initialization','parser.py',95),
+  ('identifier_list -> ID','identifier_list',1,'p_identifier_list','parser.py',99),
+  ('identifier_list -> identifier_list COMMA ID','identifier_list',3,'p_identifier_list','parser.py',100),
+  ('expression -> expression PLUS term','expression',3,'p_expression_plus','parser.py',107),
+  ('expression -> expression MINUS term','expression',3,'p_expression_minus','parser.py',111),
+  ('expression -> term','expression',1,'p_expression_term','parser.py',115),
+  ('term -> term TIMES factor','term',3,'p_term_times','parser.py',119),
+  ('term -> term DIVIDE factor','term',3,'p_term_div','parser.py',123),
+  ('term -> factor','term',1,'p_term_factor','parser.py',127),
+  ('factor -> ICONST','factor',1,'p_factor_num','parser.py',131),
+  ('factor -> LPAREN expression RPAREN','factor',3,'p_factor_expr','parser.py',135),
 ]

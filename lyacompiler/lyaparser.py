@@ -94,10 +94,10 @@ class LyaParser(object):
 
     ##
     def p_synonym_definition_mode(self, p):
-        """synonym_definition:      identifier_list mode EQUALS constant_expression"""
+        """synonym_definition:      identifier_list mode ASSIGN constant_expression"""
 
     def p_synonym_definition(self, p):
-        """synonym_definition:      identifier_list EQUALS constant_expression"""
+        """synonym_definition:      identifier_list ASSIGN constant_expression"""
 
     def p_constant_expression(self, p):
         """constant_expression:     expression"""
@@ -116,7 +116,7 @@ class LyaParser(object):
             p[0] = p[1] + (p[3],)
 
     def p_mode_definition(self, p):
-        """mode_definition:     identifier_list EQUALS mode"""
+        """mode_definition:     identifier_list ASSIGN mode"""
 
     def p_mode(self, p):
         """mode:                mode_name
@@ -329,7 +329,6 @@ class LyaParser(object):
 
     def p_expression(self, p):
         """expression:          operand0 | conditional_expression"""
-        #p[0] = ("expression", p[1])
         p[0] = ("expression", p[1])
 
     def p_conditional_expression(self, p):
@@ -352,7 +351,6 @@ class LyaParser(object):
         """else_expression:     ELSE expression"""
         p[0] = ("else_expression", p[2])
 
-    # this rule might have to be changed with the next one depending on the parsing rules
     def p_elsif_expression_elsif(self, p):
         """elsif_expression:    elsif_expression ELSIF boolean_expression then_expression"""
         p[0] = ("elsif_expression", p[1], p[3], p[4])
@@ -424,7 +422,7 @@ class LyaParser(object):
         p[0] = ("operand3", p[1])
 
     def p_monadic_operator(self, p):
-        """monadic_operator:    MINUS | EXCLAMMARK"""
+        """monadic_operator:    MINUS | NOT"""
         p[0] = ("monadic_operator", p[1])
 
     def p_operand4(self, p):
@@ -475,7 +473,7 @@ class LyaParser(object):
         p[0] = ("operation_assignment_symbol", p[1])
 
     def p_assignment_symbol(self, p):
-        """assignment_symbol:   EQUALS"""
+        """assignment_symbol:   ASSIGN"""
         p[0] = ("assignment_symbol", p[1])
 
     def p_if_action_else(self, p):

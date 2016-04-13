@@ -286,5 +286,5 @@ if __name__ == '__main__':
 
     print(lya_source)
 
-    lyalexer.test("3 + 5 * (10 - 20)")#lya_source)
+    lyalexer.test("""dcl var1 int; dcl var2, varx char;\ndcl var3, var4 bool = true;""")#lya_source)
 

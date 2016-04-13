@@ -3,7 +3,7 @@
 # IC - UNICAMP
 #
 # RA094139 - Marcelo Mingatos de Toledo
-# RA? - Victor PumpItUp
+# RA093175 - Victor Fernando Pompeo Barbosa
 #
 # lyalexer.py
 # Tokenizer for the Lya scripting language.
@@ -14,10 +14,25 @@ from ply.lex import TOKEN
 
 
 class LyaLexer(object):
+    """ A lexer for the Lya scripting language. After building it,
+        set the input text with input(), and call token()
+        to get new tokens.
+    """
+    def __init__(self):
+        """ Create a new Lexer.
+        """
+        self.lexer = None
+        # Keeps track of the last token returned from self.token()
+        self.last_token = None
 
-    # Build the lexer
     def build(self, **kwargs):
-        self.lexer = lex.lex(module=self, **kwargs)
+        """ Builds the lexer from the specification. Must be
+            called after the lexer object is created.
+            This method exists separately, because the PLY
+            manual warns against calling lex.lex inside
+            __init__
+        """
+        self.lexer = lex.lex(object=self, **kwargs)
 
     def reset_lineno(self):
         """ Resets the internal line number counter of the lexer.
@@ -39,7 +54,10 @@ class LyaLexer(object):
 
     # Test
     def test(self, data):
-        self.lexer.input(data)
+        """ Runs the lexer on a Lya code test input data.
+        :param data: The Lya code test input data.
+        """
+        self.input(data)
         while True:
             tok = self.lexer.token()
             if not tok:
@@ -110,38 +128,45 @@ class LyaLexer(object):
 
     # Token Regexes
 
+    # Misc
     end_of_line = r'\n'
+    reg_or = r'|'
 
-    # Comment
-    bracketed_comment = r'/\*(.*?)\*/'
-    line_end_comment = r'//(.*?)' + end_of_line
-    comment = bracketed_comment + '|' + line_end_comment
+    # Integer constant
+    int_digits = r'\d+'
+    iconst = int_digits
 
-    integer_digits = r'\d'
+    # Character constants
+    sing_quo = r"'"
+    double_quo = r'"'
+
     ascii_character = r'[\x00-\x7F]'
+    char_cconst = sing_quo + ascii_character + sing_quo
+    int_cconst = r"'(\^" + int_digits + r")'"
+    cconst = char_cconst + reg_or + int_cconst
 
-    iconst = '\d+'
-    cconst = "'" + ascii_character + "'"
-    sconst = '"' + ascii_character + '+"'
+    # String literal
+    character_string = ascii_character + r'*'
+    sconst = double_quo + character_string + double_quo
+
+    unterminated_string = double_quo + character_string + reg_or + character_string + double_quo
+
+    # Identifier
     identifier = r'[a-zA-Z_][a-zA-Z_0-9]*'
 
+    # Comment
+    comt_start = r'/\*'
+    comt_end = r'\*/'
+    # bracketed_comment = r'/\*(.|\n)*?\*/'
+    # line_end_comment = r'//(.*?)' + end_of_line
+    bracketed_comment = comt_start + character_string + comt_end
+    line_end_comment = r'//' + character_string + end_of_line
+    comment = bracketed_comment + reg_or + line_end_comment
+
+    unterminated_comment = comt_start + character_string + reg_or + character_string + comt_end
+
     # Ignores
-    t_ignore = " \t"
-
-    def add_lineno(self, newlines_count):
-        self.lexer.lineno += newlines_count
-
-    # Newlines
-    @TOKEN(end_of_line)
-    def t_NEWLINE(self, t):
-        self.add_lineno(t.value.count(self.end_of_line))
-        pass
-
-    # Comments
-    @TOKEN(comment)
-    def t_COMMENT(self, t):
-        self.add_lineno(t.value.count(self.end_of_line))
-        pass
+    t_ignore = ' \t'
 
     # Regular expression rules for simple tokens
     t_DBLSLASH          = r'//'
@@ -177,6 +202,19 @@ class LyaLexer(object):
 
     # Regular expression rule with some action code
 
+    # Comments
+    @TOKEN(comment)
+    def t_COMMENT(self, t):
+        newlines_count = t.value.count('\n')
+        t.lexer.lineno += newlines_count
+        pass
+
+    # Newlines
+    @TOKEN(end_of_line)
+    def t_NEWLINE(self, t):
+        t.lexer.lineno += len(t.value)
+        pass
+
     @TOKEN(iconst)
     def t_ICONST(self, t):
         return t
@@ -188,7 +226,6 @@ class LyaLexer(object):
     @TOKEN(sconst)
     def t_SCONST(self, t):
         return t
-
 
     @TOKEN(identifier)
     def t_ID(self, t):

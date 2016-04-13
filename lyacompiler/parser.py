@@ -47,6 +47,62 @@ class LyaParser(object):
 
     # Grammar productions
 
+    def p_program(self, p):
+        """program : statement_list"""
+        p[0] = ('program', p[1])
+
+    def p_statement_list(self, p):
+        """statement_list : statement_list statement
+                          | statement"""
+        if len(p) == 2:
+            p[0] = p[1]
+        else:
+            # print(len(p[1][2]))
+            # print(p[1][2])
+            #p[0] = ('statement-list', () + p[1] + (p[2]))
+            p[0] = p[1] + (p[2])
+
+
+    def p_statement(self, p):
+        """statement : declaration_statement"""
+                     # | synonym_statement
+                     # | newmode_statement
+                     # | procedure_statement
+                     # | action_statement"""
+        p[0] = ('statement', p[1])
+
+    def p_declaration_statement(self, p):
+        """declaration_statement : DCL declaration_list SEMICOL"""
+        p[0] = ('declaration-statement', () + ('declaration-list',) + (p[2],))
+
+    def p_declaration_list(self, p):
+        """declaration_list : declaration_list COMMA declaration
+                            | declaration"""
+        if len(p) == 2:
+            p[0] = p[1]
+        else:
+            p[0] = p[1] + (p[3])
+
+    def p_declaration(self, p):
+        """declaration : identifier_list"""
+        p[0] = ('declaration', p[1])
+
+    def p_declaration_initialization(self, p):
+        """declaration : identifier_list initialization"""
+        p[0] = ('declaration_initialization', (p[1], p[2]))
+
+    def p_initialization(self, p):
+        """initialization : ASSIGN expression"""
+        p[0] = ('initialization', p[2])
+
+    def p_identifier_list(self, p):
+        """identifier_list : ID
+                           | identifier_list COMMA ID"""
+        if len(p) == 2:
+            p[0] = ('identifier-list', ('identifier', p[1]))
+        else:
+            p[0] = p[1] + (('identifier', p[3]),)
+
     def p_expression_plus(self, p):
         'expression : expression PLUS term'
         p[0] = ('plus-expression', p[1], p[3])
@@ -79,8 +135,16 @@ class LyaParser(object):
         'factor : LPAREN expression RPAREN'
         p[0] = ('expr-factor', p[2])
 
+    # def p_empty(self, p):
+    #     'empty : '
+    #     p[0] = None
+
     def p_error(self, p):
-        print("Syntax error at '%s'" % p.value)
+        try:
+            print("Syntax error at '%s'" % p.value)
+        except:
+            print("Syntax error")
+
 
 # ------------------------------------------------------------
 if __name__ == "__main__":
@@ -107,7 +171,7 @@ if __name__ == "__main__":
     # file = open(file_name)
     # lya_source = file.read()
 
-    lya_source = "3 + 5 * (10 - 20)"
+    lya_source = """dcl var1; dcl var2, varx;\ndcl var3, var4 = 3;\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
     print(lya_source)
 

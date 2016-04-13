@@ -61,9 +61,8 @@ class LyaParser(object):
         else:
             # print(len(p[1][2]))
             # print(p[1][2])
-            #p[0] = ('statement-list', () + p[1] + (p[2]))
+            # p[0] = ('statement-list', () + p[1] + (p[2]))
             p[0] = p[1] + (p[2])
-
 
     def p_statement(self, p):
         """statement : declaration_statement
@@ -158,15 +157,15 @@ class LyaParser(object):
     def p_mode(self, p):
         """mode : mode_name
                 | discrete_mode"""
-                # | reference_mode
-                # | composite_mode"""
+        # | reference_mode
+        # | composite_mode"""
         p[0] = ('mode', p[1])
 
     def p_discrete_mode(self, p):
         """discrete_mode : integer_mode
                          | boolean_mode
                          | character_mode"""
-                         # | discrete_range_mode"""
+        # | discrete_range_mode"""
         p[0] = ('discrete-mode', p[1])
 
     def p_integer_mode(self, p):
@@ -232,38 +231,158 @@ class LyaParser(object):
     # def p_element_mode(self, p):
     #     """element_mode : mode"""
 
-    ####### Expression (Fake)
-    def p_expression_plus(self, p):
-        'expression : expression PLUS term'
-        p[0] = ('plus-expression', p[1], p[3])
 
-    def p_expression_minus(self, p):
-        'expression : expression MINUS term'
-        p[0] = ('minus-expression', p[1], p[3])
+    def p_expression(self, p):
+        """expression :          operand0"""  # | conditional_expression"""
+        p[0] = ("expression", p[1])
 
-    def p_expression_term(self, p):
-        'expression : term'
-        p[0] = ('term-expression', p[1])
+    # def p_conditional_expression(self, p):
+    #     """conditional_expression:  IF boolean_expression then_expression else_expression FI"""
+    #     p[0] = ("conditional_expression", p[2], p[3], p[4])
+    # 
+    # def p_conditional_expression_elsif(self, p):
+    #     """conditional_expression:  IF boolean_expression then_expression elsif_expression else_expression FI"""
+    #     p[0] = ("conditional_expression", p[2], p[3], p[4], p[5])
+    # 
+    # def p_boolean_expression(self, p):
+    #     """boolean_expression:  expression"""
+    #     p[0] = ("boolean_expression", p[1])
+    # 
+    # def p_then_expression(self, p):
+    #     """then_expression:     THEN expression"""
+    #     p[0] = ("then_expression", p[2])
+    # 
+    # def p_else_expression(self, p):
+    #     """else_expression:     ELSE expression"""
+    #     p[0] = ("else_expression", p[2])
+    #
+    # def p_elsif_expression_elsif(self, p):
+    #     """elsif_expression:    elsif_expression ELSIF boolean_expression then_expression"""
+    #     p[0] = ("elsif_expression", p[1], p[3], p[4])
+    #
+    # def p_elsif_expression(self, p):
+    #     """elsif_expression:    ELSIF boolean_expression then_expression"""
+    #     p[0] = ("elsif_expression", p[2], p[3])
 
-    def p_term_times(self, p):
-        'term : term TIMES factor'
-        p[0] = ('times-term', p[1], p[3])
+    def p_operand0(self, p):
+        """operand0 :            operand1"""
+        p[0] = ("operand0", p[1])
 
-    def p_term_div(self, p):
-        'term : term DIVIDE factor'
-        p[0] = ('divide-term', p[1], p[3])
+    def p_operand0_op1(self, p):
+        """operand0 :            operand0 operator1 operand1"""
+        p[0] = ("operand0", p[1], p[2], p[3])
 
-    def p_term_factor(self, p):
-        'term : factor'
-        p[0] = ('factor-term', p[1])
+    def p_operator1(self, p):
+        """operator1 :           relational_operator
+                    | membership_operator"""
+        p[0] = ("operator1", p[1])
 
-    def p_factor_num(self, p):
-        'factor : ICONST'
-        p[0] = ('num-factor', p[1])
+    def p_relational_operator(self, p):
+        """relational_operator :     AND
+                                | OR
+                                | EQUALS
+                                | DIF
+                                | GTR
+                                | GEQ
+                                | LSS
+                                | LEQ"""
+        p[0] = ("relational_operator", p[1])
 
-    def p_factor_expr(self, p):
-        'factor : LPAREN expression RPAREN'
-        p[0] = ('expr-factor', p[2])
+    def p_membership_operator(self, p):
+        """membership_operator :     IN"""
+        p[0] = ("membership_operator", p[1])
+
+    def p_operand1(self, p):
+        """operand1 :            operand2"""
+        p[0] = ("operand1", p[1])
+
+    def p_operand1_op2(self, p):
+        """operand1 :            operand1 operator2 operand2"""
+        p[0] = ("operand1", p[1], p[2], p[3])
+
+    def p_operator2(self, p):
+        """operator2 :           arithmetic_additive_operator"""
+        #             |           string_concatenation_operator"""
+        p[0] = ("operator2", p[1])
+
+    def p_arithmetic_additive_operator(self, p):
+        """arithmetic_additive_operator :        PLUS
+                                        | MINUS"""
+        p[0] = ("arithmetic_additive_operator", p[1])
+
+    # def p_string_concatenation_operator(self, p):
+    #     """string_concatenation_operator:       CONCAT"""
+    #     p[0] = ("string_concatenation_operator", p[1])
+
+    def p_operand2(self, p):
+        """operand2 :            operand3"""
+        p[0] = ("operand2", p[1])
+
+    def p_operand2_op3(self, p):
+        """operand2 :            operand2 arithmetic_multiplicative_operator operand3"""
+        p[0] = ("operand2", p[1], p[2], p[3])
+
+    def p_arithmetic_multiplicative_operator(self, p):
+        """arithmetic_multiplicative_operator :      TIMES
+                                                | DIVIDE
+                                                | PERC"""
+        p[0] = ("arithmetic_multiplicative_operator", p[1])
+
+    def p_operand3_monadic(self, p):
+        """operand3 :            monadic_operator operand4"""
+        p[0] = ("operand3", p[1], p[2])
+
+    def p_operand3(self, p):
+        """operand3 :            operand4"""
+                    # |           integer_literal"""
+        p[0] = ("operand3", p[1])
+
+    def p_monadic_operator(self, p):
+        """monadic_operator :    MINUS
+                            | NOT"""
+        p[0] = ("monadic_operator", p[1])
+
+    def p_operand4(self, p):
+        """operand4 : ICONST"""
+        # """operand4:            location | referenced_location | primitive_value"""
+        p[0] = ("operand4", p[1])
+
+    # def p_referenced_location(self, p):
+    #     """referenced_location:         ARROW location"""
+    #     p[0] = ("referenced_location", p[2])
+
+    # ####### Expression (Fake)
+    # def p_expression_plus(self, p):
+    #     'expression : expression PLUS term'
+    #     p[0] = ('plus-expression', p[1], p[3])
+    #
+    # def p_expression_minus(self, p):
+    #     'expression : expression MINUS term'
+    #     p[0] = ('minus-expression', p[1], p[3])
+    #
+    # def p_expression_term(self, p):
+    #     'expression : term'
+    #     p[0] = ('term-expression', p[1])
+    #
+    # def p_term_times(self, p):
+    #     'term : term TIMES factor'
+    #     p[0] = ('times-term', p[1], p[3])
+    #
+    # def p_term_div(self, p):
+    #     'term : term DIVIDE factor'
+    #     p[0] = ('divide-term', p[1], p[3])
+    #
+    # def p_term_factor(self, p):
+    #     'term : factor'
+    #     p[0] = ('factor-term', p[1])
+    #
+    # def p_factor_num(self, p):
+    #     'factor : ICONST'
+    #     p[0] = ('num-factor', p[1])
+    #
+    # def p_factor_expr(self, p):
+    #     'factor : LPAREN expression RPAREN'
+    #     p[0] = ('expr-factor', p[2])
 
     # def p_empty(self, p):
     #     'empty : '
@@ -281,18 +400,18 @@ if __name__ == "__main__":
     import pprint
 
     lya_examples = ["example1.lya",
-                "example2.lya",
-                "example3.lya",
-                "example4.lya",
-                "factorial.lya",
-                "fibonacci.lya",
-                "gcd.lya",
-                "palindrome.lya",
-                "bubble_sort.lya",
-                "armstrong_number.lya",
-                "gen_prime.lya",
-                "int_stack.lya"
-                ]
+                    "example2.lya",
+                    "example3.lya",
+                    "example4.lya",
+                    "factorial.lya",
+                    "fibonacci.lya",
+                    "gcd.lya",
+                    "palindrome.lya",
+                    "bubble_sort.lya",
+                    "armstrong_number.lya",
+                    "gen_prime.lya",
+                    "int_stack.lya"
+                    ]
 
     lyaparser = LyaParser()
 
@@ -301,16 +420,18 @@ if __name__ == "__main__":
     # file = open(file_name)
     # lya_source = file.read()
 
-    lya_source = """
-    syn top int = 10;
-    syn topdabalada = 1000;
-    dcl var1 int;
-    """
-    # dcl var2, varx char;
-    # dcl var3, var4 int = 10;"
-    # dcl car
-    ""
-    #dcl var5 int = 3 + 5 * (10 - 20);"""
+    # lya_source = """
+    # syn top int = 10;
+    # syn topdabalada = 1000;
+    # dcl var1 int;
+    # """
+    # # dcl var2, varx char;
+    # # dcl var3, var4 int = 10;"
+    # # dcl car
+    # ""
+    # #dcl var5 int = 3 + 5 * (10 - 20);"""
+
+    lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
     print(lya_source)
 

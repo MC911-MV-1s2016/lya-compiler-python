@@ -84,6 +84,7 @@ class LyaParser(object):
 
 # ------------------------------------------------------------
 if __name__ == "__main__":
+    import pprint
 
     lya_examples = ["example1.lya",
                 "example2.lya",
@@ -111,4 +112,4 @@ if __name__ == "__main__":
     print(lya_source)
 
     AST = lyaparser.parse(lya_source)
-    print(AST)
+    pprint.pprint(AST, indent=4)

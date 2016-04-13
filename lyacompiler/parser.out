@@ -2,79 +2,79 @@ Created by PLY version 3.8 (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
-    ID
-    ELSIF
-    RCURL
     NOT
-    PROC
-    CONCATASSIGN
-    RESULT
-    LOWER
-    RBRACK
-    DBLSLASH
-    ELSE
-    TRUE
-    MINUSASSIGN
-    UPPER
-    EQUALS
-    DBLQUO
-    DIF
-    TIMESASSIGN
-    COLON
+    PRINT
     SYS
-    GEQ
-    NULL
-    PRED
-    PERCASSIGN
-    FI
-    OR
-    TYPE
-    CONCAT
-    LEQ
-    RETURN
-    ASSIGN
-    ARRAY
-    RETURNS
-    DOWN
-    SINGQUO
-    DO
-    INT
-    READ
+    WHILE
     LCURL
-    COMMA
-    FOR
+    PERCASSIGN
+    CONCATASSIGN
+    THEN
+    DCL
+    ARROW
+    CONCAT
+    CHAR
+    ELSE
+    RBRACK
+    OR
+    AND
     CCONST
     LBRACK
-    END
-    CHAR
-    EXIT
-    FALSE
-    DIVIDEASSIGN
     LSS
-    CIRCUMF
-    PLUSASSIGN
-    LOC
-    PERC
-    OD
-    WHILE
-    AND
     BOOL
-    THEN
-    IN
-    IF
+    TIMESASSIGN
+    TYPE
+    RCURL
+    CIRCUMF
     SEMICOL
-    SCONST
-    DCL
-    TO
-    ARROW
-    BY
+    ELSIF
+    END
+    READ
     REF
-    SUCC
-    PRINT
     LENGTH
-    GTR
-    NUM
+    TRUE
+    DIVIDEASSIGN
+    EQUALS
+    NULL
+    ID
+    DBLSLASH
+    PROC
+    LOWER
+    LEQ
+    EXIT
+    DIF
+    OD
+    PRED
+    ARRAY
+    COMMA
+    FALSE
     CHARS
+    MINUSASSIGN
+    PLUSASSIGN
+    ASSIGN
+    RESULT
+    FOR
+    SINGQUO
+    GEQ
+    INT
+    UPPER
+    DBLQUO
+    SUCC
+    DOWN
+    PERC
+    FI
+    TO
+    RETURNS
+    RETURN
+    IF
+    BY
+    DO
+    SCONST
+    LOC
+    GTR
+    IN
+    COLON
+    NUM
 
 Grammar
 
@@ -192,59 +192,14 @@ state 0
     (7) factor -> . ICONST
     (8) factor -> . LPAREN expression RPAREN
 
-    ICONST          shift and go to state 4
-    LPAREN          shift and go to state 2
+    ICONST          shift and go to state 1
+    LPAREN          shift and go to state 4
 
-    factor                         shift and go to state 1
-    term                           shift and go to state 3
     expression                     shift and go to state 5
+    factor                         shift and go to state 2
+    term                           shift and go to state 3
 
 state 1
-
-    (6) term -> factor .
-
-    TIMES           reduce using rule 6 (term -> factor .)
-    DIVIDE          reduce using rule 6 (term -> factor .)
-    PLUS            reduce using rule 6 (term -> factor .)
-    MINUS           reduce using rule 6 (term -> factor .)
-    $end            reduce using rule 6 (term -> factor .)
-    RPAREN          reduce using rule 6 (term -> factor .)
-
-
-state 2
-
-    (8) factor -> LPAREN . expression RPAREN
-    (1) expression -> . expression PLUS term
-    (2) expression -> . expression MINUS term
-    (3) expression -> . term
-    (4) term -> . term TIMES factor
-    (5) term -> . term DIVIDE factor
-    (6) term -> . factor
-    (7) factor -> . ICONST
-    (8) factor -> . LPAREN expression RPAREN
-
-    ICONST          shift and go to state 4
-    LPAREN          shift and go to state 2
-
-    factor                         shift and go to state 1
-    term                           shift and go to state 3
-    expression                     shift and go to state 6
-
-state 3
-
-    (3) expression -> term .
-    (4) term -> term . TIMES factor
-    (5) term -> term . DIVIDE factor
-
-    PLUS            reduce using rule 3 (expression -> term .)
-    MINUS           reduce using rule 3 (expression -> term .)
-    $end            reduce using rule 3 (expression -> term .)
-    RPAREN          reduce using rule 3 (expression -> term .)
-    TIMES           shift and go to state 8
-    DIVIDE          shift and go to state 7
-
-
-state 4
 
     (7) factor -> ICONST .
 
@@ -256,65 +211,95 @@ state 4
     RPAREN          reduce using rule 7 (factor -> ICONST .)
 
 
-state 5
+state 2
 
-    (0) S' -> expression .
-    (1) expression -> expression . PLUS term
-    (2) expression -> expression . MINUS term
+    (6) term -> factor .
 
-    PLUS            shift and go to state 9
-    MINUS           shift and go to state 10
-
-
-state 6
-
-    (8) factor -> LPAREN expression . RPAREN
-    (1) expression -> expression . PLUS term
-    (2) expression -> expression . MINUS term
-
-    RPAREN          shift and go to state 11
-    PLUS            shift and go to state 9
-    MINUS           shift and go to state 10
+    TIMES           reduce using rule 6 (term -> factor .)
+    DIVIDE          reduce using rule 6 (term -> factor .)
+    PLUS            reduce using rule 6 (term -> factor .)
+    MINUS           reduce using rule 6 (term -> factor .)
+    $end            reduce using rule 6 (term -> factor .)
+    RPAREN          reduce using rule 6 (term -> factor .)
 
 
-state 7
+state 3
 
-    (5) term -> term DIVIDE . factor
-    (7) factor -> . ICONST
-    (8) factor -> . LPAREN expression RPAREN
+    (3) expression -> term .
+    (4) term -> term . TIMES factor
+    (5) term -> term . DIVIDE factor
 
-    ICONST          shift and go to state 4
-    LPAREN          shift and go to state 2
+    PLUS            reduce using rule 3 (expression -> term .)
+    MINUS           reduce using rule 3 (expression -> term .)
+    $end            reduce using rule 3 (expression -> term .)
+    RPAREN          reduce using rule 3 (expression -> term .)
+    TIMES           shift and go to state 7
+    DIVIDE          shift and go to state 6
 
-    factor                         shift and go to state 12
 
-state 8
+state 4
 
-    (4) term -> term TIMES . factor
-    (7) factor -> . ICONST
-    (8) factor -> . LPAREN expression RPAREN
-
-    ICONST          shift and go to state 4
-    LPAREN          shift and go to state 2
-
-    factor                         shift and go to state 13
-
-state 9
-
-    (1) expression -> expression PLUS . term
+    (8) factor -> LPAREN . expression RPAREN
+    (1) expression -> . expression PLUS term
+    (2) expression -> . expression MINUS term
+    (3) expression -> . term
     (4) term -> . term TIMES factor
     (5) term -> . term DIVIDE factor
     (6) term -> . factor
     (7) factor -> . ICONST
     (8) factor -> . LPAREN expression RPAREN
 
-    ICONST          shift and go to state 4
-    LPAREN          shift and go to state 2
+    ICONST          shift and go to state 1
+    LPAREN          shift and go to state 4
 
-    factor                         shift and go to state 1
-    term                           shift and go to state 14
+    expression                     shift and go to state 8
+    factor                         shift and go to state 2
+    term                           shift and go to state 3
 
-state 10
+state 5
+
+    (0) S' -> expression .
+    (1) expression -> expression . PLUS term
+    (2) expression -> expression . MINUS term
+
+    PLUS            shift and go to state 10
+    MINUS           shift and go to state 9
+
+
+state 6
+
+    (5) term -> term DIVIDE . factor
+    (7) factor -> . ICONST
+    (8) factor -> . LPAREN expression RPAREN
+
+    ICONST          shift and go to state 1
+    LPAREN          shift and go to state 4
+
+    factor                         shift and go to state 11
+
+state 7
+
+    (4) term -> term TIMES . factor
+    (7) factor -> . ICONST
+    (8) factor -> . LPAREN expression RPAREN
+
+    ICONST          shift and go to state 1
+    LPAREN          shift and go to state 4
+
+    factor                         shift and go to state 12
+
+state 8
+
+    (8) factor -> LPAREN expression . RPAREN
+    (1) expression -> expression . PLUS term
+    (2) expression -> expression . MINUS term
+
+    RPAREN          shift and go to state 13
+    PLUS            shift and go to state 10
+    MINUS           shift and go to state 9
+
+
+state 9
 
     (2) expression -> expression MINUS . term
     (4) term -> . term TIMES factor
@@ -323,25 +308,28 @@ state 10
     (7) factor -> . ICONST
     (8) factor -> . LPAREN expression RPAREN
 
-    ICONST          shift and go to state 4
-    LPAREN          shift and go to state 2
+    ICONST          shift and go to state 1
+    LPAREN          shift and go to state 4
 
-    factor                         shift and go to state 1
+    factor                         shift and go to state 2
+    term                           shift and go to state 14
+
+state 10
+
+    (1) expression -> expression PLUS . term
+    (4) term -> . term TIMES factor
+    (5) term -> . term DIVIDE factor
+    (6) term -> . factor
+    (7) factor -> . ICONST
+    (8) factor -> . LPAREN expression RPAREN
+
+    ICONST          shift and go to state 1
+    LPAREN          shift and go to state 4
+
+    factor                         shift and go to state 2
     term                           shift and go to state 15
 
 state 11
-
-    (8) factor -> LPAREN expression RPAREN .
-
-    TIMES           reduce using rule 8 (factor -> LPAREN expression RPAREN .)
-    DIVIDE          reduce using rule 8 (factor -> LPAREN expression RPAREN .)
-    PLUS            reduce using rule 8 (factor -> LPAREN expression RPAREN .)
-    MINUS           reduce using rule 8 (factor -> LPAREN expression RPAREN .)
-    $end            reduce using rule 8 (factor -> LPAREN expression RPAREN .)
-    RPAREN          reduce using rule 8 (factor -> LPAREN expression RPAREN .)
-
-
-state 12
 
     (5) term -> term DIVIDE factor .
 
@@ -353,7 +341,7 @@ state 12
     RPAREN          reduce using rule 5 (term -> term DIVIDE factor .)
 
 
-state 13
+state 12
 
     (4) term -> term TIMES factor .
 
@@ -365,21 +353,19 @@ state 13
     RPAREN          reduce using rule 4 (term -> term TIMES factor .)
 
 
+state 13
+
+    (8) factor -> LPAREN expression RPAREN .
+
+    TIMES           reduce using rule 8 (factor -> LPAREN expression RPAREN .)
+    DIVIDE          reduce using rule 8 (factor -> LPAREN expression RPAREN .)
+    PLUS            reduce using rule 8 (factor -> LPAREN expression RPAREN .)
+    MINUS           reduce using rule 8 (factor -> LPAREN expression RPAREN .)
+    $end            reduce using rule 8 (factor -> LPAREN expression RPAREN .)
+    RPAREN          reduce using rule 8 (factor -> LPAREN expression RPAREN .)
+
+
 state 14
-
-    (1) expression -> expression PLUS term .
-    (4) term -> term . TIMES factor
-    (5) term -> term . DIVIDE factor
-
-    PLUS            reduce using rule 1 (expression -> expression PLUS term .)
-    MINUS           reduce using rule 1 (expression -> expression PLUS term .)
-    $end            reduce using rule 1 (expression -> expression PLUS term .)
-    RPAREN          reduce using rule 1 (expression -> expression PLUS term .)
-    TIMES           shift and go to state 8
-    DIVIDE          shift and go to state 7
-
-
-state 15
 
     (2) expression -> expression MINUS term .
     (4) term -> term . TIMES factor
@@ -389,6 +375,20 @@ state 15
     MINUS           reduce using rule 2 (expression -> expression MINUS term .)
     $end            reduce using rule 2 (expression -> expression MINUS term .)
     RPAREN          reduce using rule 2 (expression -> expression MINUS term .)
-    TIMES           shift and go to state 8
-    DIVIDE          shift and go to state 7
+    TIMES           shift and go to state 7
+    DIVIDE          shift and go to state 6
+
+
+state 15
+
+    (1) expression -> expression PLUS term .
+    (4) term -> term . TIMES factor
+    (5) term -> term . DIVIDE factor
+
+    PLUS            reduce using rule 1 (expression -> expression PLUS term .)
+    MINUS           reduce using rule 1 (expression -> expression PLUS term .)
+    $end            reduce using rule 1 (expression -> expression PLUS term .)
+    RPAREN          reduce using rule 1 (expression -> expression PLUS term .)
+    TIMES           shift and go to state 7
+    DIVIDE          shift and go to state 6
 

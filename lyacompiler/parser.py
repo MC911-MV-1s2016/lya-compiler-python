@@ -151,8 +151,8 @@ class LyaParser(object):
 
     def p_mode(self, p):
         """mode : mode_name
-                | discrete_mode"""
-        # | reference_mode
+                | discrete_mode
+                | reference_mode"""
         # | composite_mode"""
         p[0] = ('mode', p[1])
 
@@ -200,9 +200,10 @@ class LyaParser(object):
         """upper_bound : expression"""
         p[0] = ('upper_bound', p[1])
 
-    # def p_reference_mode(self, p):
-    #     """reference_mode : REF mode"""
-    #
+    def p_reference_mode(self, p):
+        """reference_mode : REF mode"""
+        p[0] = ('reference_mode', p[2])
+
     # def p_composite_mode(self, p):
     #     """composite_mode : string_mode
     #                       | array_mode"""
@@ -446,6 +447,7 @@ if __name__ == "__main__":
     dcl dcl16 char (0:10);
     dcl dcl17 bool(10:11);
     dcl dcl18 dcl17 (1:2);
+    dcl dcl19 int (0:1) (1:2);
     """
 
     lya_source_syn = """
@@ -465,11 +467,15 @@ if __name__ == "__main__":
     type type9, type10, type11 = char;
     type type12 = bool, type13 = type9;
     type type14 = int, type15, type16 = char, type17, type18, type19 = char;
+    type type20 = ref int;
+    type type21 = ref ref type20;
     """
 
     # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    print(lya_source_dcl)
+    source = lya_source_type
 
-    AST = lyaparser.parse(lya_source_dcl)
+    print(source)
+
+    AST = lyaparser.parse(source)
     pprint.pprint(AST, indent=4)

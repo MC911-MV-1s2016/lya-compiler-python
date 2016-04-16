@@ -67,8 +67,8 @@ class LyaParser(object):
                      | newmode_statement
                      | procedure_statement"""
                      # | action_statement"""
-        #p[0] = ('statement', p[1])
-        p[0] = p[1]
+        p[0] = ('statement', p[1])
+        #p[0] = p[1]
 
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
@@ -456,7 +456,7 @@ class LyaParser(object):
 
     def p_result_attribute(self, p):
         """result_attribute : LOC"""
-        p[0] = ("result_attribute",)
+        p[0] = ("result_attribute", p[1])
 
     # Error
 
@@ -580,9 +580,16 @@ if __name__ == "__main__":
     end;
     """
 
+    lya_source_procedure9 = """
+    power: proc (n int loc, r int) returns (int loc);
+        dcl c int;
+        type t = bool;
+    end;
+    """
+
    # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    source = lya_source_procedure8
+    source = lya_source_procedure9
 
     print(source)
 

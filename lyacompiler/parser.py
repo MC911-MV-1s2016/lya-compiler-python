@@ -369,7 +369,7 @@ class LyaParser(object):
 
     def p_expression(self, p):
         """expression : operand0"""  # | conditional_expression"""
-        p[0] = ("expression", 'expression')#p[1])
+        p[0] = ("expression", p[1])
 
     # def p_conditional_expression(self, p):
     #     """conditional_expression:  IF boolean_expression then_expression else_expression FI"""
@@ -404,91 +404,92 @@ class LyaParser(object):
     #     p[0] = ("elsif_expression", p[2], p[3])
 
     def p_operand0(self, p):
-        """operand0 :            operand1"""
+        """operand0 : operand1"""
         p[0] = ("operand0", p[1])
 
     def p_operand0_op1(self, p):
-        """operand0 :            operand0 operator1 operand1"""
+        """operand0 : operand0 operator1 operand1"""
         p[0] = ("operand0", p[1], p[2], p[3])
 
     def p_operator1(self, p):
-        """operator1 :           relational_operator
-                    | membership_operator"""
+        """operator1 : relational_operator
+                     | membership_operator"""
         p[0] = ("operator1", p[1])
 
     def p_relational_operator(self, p):
-        """relational_operator :     AND
-                                | OR
-                                | EQUALS
-                                | DIF
-                                | GTR
-                                | GEQ
-                                | LSS
-                                | LEQ"""
+        """relational_operator : AND
+                               | OR
+                               | EQUALS
+                               | DIF
+                               | GTR
+                               | GEQ
+                               | LSS
+                               | LEQ"""
         p[0] = ("relational_operator", p[1])
 
     def p_membership_operator(self, p):
-        """membership_operator :     IN"""
+        """membership_operator : IN"""
         p[0] = ("membership_operator", p[1])
 
     def p_operand1(self, p):
-        """operand1 :            operand2"""
+        """operand1 : operand2"""
         p[0] = ("operand1", p[1])
 
     def p_operand1_op2(self, p):
-        """operand1 :            operand1 operator2 operand2"""
+        """operand1 : operand1 operator2 operand2"""
         p[0] = ("operand1", p[1], p[2], p[3])
 
     def p_operator2(self, p):
-        """operator2 :           arithmetic_additive_operator
-                     |           string_concatenation_operator"""
+        """operator2 : arithmetic_additive_operator
+                     | string_concatenation_operator"""
         p[0] = ("operator2", p[1])
 
     def p_arithmetic_additive_operator(self, p):
-        """arithmetic_additive_operator :        PLUS
+        """arithmetic_additive_operator : PLUS
                                         | MINUS"""
         p[0] = ("arithmetic_additive_operator", p[1])
 
     def p_string_concatenation_operator(self, p):
-        """string_concatenation_operator :       CONCAT"""
+        """string_concatenation_operator : CONCAT"""
         p[0] = ("string_concatenation_operator", p[1])
 
     def p_operand2(self, p):
-        """operand2 :            operand3"""
+        """operand2 : operand3"""
         p[0] = ("operand2", p[1])
 
     def p_operand2_op3(self, p):
-        """operand2 :            operand2 arithmetic_multiplicative_operator operand3"""
+        """operand2 : operand2 arithmetic_multiplicative_operator operand3"""
         p[0] = ("operand2", p[1], p[2], p[3])
 
     def p_arithmetic_multiplicative_operator(self, p):
-        """arithmetic_multiplicative_operator :      TIMES
-                                                | DIVIDE
-                                                | PERC"""
+        """arithmetic_multiplicative_operator : TIMES
+                                              | DIVIDE
+                                              | PERC"""
         p[0] = ("arithmetic_multiplicative_operator", p[1])
 
     def p_operand3_monadic(self, p):
-        """operand3 :            monadic_operator operand4"""
+        """operand3 : monadic_operator operand4"""
         p[0] = ("operand3", p[1], p[2])
 
     def p_operand3(self, p):
-        """operand3 :            operand4"""
-                    # |           integer_literal"""
+        """operand3 : operand4
+                    | integer_literal"""
         p[0] = ("operand3", p[1])
 
     def p_monadic_operator(self, p):
-        """monadic_operator :    MINUS
+        """monadic_operator : MINUS
                             | NOT"""
         p[0] = ("monadic_operator", p[1])
 
     def p_operand4(self, p):
-        """operand4 : ICONST"""
-        # """operand4:            location | referenced_location | primitive_value"""
+        """operand4 : location
+                    | referenced_location
+                    | primitive_value"""
         p[0] = ("operand4", p[1])
 
-    # def p_referenced_location(self, p):
-    #     """referenced_location:         ARROW location"""
-    #     p[0] = ("referenced_location", p[2])
+    def p_referenced_location(self, p):
+        """referenced_location : ARROW location"""
+        p[0] = ("referenced_location", p[2])
 
     # Action Statement ---------------------------------------------------
 
@@ -507,11 +508,10 @@ class LyaParser(object):
     def p_action(self, p):
         """action : bracketed_action
                   | assignment_action
+                  | call_action
                   | exit_action
                   | return_action
                   | result_action"""
-                  #| call_action
-
         p[0] = ("action", p[1])
 
     def p_bracketed_action(self, p):
@@ -570,33 +570,34 @@ class LyaParser(object):
 
     # Actions ------------------------------------------------------------
 
-    # def p_call_action(self, p):
-    #     """call_action:         procedure_call | builtin_call"""
-    #     p[0] = ("call_action", p[1])
+    def p_call_action(self, p):
+        """call_action : procedure_call
+                       | builtin_call"""
+        p[0] = ("call_action", p[1])
 
-    # def p_procedure_call_parameter(self, p):
-    #     """procedure_call:      procedure_name LPAREN parameter_list RPAREN"""
-    #     p[0] = ("procedure_call", p[1], p[3])
+    def p_procedure_call_parameter(self, p):
+        """procedure_call : procedure_name LPAREN parameter_list RPAREN"""
+        p[0] = ("procedure_call", p[1], p[3])
 
-    # def p_procedure_call(self, p):
-    #     """procedure_call:      procedure_name LPAREN RPAREN"""
-    #     p[0] = ("procedure_call", p[1])
+    def p_procedure_call(self, p):
+        """procedure_call : procedure_name LPAREN RPAREN"""
+        p[0] = ("procedure_call", p[1])
 
-    # def p_parameter_list(self, p):
-    #     """parameter_list:      parameter_list COMMA parameter
-    #                 |           parameter"""
-    #     if len(p) == 2:
-    #         p[0] = p[1]
-    #     else:
-    #         p[0] = p[1] + (p[3],)
-    #
-    # def p_parameter(self, p):
-    #     """parameter:           expression"""
-    #     p[0] = ("parameter", p[1])
-    #
-    # def p_procedure_name(self, p):
-    #     """procedure_name:      ID"""
-    #     p[0] = ("procedure_name", p[1])
+    def p_parameter_list(self, p):
+        """parameter_list : parameter_list COMMA parameter
+                          | parameter"""
+        if len(p) == 2:
+            p[0] = ('parameter-list', (p[1]))
+        else:
+            p[0] = p[1] + (p[3],)
+
+    def p_parameter(self, p):
+        """parameter : expression"""
+        p[0] = ("parameter", p[1])
+
+    def p_procedure_name(self, p):
+        """procedure_name : identifier"""
+        p[0] = ("procedure_name", p[1])
 
     def p_exit_action(self, p):
         """exit_action : EXIT label_id"""
@@ -618,17 +619,24 @@ class LyaParser(object):
         """result : expression"""
         p[0] = ("result", p[1])
 
-    # def p_builtin_call_parameter(self, p):
-    #     """builtin_call:        builtin_name LPAREN parameter_list RPAREN"""
-    #     p[0] = ("builtin_call", p[1], p[3])
-    #
-    # def p_builtin_call(self, p):
-    #     """builtin_call:        builtin_name LPAREN RPAREN"""
-    #     p[0] = ("builtin_call", p[1])
-    #
-    # def p_builtin_name(self, p):
-    #     """builtin_name:        NUM | PRED | SUCC | UPPER | LOWER | LENGTH | READ | PRINT"""
-    #     p[0] = ("builtin_name", p[1])
+    def p_builtin_call_parameter(self, p):
+        """builtin_call : builtin_name LPAREN parameter_list RPAREN"""
+        p[0] = ("builtin_call", p[1], p[3])
+
+    def p_builtin_call(self, p):
+        """builtin_call : builtin_name LPAREN RPAREN"""
+        p[0] = ("builtin_call", p[1])
+
+    def p_builtin_name(self, p):
+        """builtin_name : NUM
+                        | PRED
+                        | SUCC
+                        | UPPER
+                        | LOWER
+                        | LENGTH
+                        | READ
+                        | PRINT"""
+        p[0] = ("builtin_name", p[1])
 
     # Procedure -----------------------------------------------------------------
 
@@ -921,11 +929,31 @@ if __name__ == "__main__":
     return;
     return 2 + 1;
     """
+
+    lya_source_call1 = """
+    function();
+    function(1);
+    function(1, 2);
+    function(1+2, 2);
+    function(1,2,3/2);
+    """
+
+    lya_source_call2 = """
+    num(1);
+    pred();
+    succ(1,2);
+    upper(1/2);
+    lower(2/3);
+    length();
+    read(100);
+    print(var2+2);
+    """
+
     lya_source = """dcl var1 int=3+5-7*7/9%3;
-                        dcl var2 int = 2 in 3;
+                        dcl var2 int = 1 in 3;
                         dcl var3 bool = 5 && 3 || 1 == 2 & 2;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    source = lya_source_action2
+    source = lya_source_call2
 
     # TODO: Test Location
     # TODO: Test Primitive

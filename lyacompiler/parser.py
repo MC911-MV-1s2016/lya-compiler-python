@@ -51,7 +51,7 @@ class LyaParser(object):
         """program : statement_list"""
         p[0] = ('program',) + p[1]
 
-    # Statement
+    # Statement ------------------------------------------------------
 
     def p_statement_list(self, p):
         """statement_list : statement_list statement
@@ -94,7 +94,7 @@ class LyaParser(object):
         """action_statement : action SEMICOL"""
         p[0] = ('action_statement', p[1])
 
-    #### Declaration
+    # Declaration --------------------------------------------------
 
     def p_declaration_list(self, p):
         """declaration_list : declaration_list COMMA declaration
@@ -120,7 +120,7 @@ class LyaParser(object):
         """initialization : ASSIGN expression"""
         p[0] = ('initialization', p[2])
 
-    #### Synonym
+    # Synonym -------------------------------------------------------
 
     def p_synonym_list(self, p):
         """synonym_list : synonym_list COMMA synonym_definition
@@ -146,7 +146,7 @@ class LyaParser(object):
         """constant_expression : expression"""
         p[0] = p[1]
 
-    ##### Mode
+    # Mode ------------------------------------------------------------
 
     def p_newmode_list(self, p):
         """newmode_list : newmode_list COMMA mode_definition
@@ -249,7 +249,7 @@ class LyaParser(object):
         """element_mode : mode"""
         p[0] = ('element_mode', p[1])
 
-    #### Identifier
+    # Identifier ----------------------------------------------------
 
     def p_identifier_list(self, p):
         """identifier_list : identifier
@@ -263,17 +263,113 @@ class LyaParser(object):
         """identifier : ID"""
         p[0] = ('identifier', p[1])
 
-    #### Primitive Values
+    # Location ------------------------------------------------------
+
+    def p_location(self, p):
+        """location : location_name
+                    | dereferenced_reference
+                    | string_element
+                    | string_slice
+                    | array_element
+                    | array_slice"""
+                    #| call_action"""
+        p[0] = ('location', p[1])
+
+    def p_location_name(self, p):
+        """location_name : identifier"""
+        p[0] = ('location_name', p[1])
+
+    def p_dereferenced_reference(self, p):
+        """dereferenced_reference : location ARROW"""
+        p[0] = ("dereferenced_reference", p[1])
+
+    def p_string_element(self, p):
+        """string_element : string_location LBRACK start_element RBRACK"""
+        p[0] = ("string_element", p[1], p[3])
+
+    def p_start_element(self, p):
+        """start_element : integer_expression"""
+        p[0] = ("start_element", p[1])
+
+    def p_string_slice(self, p):
+        """string_slice : string_location LBRACK left_element COLON right_element RBRACK"""
+        p[0] = ("string_slice", p[1], p[3], p[5])
+
+    def p_string_location(self, p):
+        """string_location : location"""
+        p[0] = ("string_location", p[1])
+
+    def p_left_element(self, p):
+        """left_element : integer_expression"""
+        p[0] = ("left_element", p[1])
+
+    def p_right_element(self, p):
+        """right_element : integer_expression"""
+        p[0] = ("right_element", p[1])
+
+    def p_array_element(self, p):
+        """array_element : array_location LBRACK expression_list RBRACK"""
+        p[0] = ("array_element", p[1], p[3])
+
+    def p_array_slice(self, p):
+        """array_slice : array_location LBRACK lower_bound COLON upper_bound RBRACK"""
+        p[0] = ("array_slice", p[1], p[3], p[5])
+
+    def p_array_location(self, p):
+        """array_location : location"""
+        p[0] = ("array_location", p[1])
+
+    # Primitive Values ----------------------------------------------
+
+    def p_primitive_value(self, p):
+        """primitive_value : literal"""
+                          # | value_array_element
+                          # | value_array_slice
+                          # | parenthesized_expression"""
+        p[0] = ("primitive_value", p[1])
+
+    def p_literal(self, p):
+        """literal : integer_literal
+                   | boolean_literal
+                   | character_literal
+                   | empty_literal
+                   | character_string_literal"""
+        p[0] = ("literal", p[1])
 
     def p_intger_literal(self, p):
         """integer_literal : ICONST"""
         p[0] = ('integer_literal', p[1])
 
-    #### Expression
+    def p_boolean_literal(self, p):
+        """boolean_literal : FALSE
+                           | TRUE"""
+        p[0] = ("boolean_literal", p[1])
+
+    def p_character_literal(self, p):
+        """character_literal : CCONST """
+        p[0] = ("character_literal", p[1])
+
+    def p_empty_literal(self, p):
+        """empty_literal : NULL"""
+        p[0] = ("empty_literal", p[1])
+
+    def p_character_string_literal_char(self, p):
+        """character_string_literal : SCONST"""
+        p[0] = ("character_string_literal", p[1])
+
+    # Expression
+
+    def p_expression_list(self, p):
+        """expression_list : expression_list COMMA expression
+                           | expression"""
+        if len(p) == 2:
+            p[0] = ('expression_list', (p[1]))
+        else:
+            p[0] = p[1] + (p[3],)
 
     def p_expression(self, p):
         """expression : operand0"""  # | conditional_expression"""
-        p[0] = ("expression", p[1])
+        p[0] = ("expression", 'expression')#p[1])
 
     # def p_conditional_expression(self, p):
     #     """conditional_expression:  IF boolean_expression then_expression else_expression FI"""
@@ -283,9 +379,13 @@ class LyaParser(object):
     #     """conditional_expression:  IF boolean_expression then_expression elsif_expression else_expression FI"""
     #     p[0] = ("conditional_expression", p[2], p[3], p[4], p[5])
 
+    def p_integer_expression(self, p):
+        """integer_expression : expression"""
+        p[0] = ('integrer_expression', p[1])
+
     def p_boolean_expression(self, p):
         """boolean_expression : expression"""
-        p[0] = ("boolean_expression", p[1])
+        p[0] = ('boolean_expression', p[1])
 
     # def p_then_expression(self, p):
     #     """then_expression:     THEN expression"""
@@ -406,8 +506,8 @@ class LyaParser(object):
 
     def p_action(self, p):
         """action : bracketed_action
+                  | assignment_action
                   | exit_action"""
-                  #| assignment_action
                   # | call_action
                   # | exit_action
                   # | return_action
@@ -418,6 +518,21 @@ class LyaParser(object):
         """bracketed_action : if_action"""
                             # | do_action"""
         p[0] = ("bracketed_action", p[1])
+
+    def p_assignment_action(self, p):
+        """assignment_action : location assigning_operator expression"""
+        # names[p[1]]=p[3]
+        p[0] = ("assignment_action", p[1], p[2], p[3])
+
+    def p_assigning_operator(self, p):
+        """assigning_operator : ASSIGN
+                              | PLUSASSIGN
+                              | MINUSASSIGN
+                              | TIMESASSIGN
+                              | DIVIDEASSIGN
+                              | PERCASSIGN
+                              | CONCATASSIGN"""
+        p[0] = ("assigning_operator", p[1])
 
     # if-then-else
 
@@ -734,11 +849,26 @@ if __name__ == "__main__":
     fi;
     """
 
+    lya_source_action1 = """
+    label1: ac1 = 10 + 10;
+    ac2 += 2;
+    ac3 -= 10;
+    ac4 *= 55;
+    ac5 /= 1;
+    ac5 %= 20;
+    ac6 &= 2;
+    """
+
     lya_source = """dcl var1 int=3+5-7*7/9%3;
                         dcl var2 int = 2 in 3;
                         dcl var3 bool = 5 && 3 || 1 == 2 & 2;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
     source = lya_source
+
+    # TODO: Test Location
+    # TODO: Test Primitive
+
+    # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
     print(source)
 

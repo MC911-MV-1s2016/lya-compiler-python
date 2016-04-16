@@ -49,7 +49,7 @@ class LyaParser(object):
 
     def p_program(self, p):
         """program : statement_list"""
-        p[0] = ('program', p[1])
+        p[0] = ('program',) + p[1]
 
     #### Statement
 
@@ -57,12 +57,11 @@ class LyaParser(object):
         """statement_list : statement_list statement
                           | statement"""
         if len(p) == 2:
-            p[0] = p[1]
+            p[0] = (p[1],)
         else:
-            # print(len(p[1][2]))
-            # print(p[1][2])
-            # p[0] = ('statement-list', () + p[1] + (p[2]))
-            p[0] = p[1] + (p[2])
+            l = len(p)
+            ll = len(p[1])
+            p[0] = p[1] + (p[2],)
 
     def p_statement(self, p):
         """statement : declaration_statement
@@ -74,11 +73,11 @@ class LyaParser(object):
 
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
-        p[0] = ('declaration-statement', () + ('declaration-list',) + (p[2],))
+        p[0] = ('declaration-statement', p[2])
 
-    # def p_synonym_statement(self, p):
-    #     """synonym_statement : SYN synonym_list SEMICOL"""
-    #     p[0] = ('synonym-statement', () + ('synonym-list',) + (p[2],))
+    def p_synonym_statement(self, p):
+        """synonym_statement : SYN synonym_list SEMICOL"""
+        p[0] = ('synonym-statement', p[2])
 
     #### Declaration
 
@@ -86,43 +85,43 @@ class LyaParser(object):
         """declaration_list : declaration_list COMMA declaration
                             | declaration"""
         if len(p) == 2:
-            p[0] = p[1]
+            p[0] = ('declaration-list', (p[1]))
         else:
-            p[0] = p[1] + (p[3])
+            p[0] = p[1] + (p[3],)
 
     def p_declaration(self, p):
-        """declaration : identifier_list mode"""
-        p[0] = ('declaration', p[1], p[2])
+        """declaration : identifier_list mode initialization
+                       | identifier_list mode"""
+        if len(p) == 3:
+            p[0] = ('declaration', p[1], p[2])
+        else:
+            p[0] = ('declaration', (p[1], p[2], p[3]))
 
-    def p_declaration_initialization(self, p):
-        """declaration : identifier_list mode initialization"""
-        p[0] = ('declaration_initialization', (p[1], p[2], p[3]))
+    # def p_declaration_initialization(self, p):
+    #     """declaration : identifier_list mode initialization"""
+    #     p[0] = ('declaration_initialization', (p[1], p[2], p[3]))
 
     def p_initialization(self, p):
         """initialization : ASSIGN expression"""
-        p[0] = ('initialization', p[2])
+        p[0] = ('initialization', 'expression')#p[2])
 
     #### Synonym
-
-    def p_synonym_statement(self, p):
-        """synonym_statement : SYN synonym_list SEMICOL"""
-        p[0] = ('synonym-statement', () + ('synonym-list',) + (p[2],))
 
     def p_synonym_list(self, p):
         """synonym_list : synonym_list COMMA synonym_definition
                         | synonym_definition"""
         if len(p) == 2:
-                        p[0] = p[1]
+            p[0] = ('synonym-list', (p[1]))
         else:
-                        p[0] = p[1] + (p[3])
+            p[0] = p[1] + (p[3],)
 
     def p_synonym_definition_mode(self, p):
         """synonym_definition : identifier_list mode ASSIGN constant_expression"""
-        p[0] = ('synonym-definition-mode', p[1], p[2], p[4])
+        p[0] = ('synonym-definition-mode', p[1], p[2], 'expression')#p[4])
 
     def p_synonym_definition(self, p):
         """synonym_definition : identifier_list ASSIGN constant_expression"""
-        p[0] = ('synonym-definition', p[1], p[3])
+        p[0] = ('synonym-definition', p[1], 'expression')#p[3])
 
     def p_constant_expression(self, p):
         """constant_expression : expression"""
@@ -134,9 +133,9 @@ class LyaParser(object):
         """identifier_list : identifier
                            | identifier_list COMMA identifier"""
         if len(p) == 2:
-            p[0] = ('identifier-list', ('identifier', p[1]))
+            p[0] = ('identifier-list', (p[1]))
         else:
-            p[0] = p[1] + (('identifier', p[3]),)
+            p[0] = p[1] + (p[3],)
 
     def p_identifier(self, p):
         """identifier : ID"""
@@ -415,25 +414,45 @@ if __name__ == "__main__":
 
     lyaparser = LyaParser()
 
-    file_name = lya_examples[1]
-    file_path = "./lyaexamples/" + file_name
+    # file_name = lya_examples[1]
+    # file_path = "./lyaexamples/" + file_name
     # file = open(file_name)
     # lya_source = file.read()
 
-    # lya_source = """
-    # syn top int = 10;
-    # syn topdabalada = 1000;
-    # dcl var1 int;
+    lya_source_declaration = """
+    dcl var int;
+    dcl var10, var20, var30, var40 int;
+    dcl var100, var101 int, var200 int;
+    dcl var1 int = 5;
+    dcl var2, var3 int = 6;
+    dcl var4 int, var5, var6 int = 10;
+    """
+
+    lya_source_syn = """
+    syn syn1 = 1;
+    syn syn2, syn3, syn4 = 3;
+    syn syn5 int = 2;
+    syn syn6, syn7 int = 3;
+    syn syn8 = 10, syn9 = 12;
+    syn syn10, syn11 int = 13, syn12 = 20;"""
     # """
-    # # dcl var2, varx char;
-    # # dcl var3, var4 int = 10;"
-    # # dcl car
+
+    # dcl var2, varx char;
+    # dcl var3, var4 int = 10;"
+    # dcl car
     # ""
-    # #dcl var5 int = 3 + 5 * (10 - 20);"""
+    #dcl var5 int = 3 + 5 * (10 - 20);"""
 
-    lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
+    # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    print(lya_source)
+    print(lya_source_syn)
 
-    AST = lyaparser.parse(lya_source)
+    AST = lyaparser.parse(lya_source_syn)
     pprint.pprint(AST, indent=4)
+
+    # print(len(AST))
+    # print(AST)
+    # print(len(AST[0]))
+    # print(AST[0])
+    # print(len(AST[1]))
+    # print(AST[1])

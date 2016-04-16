@@ -265,43 +265,44 @@ class LyaParser(object):
 
     #### Primitive Values
 
-    def p_intger_literal(self, p):
+    def p_integer_literal(self, p):
         """integer_literal : ICONST"""
         p[0] = ('integer_literal', p[1])
 
     #### Expression
 
     def p_expression(self, p):
-        """expression : operand0"""  # | conditional_expression"""
+        """expression : operand0
+                        | conditional_expression"""
         p[0] = ("expression", p[1])
 
-    # def p_conditional_expression(self, p):
-    #     """conditional_expression:  IF boolean_expression then_expression else_expression FI"""
-    #     p[0] = ("conditional_expression", p[2], p[3], p[4])
-    # 
-    # def p_conditional_expression_elsif(self, p):
-    #     """conditional_expression:  IF boolean_expression then_expression elsif_expression else_expression FI"""
-    #     p[0] = ("conditional_expression", p[2], p[3], p[4], p[5])
+    def p_conditional_expression(self, p):
+        """conditional_expression :  IF boolean_expression then_expression else_expression FI"""
+        p[0] = ("conditional_expression", p[2], p[3], p[4])
+
+    def p_conditional_expression_elsif(self, p):
+        """conditional_expression :  IF boolean_expression then_expression elsif_expression else_expression FI"""
+        p[0] = ("conditional_expression", p[2], p[3], p[4], p[5])
 
     def p_boolean_expression(self, p):
         """boolean_expression : expression"""
         p[0] = ("boolean_expression", p[1])
 
-    # def p_then_expression(self, p):
-    #     """then_expression:     THEN expression"""
-    #     p[0] = ("then_expression", p[2])
-    # 
-    # def p_else_expression(self, p):
-    #     """else_expression:     ELSE expression"""
-    #     p[0] = ("else_expression", p[2])
-    #
-    # def p_elsif_expression_elsif(self, p):
-    #     """elsif_expression:    elsif_expression ELSIF boolean_expression then_expression"""
-    #     p[0] = ("elsif_expression", p[1], p[3], p[4])
-    #
-    # def p_elsif_expression(self, p):
-    #     """elsif_expression:    ELSIF boolean_expression then_expression"""
-    #     p[0] = ("elsif_expression", p[2], p[3])
+    def p_then_expression(self, p):
+        """then_expression :     THEN expression"""
+        p[0] = ("then_expression", p[2])
+
+    def p_else_expression(self, p):
+        """else_expression :     ELSE expression"""
+        p[0] = ("else_expression", p[2])
+
+    def p_elsif_expression_elsif(self, p):
+        """elsif_expression :    elsif_expression ELSIF boolean_expression then_expression"""
+        p[0] = ("elsif_expression", p[1], p[3], p[4])
+
+    def p_elsif_expression(self, p):
+        """elsif_expression :    ELSIF boolean_expression then_expression"""
+        p[0] = ("elsif_expression", p[2], p[3])
 
     def p_operand0(self, p):
         """operand0 :            operand1"""
@@ -736,7 +737,8 @@ if __name__ == "__main__":
 
     lya_source = """dcl var1 int=3+5-7*7/9%3;
                         dcl var2 int = 2 in 3;
-                        dcl var3 bool = 5 && 3 || 1 == 2 & 2;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
+                        dcl var3 bool = 5 && 3 || 1 == 2 & 2;
+                        dcl var4 bool = if 2 then 3 else 5 fi;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
     source = lya_source
 

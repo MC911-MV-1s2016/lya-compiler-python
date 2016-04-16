@@ -265,7 +265,7 @@ class LyaParser(object):
 
     def p_expression(self, p):
         """expression :          operand0"""  # | conditional_expression"""
-        p[0] = ("expression", 'expression')#p[1])
+        p[0] = ("expression", p[1])
 
     # def p_conditional_expression(self, p):
     #     """conditional_expression:  IF boolean_expression then_expression else_expression FI"""
@@ -582,7 +582,7 @@ if __name__ == "__main__":
 
     lya_source_procedure9 = """
     power: proc (n int loc, r int) returns (int loc);
-        dcl c int;
+        dcl c int = 1;
         type t = bool;
     end;
     """

@@ -65,8 +65,8 @@ class LyaParser(object):
         """statement : declaration_statement
                      | synonym_statement
                      | newmode_statement
-                     | procedure_statement"""
-                     # | action_statement"""
+                     | procedure_statement
+                     | action_statement"""
         p[0] = ('statement', p[1])
         #p[0] = p[1]
 
@@ -85,6 +85,14 @@ class LyaParser(object):
     def p_procedure_statement(self, p):
         """procedure_statement : label_id COLON procedure_definition SEMICOL"""
         p[0] = ('procedure_statement', p[1], p[3])
+
+    def p_action_statement_label(self, p):
+        """action_statement : label_id COLON action SEMICOL"""
+        p[0] = ('action_statement', p[1], p[3])
+
+    def p_action_statement(self, p):
+        """action_statement : action SEMICOL"""
+        p[0] = ('action_statement', p[1])
 
     #### Declaration
 
@@ -264,8 +272,8 @@ class LyaParser(object):
     #### Expression
 
     def p_expression(self, p):
-        """expression :          operand0"""  # | conditional_expression"""
-        p[0] = ("expression", p[1])
+        """expression : operand0"""  # | conditional_expression"""
+        p[0] = ("expression", 'expression')#p[1])
 
     # def p_conditional_expression(self, p):
     #     """conditional_expression:  IF boolean_expression then_expression else_expression FI"""
@@ -274,11 +282,11 @@ class LyaParser(object):
     # def p_conditional_expression_elsif(self, p):
     #     """conditional_expression:  IF boolean_expression then_expression elsif_expression else_expression FI"""
     #     p[0] = ("conditional_expression", p[2], p[3], p[4], p[5])
-    # 
-    # def p_boolean_expression(self, p):
-    #     """boolean_expression:  expression"""
-    #     p[0] = ("boolean_expression", p[1])
-    # 
+
+    def p_boolean_expression(self, p):
+        """boolean_expression : expression"""
+        p[0] = ("boolean_expression", p[1])
+
     # def p_then_expression(self, p):
     #     """then_expression:     THEN expression"""
     #     p[0] = ("then_expression", p[2])
@@ -384,9 +392,72 @@ class LyaParser(object):
 
     # Action
 
+    def p_action_statement_list(self, p):
+        """action_statement_list : action_statement_list action_statement
+                                 | action_statement"""
+        if len(p) == 2:
+            p[0] = (p[1],)
+        else:
+            p[0] = p[1] + (p[2],)
+
     def p_label_id(self, p):
         """label_id : identifier"""
         p[0] = ('label_id', p[1])
+
+    def p_action(self, p):
+        """action : bracketed_action
+                  | exit_action"""
+                  #| assignment_action
+                  # | call_action
+                  # | exit_action
+                  # | return_action
+                  # | result_action"""
+        p[0] = ("action", p[1])
+
+    def p_bracketed_action(self, p):
+        """bracketed_action : if_action"""
+                            # | do_action"""
+        p[0] = ("bracketed_action", p[1])
+
+    # if-then-else
+
+    def p_if_action_else(self, p):
+        """if_action : IF boolean_expression then_clause else_clause FI"""
+        p[0] = ("if_action", p[2], p[3], p[4])
+
+    def p_if_action(self, p):
+        """if_action : IF boolean_expression then_clause FI"""
+        p[0] = ("if_action", p[2], p[3])
+
+    def p_then_clause(self, p):
+        """then_clause : THEN action_statement_list"""
+        p[0] = ("then_clause", p[2])
+
+    def p_then_clause_empty(self, p):
+        """then_clause : THEN empty"""
+        p[0] = ("then_clause",)
+
+    def p_else_clause(self, p):
+        """else_clause : ELSE action_statement_list"""
+        p[0] = ('else_clause', p[2])
+
+    def p_else_clause_empty(self, p):
+        """else_clause : ELSE empty"""
+        p[0] = ('else_clause',)
+
+    def p_else_clause_if_else(self, p):
+        """else_clause : ELSIF boolean_expression then_clause else_clause"""
+        p[0] = ("else_clause", p[2], p[3], p[4])
+
+    def p_else_clause_if(self, p):
+        """else_clause : ELSIF boolean_expression then_clause"""
+        p[0] = ("else_clause", p[2], p[3])
+
+    # Simple actions
+
+    def p_exit_action(self, p):
+        """exit_action : EXIT label_id"""
+        p[0] = ("exit_action", p[2])
 
     # Procedure
 
@@ -458,11 +529,18 @@ class LyaParser(object):
         """result_attribute : LOC"""
         p[0] = ("result_attribute", p[1])
 
+    # Empty
+
+    def p_empty(self, p):
+        """empty :"""
+        pass
+
     # Error
 
     def p_error(self, p):
         try:
             print("Syntax error at '%s'" % p.value)
+            print("Line: %d" % p.lineno)
         except:
             print("Syntax error")
 
@@ -587,9 +665,78 @@ if __name__ == "__main__":
     end;
     """
 
+    lya_source_if1 = """
+    label: if 1+2 then
+        exit label1;
+    else
+        exit label2;
+    fi;
+    """
+
+    lya_source_if2 = """
+    if 1+2 then
+        exit label1;
+        exit label2;
+    fi;
+    """
+
+    lya_source_if3 = """
+    if 1+2 then
+    else
+        exit label2;
+        exit label3;
+    fi;
+    """
+
+    lya_source_if4 = """
+    if 1+2 then
+    else
+    fi;
+    """
+
+    lya_source_if5 = """
+    if 1+2 then
+        exit label1;
+    elsif 1+2 then
+        exit label2;
+        exit label22;
+    else
+        exit lable3;
+    fi;
+    """
+
+    lya_source_if6 = """
+    if 1+2 then
+        exit label1;
+    elsif 1+2 then
+        exit label2;
+        exit label22;
+    fi;
+    """
+
+    lya_source_if7 = """
+    if 1+2 then
+        if 1+3 then
+            exit label1;
+        fi;
+    elsif 1+2 then
+        exit label2;
+        if 2+5 then
+        else
+            exit label22;
+        fi;
+    else
+        if 2+5 then
+            exit a1;
+        elsif 1+2 then
+            exit label22;
+        fi;
+    fi;
+    """
+
    # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    source = lya_source_procedure9
+    source = lya_source_if6
 
     print(source)
 

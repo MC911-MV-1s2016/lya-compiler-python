@@ -1,0 +1,13 @@
+// Example passing by reference using REF attribute
+swapByRef: proc(x ref int, y ref int);
+  dcl t int = x->;
+  x-> = y->;
+  y-> = t;
+end;
+
+dcl i int = 10, j int = 20;
+// declaring reference to int
+dcl r ref int = ->i;
+
+swapByRef( r,  ->j );
+print(i, j);   // displays 20  10

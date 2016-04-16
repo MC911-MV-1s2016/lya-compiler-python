@@ -1,61 +1,49 @@
-Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+Created by PLY version 3.8 (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
-    CONCATASSIGN
-    FALSE
-    DBLSLASH
-    FOR
-    CHARS
-    LCURL
-    THEN
-    ARROW
-    RPAREN
-    LOC
-    COLON
-    ELSE
-    RESULT
-    TRUE
-    CCONST
-    READ
-    END
-    UPPER
-    RETURNS
-    NUM
-    RCURL
-    EXIT
-    SCONST
-    ELSIF
-    DBLQUO
-    BY
-    PLUSASSIGN
-    LPAREN
-    DO
-    DIVIDEASSIGN
-    DOWN
-    LBRACK
-    OD
-    PRED
-    WHILE
-    NULL
-    REF
     LENGTH
-    ARRAY
-    RBRACK
-    TO
-    LOWER
-    PROC
-    MINUSASSIGN
-    RETURN
-    CONCAT
-    SUCC
-    TIMESASSIGN
-    SINGQUO
-    CIRCUMF
-    IF
-    FI
     PERCASSIGN
+    IF
+    EXIT
+    PRED
+    CIRCUMF
+    LCURL
+    DBLQUO
+    NUM
+    FOR
+    ARROW
+    ELSIF
+    OD
+    DBLSLASH
+    PLUSASSIGN
+    RETURN
+    NULL
+    DO
+    CONCATASSIGN
+    TO
+    CCONST
+    LOWER
+    TRUE
+    SINGQUO
+    DOWN
+    BY
+    MINUSASSIGN
+    CONCAT
+    ELSE
+    UPPER
+    SUCC
+    RCURL
     PRINT
+    DIVIDEASSIGN
+    SCONST
+    FI
+    TIMESASSIGN
+    FALSE
+    THEN
+    RESULT
+    READ
+    WHILE
 
 Grammar
 
@@ -65,187 +53,250 @@ Rule 2     statement_list -> statement_list statement
 Rule 3     statement_list -> statement
 Rule 4     statement -> declaration_statement
 Rule 5     statement -> synonym_statement
-Rule 6     declaration_statement -> DCL declaration_list SEMICOL
-Rule 7     declaration_list -> declaration_list COMMA declaration
-Rule 8     declaration_list -> declaration
-Rule 9     declaration -> identifier_list mode
-Rule 10    declaration -> identifier_list mode initialization
-Rule 11    initialization -> ASSIGN expression
-Rule 12    synonym_statement -> SYN synonym_list SEMICOL
-Rule 13    synonym_list -> synonym_list COMMA synonym_definition
-Rule 14    synonym_list -> synonym_definition
-Rule 15    synonym_definition -> identifier_list mode ASSIGN constant_expression
-Rule 16    synonym_definition -> identifier_list ASSIGN constant_expression
-Rule 17    constant_expression -> expression
-Rule 18    identifier_list -> identifier
-Rule 19    identifier_list -> identifier_list COMMA identifier
-Rule 20    identifier -> ID
-Rule 21    newmode_statement -> TYPE newmode_list
+Rule 6     statement -> newmode_statement
+Rule 7     statement -> procedure_statement
+Rule 8     declaration_statement -> DCL declaration_list SEMICOL
+Rule 9     synonym_statement -> SYN synonym_list SEMICOL
+Rule 10    newmode_statement -> TYPE newmode_list SEMICOL
+Rule 11    procedure_statement -> label_id COLON procedure_definition SEMICOL
+Rule 12    declaration_list -> declaration_list COMMA declaration
+Rule 13    declaration_list -> declaration
+Rule 14    declaration -> identifier_list mode initialization
+Rule 15    declaration -> identifier_list mode
+Rule 16    initialization -> ASSIGN expression
+Rule 17    synonym_list -> synonym_list COMMA synonym_definition
+Rule 18    synonym_list -> synonym_definition
+Rule 19    synonym_definition -> identifier_list mode ASSIGN constant_expression
+Rule 20    synonym_definition -> identifier_list ASSIGN constant_expression
+Rule 21    constant_expression -> expression
 Rule 22    newmode_list -> newmode_list COMMA mode_definition
 Rule 23    newmode_list -> mode_definition
-Rule 24    mode_definition -> identifier_list EQUALS mode
+Rule 24    mode_definition -> identifier_list ASSIGN mode
 Rule 25    mode -> mode_name
 Rule 26    mode -> discrete_mode
-Rule 27    discrete_mode -> integer_mode
-Rule 28    discrete_mode -> boolean_mode
-Rule 29    discrete_mode -> character_mode
-Rule 30    integer_mode -> INT
-Rule 31    boolean_mode -> BOOL
-Rule 32    character_mode -> CHAR
-Rule 33    mode_name -> identifier
-Rule 34    discrete_mode_name -> identifier
-Rule 35    expression -> operand0
-Rule 36    operand0 -> operand1
-Rule 37    operand0 -> operand0 operator1 operand1
-Rule 38    operator1 -> relational_operator
-Rule 39    operator1 -> membership_operator
-Rule 40    relational_operator -> AND
-Rule 41    relational_operator -> OR
-Rule 42    relational_operator -> EQUALS
-Rule 43    relational_operator -> DIF
-Rule 44    relational_operator -> GTR
-Rule 45    relational_operator -> GEQ
-Rule 46    relational_operator -> LSS
-Rule 47    relational_operator -> LEQ
-Rule 48    membership_operator -> IN
-Rule 49    operand1 -> operand2
-Rule 50    operand1 -> operand1 operator2 operand2
-Rule 51    operator2 -> arithmetic_additive_operator
-Rule 52    arithmetic_additive_operator -> PLUS
-Rule 53    arithmetic_additive_operator -> MINUS
-Rule 54    operand2 -> operand3
-Rule 55    operand2 -> operand2 arithmetic_multiplicative_operator operand3
-Rule 56    arithmetic_multiplicative_operator -> TIMES
-Rule 57    arithmetic_multiplicative_operator -> DIVIDE
-Rule 58    arithmetic_multiplicative_operator -> PERC
-Rule 59    operand3 -> monadic_operator operand4
-Rule 60    operand3 -> operand4
-Rule 61    monadic_operator -> MINUS
-Rule 62    monadic_operator -> NOT
-Rule 63    operand4 -> ICONST
+Rule 27    mode -> reference_mode
+Rule 28    mode -> composite_mode
+Rule 29    discrete_mode -> integer_mode
+Rule 30    discrete_mode -> boolean_mode
+Rule 31    discrete_mode -> character_mode
+Rule 32    discrete_mode -> discrete_range_mode
+Rule 33    integer_mode -> INT
+Rule 34    boolean_mode -> BOOL
+Rule 35    character_mode -> CHAR
+Rule 36    discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN
+Rule 37    discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN
+Rule 38    mode_name -> identifier
+Rule 39    discrete_mode_name -> identifier
+Rule 40    literal_range -> lower_bound COLON upper_bound
+Rule 41    lower_bound -> expression
+Rule 42    upper_bound -> expression
+Rule 43    reference_mode -> REF mode
+Rule 44    composite_mode -> string_mode
+Rule 45    composite_mode -> array_mode
+Rule 46    string_mode -> CHARS LBRACK string_length RBRACK
+Rule 47    string_length -> integer_literal
+Rule 48    array_mode -> ARRAY LBRACK index_mode_list RBRACK element_mode
+Rule 49    index_mode_list -> index_mode_list COMMA index_mode
+Rule 50    index_mode_list -> index_mode
+Rule 51    index_mode -> discrete_mode
+Rule 52    index_mode -> literal_range
+Rule 53    element_mode -> mode
+Rule 54    identifier_list -> identifier
+Rule 55    identifier_list -> identifier_list COMMA identifier
+Rule 56    identifier -> ID
+Rule 57    integer_literal -> ICONST
+Rule 58    expression -> operand0
+Rule 59    operand0 -> operand1
+Rule 60    operand0 -> operand0 operator1 operand1
+Rule 61    operator1 -> relational_operator
+Rule 62    operator1 -> membership_operator
+Rule 63    relational_operator -> AND
+Rule 64    relational_operator -> OR
+Rule 65    relational_operator -> EQUALS
+Rule 66    relational_operator -> DIF
+Rule 67    relational_operator -> GTR
+Rule 68    relational_operator -> GEQ
+Rule 69    relational_operator -> LSS
+Rule 70    relational_operator -> LEQ
+Rule 71    membership_operator -> IN
+Rule 72    operand1 -> operand2
+Rule 73    operand1 -> operand1 operator2 operand2
+Rule 74    operator2 -> arithmetic_additive_operator
+Rule 75    arithmetic_additive_operator -> PLUS
+Rule 76    arithmetic_additive_operator -> MINUS
+Rule 77    operand2 -> operand3
+Rule 78    operand2 -> operand2 arithmetic_multiplicative_operator operand3
+Rule 79    arithmetic_multiplicative_operator -> TIMES
+Rule 80    arithmetic_multiplicative_operator -> DIVIDE
+Rule 81    arithmetic_multiplicative_operator -> PERC
+Rule 82    operand3 -> monadic_operator operand4
+Rule 83    operand3 -> operand4
+Rule 84    monadic_operator -> MINUS
+Rule 85    monadic_operator -> NOT
+Rule 86    operand4 -> ICONST
+Rule 87    label_id -> identifier
+Rule 88    procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list END
+Rule 89    procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL END
+Rule 90    procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL statement_list END
+Rule 91    procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL statement_list END
+Rule 92    procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL END
+Rule 93    procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL END
+Rule 94    procedure_definition -> PROC LPAREN RPAREN SEMICOL statement_list END
+Rule 95    procedure_definition -> PROC LPAREN RPAREN SEMICOL END
+Rule 96    formal_parameter_list -> formal_parameter_list COMMA formal_parameter
+Rule 97    formal_parameter_list -> formal_parameter
+Rule 98    formal_parameter -> identifier_list parameter_spec
+Rule 99    parameter_spec -> mode parameter_attribute
+Rule 100   parameter_spec -> mode
+Rule 101   parameter_attribute -> LOC
+Rule 102   result_spec -> RETURNS LPAREN mode result_attribute RPAREN
+Rule 103   result_spec -> RETURNS LPAREN mode RPAREN
+Rule 104   result_attribute -> LOC
 
 Terminals, with rules where they appear
 
-AND                  : 40
-ARRAY                : 
+AND                  : 63
+ARRAY                : 48
 ARROW                : 
-ASSIGN               : 11 15 16
-BOOL                 : 31
+ASSIGN               : 16 19 20 24
+BOOL                 : 34
 BY                   : 
 CCONST               : 
-CHAR                 : 32
-CHARS                : 
+CHAR                 : 35
+CHARS                : 46
 CIRCUMF              : 
-COLON                : 
-COMMA                : 7 13 19 22
+COLON                : 11 40
+COMMA                : 12 17 22 49 55 96
 CONCAT               : 
 CONCATASSIGN         : 
 DBLQUO               : 
 DBLSLASH             : 
-DCL                  : 6
-DIF                  : 43
-DIVIDE               : 57
+DCL                  : 8
+DIF                  : 66
+DIVIDE               : 80
 DIVIDEASSIGN         : 
 DO                   : 
 DOWN                 : 
 ELSE                 : 
 ELSIF                : 
-END                  : 
-EQUALS               : 24 42
+END                  : 88 89 90 91 92 93 94 95
+EQUALS               : 65
 EXIT                 : 
 FALSE                : 
 FI                   : 
 FOR                  : 
-GEQ                  : 45
-GTR                  : 44
-ICONST               : 63
-ID                   : 20
+GEQ                  : 68
+GTR                  : 67
+ICONST               : 57 86
+ID                   : 56
 IF                   : 
-IN                   : 48
-INT                  : 30
-LBRACK               : 
+IN                   : 71
+INT                  : 33
+LBRACK               : 46 48
 LCURL                : 
 LENGTH               : 
-LEQ                  : 47
-LOC                  : 
+LEQ                  : 70
+LOC                  : 101 104
 LOWER                : 
-LPAREN               : 
-LSS                  : 46
-MINUS                : 53 61
+LPAREN               : 36 37 88 89 90 91 92 93 94 95 102 103
+LSS                  : 69
+MINUS                : 76 84
 MINUSASSIGN          : 
-NOT                  : 62
+NOT                  : 85
 NULL                 : 
 NUM                  : 
 OD                   : 
-OR                   : 41
-PERC                 : 58
+OR                   : 64
+PERC                 : 81
 PERCASSIGN           : 
-PLUS                 : 52
+PLUS                 : 75
 PLUSASSIGN           : 
 PRED                 : 
 PRINT                : 
-PROC                 : 
-RBRACK               : 
+PROC                 : 88 89 90 91 92 93 94 95
+RBRACK               : 46 48
 RCURL                : 
 READ                 : 
-REF                  : 
+REF                  : 43
 RESULT               : 
 RETURN               : 
-RETURNS              : 
-RPAREN               : 
+RETURNS              : 102 103
+RPAREN               : 36 37 88 89 90 91 92 93 94 95 102 103
 SCONST               : 
-SEMICOL              : 6 12
+SEMICOL              : 8 9 10 11 88 89 90 91 92 93 94 95
 SINGQUO              : 
 SUCC                 : 
-SYN                  : 12
+SYN                  : 9
 THEN                 : 
-TIMES                : 56
+TIMES                : 79
 TIMESASSIGN          : 
 TO                   : 
 TRUE                 : 
-TYPE                 : 21
+TYPE                 : 10
 UPPER                : 
 WHILE                : 
 error                : 
 
 Nonterminals, with rules where they appear
 
-arithmetic_additive_operator : 51
-arithmetic_multiplicative_operator : 55
-boolean_mode         : 28
-character_mode       : 29
-constant_expression  : 15 16
-declaration          : 7 8
-declaration_list     : 6 7
+arithmetic_additive_operator : 74
+arithmetic_multiplicative_operator : 78
+array_mode           : 45
+boolean_mode         : 30
+character_mode       : 31
+composite_mode       : 28
+constant_expression  : 19 20
+declaration          : 12 13
+declaration_list     : 8 12
 declaration_statement : 4
-discrete_mode        : 26
-discrete_mode_name   : 
-expression           : 11 17
-identifier           : 18 19 33 34
-identifier_list      : 9 10 15 16 19 24
-initialization       : 10
-integer_mode         : 27
-membership_operator  : 39
-mode                 : 9 10 15 24
+discrete_mode        : 26 37 51
+discrete_mode_name   : 36
+discrete_range_mode  : 32
+element_mode         : 48
+expression           : 16 21 41 42
+formal_parameter     : 96 97
+formal_parameter_list : 88 89 90 92 96
+identifier           : 38 39 54 55 87
+identifier_list      : 14 15 19 20 24 55 98
+index_mode           : 49 50
+index_mode_list      : 48 49
+initialization       : 14
+integer_literal      : 47
+integer_mode         : 29
+label_id             : 11
+literal_range        : 36 37 52
+lower_bound          : 40
+membership_operator  : 62
+mode                 : 14 15 19 24 43 53 99 100 102 103
 mode_definition      : 22 23
 mode_name            : 25
-monadic_operator     : 59
-newmode_list         : 21 22
-newmode_statement    : 
-operand0             : 35 37
-operand1             : 36 37 50
-operand2             : 49 50 55
-operand3             : 54 55
-operand4             : 59 60
-operator1            : 37
-operator2            : 50
+monadic_operator     : 82
+newmode_list         : 10 22
+newmode_statement    : 6
+operand0             : 58 60
+operand1             : 59 60 73
+operand2             : 72 73 78
+operand3             : 77 78
+operand4             : 82 83
+operator1            : 60
+operator2            : 73
+parameter_attribute  : 99
+parameter_spec       : 98
+procedure_definition : 11
+procedure_statement  : 7
 program              : 0
-relational_operator  : 38
+reference_mode       : 27
+relational_operator  : 61
+result_attribute     : 102
+result_spec          : 88 89 91 93
 statement            : 2 3
-statement_list       : 1 2
-synonym_definition   : 13 14
-synonym_list         : 12 13
+statement_list       : 1 2 88 90 91 94
+string_length        : 46
+string_mode          : 44
+synonym_definition   : 17 18
+synonym_list         : 9 17
 synonym_statement    : 5
+upper_bound          : 40
 
 Parsing method: LALR
 
@@ -257,1024 +308,2579 @@ state 0
     (3) statement_list -> . statement
     (4) statement -> . declaration_statement
     (5) statement -> . synonym_statement
-    (6) declaration_statement -> . DCL declaration_list SEMICOL
-    (12) synonym_statement -> . SYN synonym_list SEMICOL
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
 
     DCL             shift and go to state 7
-    SYN             shift and go to state 4
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
 
-    synonym_statement              shift and go to state 1
-    statement_list                 shift and go to state 2
-    program                        shift and go to state 3
-    declaration_statement          shift and go to state 5
-    statement                      shift and go to state 6
+    statement                      shift and go to state 1
+    statement_list                 shift and go to state 3
+    label_id                       shift and go to state 5
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+    program                        shift and go to state 4
 
 state 1
 
-    (5) statement -> synonym_statement .
+    (3) statement_list -> statement .
 
-    DCL             reduce using rule 5 (statement -> synonym_statement .)
-    SYN             reduce using rule 5 (statement -> synonym_statement .)
-    $end            reduce using rule 5 (statement -> synonym_statement .)
+    END             reduce using rule 3 (statement_list -> statement .)
+    DCL             reduce using rule 3 (statement_list -> statement .)
+    SYN             reduce using rule 3 (statement_list -> statement .)
+    TYPE            reduce using rule 3 (statement_list -> statement .)
+    ID              reduce using rule 3 (statement_list -> statement .)
+    $end            reduce using rule 3 (statement_list -> statement .)
 
 
 state 2
+
+    (87) label_id -> identifier .
+
+    COLON           reduce using rule 87 (label_id -> identifier .)
+
+
+state 3
 
     (1) program -> statement_list .
     (2) statement_list -> statement_list . statement
     (4) statement -> . declaration_statement
     (5) statement -> . synonym_statement
-    (6) declaration_statement -> . DCL declaration_list SEMICOL
-    (12) synonym_statement -> . SYN synonym_list SEMICOL
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
 
     $end            reduce using rule 1 (program -> statement_list .)
     DCL             shift and go to state 7
-    SYN             shift and go to state 4
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
 
-    synonym_statement              shift and go to state 1
-    declaration_statement          shift and go to state 5
-    statement                      shift and go to state 8
+    statement                      shift and go to state 14
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+    label_id                       shift and go to state 5
 
-state 3
+state 4
 
     (0) S' -> program .
 
 
 
-state 4
-
-    (12) synonym_statement -> SYN . synonym_list SEMICOL
-    (13) synonym_list -> . synonym_list COMMA synonym_definition
-    (14) synonym_list -> . synonym_definition
-    (15) synonym_definition -> . identifier_list mode ASSIGN constant_expression
-    (16) synonym_definition -> . identifier_list ASSIGN constant_expression
-    (18) identifier_list -> . identifier
-    (19) identifier_list -> . identifier_list COMMA identifier
-    (20) identifier -> . ID
-
-    ID              shift and go to state 12
-
-    synonym_list                   shift and go to state 9
-    identifier_list                shift and go to state 10
-    synonym_definition             shift and go to state 11
-    identifier                     shift and go to state 13
-
 state 5
 
-    (4) statement -> declaration_statement .
+    (11) procedure_statement -> label_id . COLON procedure_definition SEMICOL
 
-    DCL             reduce using rule 4 (statement -> declaration_statement .)
-    SYN             reduce using rule 4 (statement -> declaration_statement .)
-    $end            reduce using rule 4 (statement -> declaration_statement .)
+    COLON           shift and go to state 15
 
 
 state 6
 
-    (3) statement_list -> statement .
+    (6) statement -> newmode_statement .
 
-    DCL             reduce using rule 3 (statement_list -> statement .)
-    SYN             reduce using rule 3 (statement_list -> statement .)
-    $end            reduce using rule 3 (statement_list -> statement .)
+    END             reduce using rule 6 (statement -> newmode_statement .)
+    DCL             reduce using rule 6 (statement -> newmode_statement .)
+    SYN             reduce using rule 6 (statement -> newmode_statement .)
+    TYPE            reduce using rule 6 (statement -> newmode_statement .)
+    ID              reduce using rule 6 (statement -> newmode_statement .)
+    $end            reduce using rule 6 (statement -> newmode_statement .)
 
 
 state 7
 
-    (6) declaration_statement -> DCL . declaration_list SEMICOL
-    (7) declaration_list -> . declaration_list COMMA declaration
-    (8) declaration_list -> . declaration
-    (9) declaration -> . identifier_list mode
-    (10) declaration -> . identifier_list mode initialization
-    (18) identifier_list -> . identifier
-    (19) identifier_list -> . identifier_list COMMA identifier
-    (20) identifier -> . ID
+    (8) declaration_statement -> DCL . declaration_list SEMICOL
+    (12) declaration_list -> . declaration_list COMMA declaration
+    (13) declaration_list -> . declaration
+    (14) declaration -> . identifier_list mode initialization
+    (15) declaration -> . identifier_list mode
+    (54) identifier_list -> . identifier
+    (55) identifier_list -> . identifier_list COMMA identifier
+    (56) identifier -> . ID
 
     ID              shift and go to state 12
 
-    declaration_list               shift and go to state 14
-    identifier_list                shift and go to state 15
-    declaration                    shift and go to state 16
-    identifier                     shift and go to state 13
+    identifier                     shift and go to state 16
+    declaration_list               shift and go to state 17
+    declaration                    shift and go to state 18
+    identifier_list                shift and go to state 19
 
 state 8
 
-    (2) statement_list -> statement_list statement .
+    (10) newmode_statement -> TYPE . newmode_list SEMICOL
+    (22) newmode_list -> . newmode_list COMMA mode_definition
+    (23) newmode_list -> . mode_definition
+    (24) mode_definition -> . identifier_list ASSIGN mode
+    (54) identifier_list -> . identifier
+    (55) identifier_list -> . identifier_list COMMA identifier
+    (56) identifier -> . ID
 
-    DCL             reduce using rule 2 (statement_list -> statement_list statement .)
-    SYN             reduce using rule 2 (statement_list -> statement_list statement .)
-    $end            reduce using rule 2 (statement_list -> statement_list statement .)
+    ID              shift and go to state 12
 
+    newmode_list                   shift and go to state 20
+    identifier_list                shift and go to state 21
+    mode_definition                shift and go to state 22
+    identifier                     shift and go to state 16
 
 state 9
 
-    (12) synonym_statement -> SYN synonym_list . SEMICOL
-    (13) synonym_list -> synonym_list . COMMA synonym_definition
+    (7) statement -> procedure_statement .
 
-    SEMICOL         shift and go to state 17
-    COMMA           shift and go to state 18
+    END             reduce using rule 7 (statement -> procedure_statement .)
+    DCL             reduce using rule 7 (statement -> procedure_statement .)
+    SYN             reduce using rule 7 (statement -> procedure_statement .)
+    TYPE            reduce using rule 7 (statement -> procedure_statement .)
+    ID              reduce using rule 7 (statement -> procedure_statement .)
+    $end            reduce using rule 7 (statement -> procedure_statement .)
 
 
 state 10
 
-    (15) synonym_definition -> identifier_list . mode ASSIGN constant_expression
-    (16) synonym_definition -> identifier_list . ASSIGN constant_expression
-    (19) identifier_list -> identifier_list . COMMA identifier
-    (25) mode -> . mode_name
-    (26) mode -> . discrete_mode
-    (33) mode_name -> . identifier
-    (27) discrete_mode -> . integer_mode
-    (28) discrete_mode -> . boolean_mode
-    (29) discrete_mode -> . character_mode
-    (20) identifier -> . ID
-    (30) integer_mode -> . INT
-    (31) boolean_mode -> . BOOL
-    (32) character_mode -> . CHAR
+    (5) statement -> synonym_statement .
 
-    ASSIGN          shift and go to state 22
-    COMMA           shift and go to state 21
-    ID              shift and go to state 12
-    INT             shift and go to state 19
-    BOOL            shift and go to state 27
-    CHAR            shift and go to state 28
+    END             reduce using rule 5 (statement -> synonym_statement .)
+    DCL             reduce using rule 5 (statement -> synonym_statement .)
+    SYN             reduce using rule 5 (statement -> synonym_statement .)
+    TYPE            reduce using rule 5 (statement -> synonym_statement .)
+    ID              reduce using rule 5 (statement -> synonym_statement .)
+    $end            reduce using rule 5 (statement -> synonym_statement .)
 
-    discrete_mode                  shift and go to state 25
-    integer_mode                   shift and go to state 20
-    boolean_mode                   shift and go to state 26
-    character_mode                 shift and go to state 30
-    mode_name                      shift and go to state 23
-    mode                           shift and go to state 29
-    identifier                     shift and go to state 24
 
 state 11
 
-    (14) synonym_list -> synonym_definition .
+    (4) statement -> declaration_statement .
 
-    SEMICOL         reduce using rule 14 (synonym_list -> synonym_definition .)
-    COMMA           reduce using rule 14 (synonym_list -> synonym_definition .)
+    END             reduce using rule 4 (statement -> declaration_statement .)
+    DCL             reduce using rule 4 (statement -> declaration_statement .)
+    SYN             reduce using rule 4 (statement -> declaration_statement .)
+    TYPE            reduce using rule 4 (statement -> declaration_statement .)
+    ID              reduce using rule 4 (statement -> declaration_statement .)
+    $end            reduce using rule 4 (statement -> declaration_statement .)
 
 
 state 12
 
-    (20) identifier -> ID .
+    (56) identifier -> ID .
 
-    ASSIGN          reduce using rule 20 (identifier -> ID .)
-    COMMA           reduce using rule 20 (identifier -> ID .)
-    ID              reduce using rule 20 (identifier -> ID .)
-    INT             reduce using rule 20 (identifier -> ID .)
-    BOOL            reduce using rule 20 (identifier -> ID .)
-    CHAR            reduce using rule 20 (identifier -> ID .)
-    SEMICOL         reduce using rule 20 (identifier -> ID .)
+    COLON           reduce using rule 56 (identifier -> ID .)
+    ASSIGN          reduce using rule 56 (identifier -> ID .)
+    LPAREN          reduce using rule 56 (identifier -> ID .)
+    COMMA           reduce using rule 56 (identifier -> ID .)
+    REF             reduce using rule 56 (identifier -> ID .)
+    ID              reduce using rule 56 (identifier -> ID .)
+    INT             reduce using rule 56 (identifier -> ID .)
+    BOOL            reduce using rule 56 (identifier -> ID .)
+    CHAR            reduce using rule 56 (identifier -> ID .)
+    CHARS           reduce using rule 56 (identifier -> ID .)
+    ARRAY           reduce using rule 56 (identifier -> ID .)
+    SEMICOL         reduce using rule 56 (identifier -> ID .)
+    RPAREN          reduce using rule 56 (identifier -> ID .)
+    LOC             reduce using rule 56 (identifier -> ID .)
 
 
 state 13
 
-    (18) identifier_list -> identifier .
+    (9) synonym_statement -> SYN . synonym_list SEMICOL
+    (17) synonym_list -> . synonym_list COMMA synonym_definition
+    (18) synonym_list -> . synonym_definition
+    (19) synonym_definition -> . identifier_list mode ASSIGN constant_expression
+    (20) synonym_definition -> . identifier_list ASSIGN constant_expression
+    (54) identifier_list -> . identifier
+    (55) identifier_list -> . identifier_list COMMA identifier
+    (56) identifier -> . ID
 
-    ASSIGN          reduce using rule 18 (identifier_list -> identifier .)
-    COMMA           reduce using rule 18 (identifier_list -> identifier .)
-    ID              reduce using rule 18 (identifier_list -> identifier .)
-    INT             reduce using rule 18 (identifier_list -> identifier .)
-    BOOL            reduce using rule 18 (identifier_list -> identifier .)
-    CHAR            reduce using rule 18 (identifier_list -> identifier .)
+    ID              shift and go to state 12
 
+    synonym_definition             shift and go to state 23
+    identifier                     shift and go to state 16
+    synonym_list                   shift and go to state 24
+    identifier_list                shift and go to state 25
 
 state 14
 
-    (6) declaration_statement -> DCL declaration_list . SEMICOL
-    (7) declaration_list -> declaration_list . COMMA declaration
+    (2) statement_list -> statement_list statement .
 
-    SEMICOL         shift and go to state 31
-    COMMA           shift and go to state 32
+    END             reduce using rule 2 (statement_list -> statement_list statement .)
+    DCL             reduce using rule 2 (statement_list -> statement_list statement .)
+    SYN             reduce using rule 2 (statement_list -> statement_list statement .)
+    TYPE            reduce using rule 2 (statement_list -> statement_list statement .)
+    ID              reduce using rule 2 (statement_list -> statement_list statement .)
+    $end            reduce using rule 2 (statement_list -> statement_list statement .)
 
 
 state 15
 
-    (9) declaration -> identifier_list . mode
-    (10) declaration -> identifier_list . mode initialization
-    (19) identifier_list -> identifier_list . COMMA identifier
-    (25) mode -> . mode_name
-    (26) mode -> . discrete_mode
-    (33) mode_name -> . identifier
-    (27) discrete_mode -> . integer_mode
-    (28) discrete_mode -> . boolean_mode
-    (29) discrete_mode -> . character_mode
-    (20) identifier -> . ID
-    (30) integer_mode -> . INT
-    (31) boolean_mode -> . BOOL
-    (32) character_mode -> . CHAR
+    (11) procedure_statement -> label_id COLON . procedure_definition SEMICOL
+    (88) procedure_definition -> . PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list END
+    (89) procedure_definition -> . PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL END
+    (90) procedure_definition -> . PROC LPAREN formal_parameter_list RPAREN SEMICOL statement_list END
+    (91) procedure_definition -> . PROC LPAREN RPAREN result_spec SEMICOL statement_list END
+    (92) procedure_definition -> . PROC LPAREN formal_parameter_list RPAREN SEMICOL END
+    (93) procedure_definition -> . PROC LPAREN RPAREN result_spec SEMICOL END
+    (94) procedure_definition -> . PROC LPAREN RPAREN SEMICOL statement_list END
+    (95) procedure_definition -> . PROC LPAREN RPAREN SEMICOL END
 
-    COMMA           shift and go to state 21
-    ID              shift and go to state 12
-    INT             shift and go to state 19
-    BOOL            shift and go to state 27
-    CHAR            shift and go to state 28
+    PROC            shift and go to state 27
 
-    integer_mode                   shift and go to state 20
-    discrete_mode                  shift and go to state 25
-    boolean_mode                   shift and go to state 26
-    character_mode                 shift and go to state 30
-    mode_name                      shift and go to state 23
-    mode                           shift and go to state 33
-    identifier                     shift and go to state 24
+    procedure_definition           shift and go to state 26
 
 state 16
 
-    (8) declaration_list -> declaration .
+    (54) identifier_list -> identifier .
 
-    SEMICOL         reduce using rule 8 (declaration_list -> declaration .)
-    COMMA           reduce using rule 8 (declaration_list -> declaration .)
+    COMMA           reduce using rule 54 (identifier_list -> identifier .)
+    REF             reduce using rule 54 (identifier_list -> identifier .)
+    ID              reduce using rule 54 (identifier_list -> identifier .)
+    INT             reduce using rule 54 (identifier_list -> identifier .)
+    BOOL            reduce using rule 54 (identifier_list -> identifier .)
+    CHAR            reduce using rule 54 (identifier_list -> identifier .)
+    CHARS           reduce using rule 54 (identifier_list -> identifier .)
+    ARRAY           reduce using rule 54 (identifier_list -> identifier .)
+    ASSIGN          reduce using rule 54 (identifier_list -> identifier .)
 
 
 state 17
 
-    (12) synonym_statement -> SYN synonym_list SEMICOL .
+    (8) declaration_statement -> DCL declaration_list . SEMICOL
+    (12) declaration_list -> declaration_list . COMMA declaration
 
-    DCL             reduce using rule 12 (synonym_statement -> SYN synonym_list SEMICOL .)
-    SYN             reduce using rule 12 (synonym_statement -> SYN synonym_list SEMICOL .)
-    $end            reduce using rule 12 (synonym_statement -> SYN synonym_list SEMICOL .)
+    SEMICOL         shift and go to state 29
+    COMMA           shift and go to state 28
 
 
 state 18
 
-    (13) synonym_list -> synonym_list COMMA . synonym_definition
-    (15) synonym_definition -> . identifier_list mode ASSIGN constant_expression
-    (16) synonym_definition -> . identifier_list ASSIGN constant_expression
-    (18) identifier_list -> . identifier
-    (19) identifier_list -> . identifier_list COMMA identifier
-    (20) identifier -> . ID
+    (13) declaration_list -> declaration .
 
-    ID              shift and go to state 12
+    SEMICOL         reduce using rule 13 (declaration_list -> declaration .)
+    COMMA           reduce using rule 13 (declaration_list -> declaration .)
 
-    identifier_list                shift and go to state 10
-    synonym_definition             shift and go to state 34
-    identifier                     shift and go to state 13
 
 state 19
 
-    (30) integer_mode -> INT .
+    (14) declaration -> identifier_list . mode initialization
+    (15) declaration -> identifier_list . mode
+    (55) identifier_list -> identifier_list . COMMA identifier
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (38) mode_name -> . identifier
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (56) identifier -> . ID
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACK string_length RBRACK
+    (48) array_mode -> . ARRAY LBRACK index_mode_list RBRACK element_mode
+    (39) discrete_mode_name -> . identifier
 
-    ASSIGN          reduce using rule 30 (integer_mode -> INT .)
-    SEMICOL         reduce using rule 30 (integer_mode -> INT .)
-    COMMA           reduce using rule 30 (integer_mode -> INT .)
+    COMMA           shift and go to state 45
+    REF             shift and go to state 47
+    ID              shift and go to state 12
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    CHARS           shift and go to state 48
+    ARRAY           shift and go to state 38
 
+    array_mode                     shift and go to state 43
+    discrete_mode_name             shift and go to state 31
+    composite_mode                 shift and go to state 40
+    mode                           shift and go to state 41
+    boolean_mode                   shift and go to state 42
+    mode_name                      shift and go to state 32
+    discrete_range_mode            shift and go to state 33
+    identifier                     shift and go to state 44
+    string_mode                    shift and go to state 34
+    reference_mode                 shift and go to state 35
+    integer_mode                   shift and go to state 36
+    character_mode                 shift and go to state 37
+    discrete_mode                  shift and go to state 49
 
 state 20
 
-    (27) discrete_mode -> integer_mode .
+    (10) newmode_statement -> TYPE newmode_list . SEMICOL
+    (22) newmode_list -> newmode_list . COMMA mode_definition
 
-    ASSIGN          reduce using rule 27 (discrete_mode -> integer_mode .)
-    SEMICOL         reduce using rule 27 (discrete_mode -> integer_mode .)
-    COMMA           reduce using rule 27 (discrete_mode -> integer_mode .)
+    SEMICOL         shift and go to state 51
+    COMMA           shift and go to state 50
 
 
 state 21
 
-    (19) identifier_list -> identifier_list COMMA . identifier
-    (20) identifier -> . ID
+    (24) mode_definition -> identifier_list . ASSIGN mode
+    (55) identifier_list -> identifier_list . COMMA identifier
 
-    ID              shift and go to state 12
+    ASSIGN          shift and go to state 52
+    COMMA           shift and go to state 45
 
-    identifier                     shift and go to state 35
 
 state 22
 
-    (16) synonym_definition -> identifier_list ASSIGN . constant_expression
-    (17) constant_expression -> . expression
-    (35) expression -> . operand0
-    (36) operand0 -> . operand1
-    (37) operand0 -> . operand0 operator1 operand1
-    (49) operand1 -> . operand2
-    (50) operand1 -> . operand1 operator2 operand2
-    (54) operand2 -> . operand3
-    (55) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
-    (59) operand3 -> . monadic_operator operand4
-    (60) operand3 -> . operand4
-    (61) monadic_operator -> . MINUS
-    (62) monadic_operator -> . NOT
-    (63) operand4 -> . ICONST
+    (23) newmode_list -> mode_definition .
 
-    MINUS           shift and go to state 37
-    NOT             shift and go to state 38
-    ICONST          shift and go to state 39
+    SEMICOL         reduce using rule 23 (newmode_list -> mode_definition .)
+    COMMA           reduce using rule 23 (newmode_list -> mode_definition .)
 
-    operand1                       shift and go to state 36
-    operand3                       shift and go to state 40
-    operand4                       shift and go to state 41
-    operand2                       shift and go to state 43
-    monadic_operator               shift and go to state 42
-    operand0                       shift and go to state 44
-    constant_expression            shift and go to state 45
-    expression                     shift and go to state 46
 
 state 23
 
-    (25) mode -> mode_name .
+    (18) synonym_list -> synonym_definition .
 
-    ASSIGN          reduce using rule 25 (mode -> mode_name .)
-    SEMICOL         reduce using rule 25 (mode -> mode_name .)
-    COMMA           reduce using rule 25 (mode -> mode_name .)
+    SEMICOL         reduce using rule 18 (synonym_list -> synonym_definition .)
+    COMMA           reduce using rule 18 (synonym_list -> synonym_definition .)
 
 
 state 24
 
-    (33) mode_name -> identifier .
+    (9) synonym_statement -> SYN synonym_list . SEMICOL
+    (17) synonym_list -> synonym_list . COMMA synonym_definition
 
-    ASSIGN          reduce using rule 33 (mode_name -> identifier .)
-    SEMICOL         reduce using rule 33 (mode_name -> identifier .)
-    COMMA           reduce using rule 33 (mode_name -> identifier .)
+    SEMICOL         shift and go to state 54
+    COMMA           shift and go to state 53
 
 
 state 25
 
-    (26) mode -> discrete_mode .
+    (19) synonym_definition -> identifier_list . mode ASSIGN constant_expression
+    (20) synonym_definition -> identifier_list . ASSIGN constant_expression
+    (55) identifier_list -> identifier_list . COMMA identifier
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (38) mode_name -> . identifier
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (56) identifier -> . ID
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACK string_length RBRACK
+    (48) array_mode -> . ARRAY LBRACK index_mode_list RBRACK element_mode
+    (39) discrete_mode_name -> . identifier
 
-    ASSIGN          reduce using rule 26 (mode -> discrete_mode .)
-    SEMICOL         reduce using rule 26 (mode -> discrete_mode .)
-    COMMA           reduce using rule 26 (mode -> discrete_mode .)
+    ASSIGN          shift and go to state 55
+    COMMA           shift and go to state 45
+    REF             shift and go to state 47
+    ID              shift and go to state 12
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    CHARS           shift and go to state 48
+    ARRAY           shift and go to state 38
 
+    array_mode                     shift and go to state 43
+    discrete_mode_name             shift and go to state 31
+    composite_mode                 shift and go to state 40
+    mode                           shift and go to state 56
+    boolean_mode                   shift and go to state 42
+    mode_name                      shift and go to state 32
+    discrete_range_mode            shift and go to state 33
+    identifier                     shift and go to state 44
+    string_mode                    shift and go to state 34
+    reference_mode                 shift and go to state 35
+    integer_mode                   shift and go to state 36
+    character_mode                 shift and go to state 37
+    discrete_mode                  shift and go to state 49
 
 state 26
 
-    (28) discrete_mode -> boolean_mode .
+    (11) procedure_statement -> label_id COLON procedure_definition . SEMICOL
 
-    ASSIGN          reduce using rule 28 (discrete_mode -> boolean_mode .)
-    SEMICOL         reduce using rule 28 (discrete_mode -> boolean_mode .)
-    COMMA           reduce using rule 28 (discrete_mode -> boolean_mode .)
+    SEMICOL         shift and go to state 57
 
 
 state 27
 
-    (31) boolean_mode -> BOOL .
+    (88) procedure_definition -> PROC . LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list END
+    (89) procedure_definition -> PROC . LPAREN formal_parameter_list RPAREN result_spec SEMICOL END
+    (90) procedure_definition -> PROC . LPAREN formal_parameter_list RPAREN SEMICOL statement_list END
+    (91) procedure_definition -> PROC . LPAREN RPAREN result_spec SEMICOL statement_list END
+    (92) procedure_definition -> PROC . LPAREN formal_parameter_list RPAREN SEMICOL END
+    (93) procedure_definition -> PROC . LPAREN RPAREN result_spec SEMICOL END
+    (94) procedure_definition -> PROC . LPAREN RPAREN SEMICOL statement_list END
+    (95) procedure_definition -> PROC . LPAREN RPAREN SEMICOL END
 
-    ASSIGN          reduce using rule 31 (boolean_mode -> BOOL .)
-    SEMICOL         reduce using rule 31 (boolean_mode -> BOOL .)
-    COMMA           reduce using rule 31 (boolean_mode -> BOOL .)
+    LPAREN          shift and go to state 58
 
 
 state 28
 
-    (32) character_mode -> CHAR .
+    (12) declaration_list -> declaration_list COMMA . declaration
+    (14) declaration -> . identifier_list mode initialization
+    (15) declaration -> . identifier_list mode
+    (54) identifier_list -> . identifier
+    (55) identifier_list -> . identifier_list COMMA identifier
+    (56) identifier -> . ID
 
-    ASSIGN          reduce using rule 32 (character_mode -> CHAR .)
-    SEMICOL         reduce using rule 32 (character_mode -> CHAR .)
-    COMMA           reduce using rule 32 (character_mode -> CHAR .)
+    ID              shift and go to state 12
 
+    identifier                     shift and go to state 16
+    declaration                    shift and go to state 59
+    identifier_list                shift and go to state 19
 
 state 29
 
-    (15) synonym_definition -> identifier_list mode . ASSIGN constant_expression
+    (8) declaration_statement -> DCL declaration_list SEMICOL .
 
-    ASSIGN          shift and go to state 47
+    END             reduce using rule 8 (declaration_statement -> DCL declaration_list SEMICOL .)
+    DCL             reduce using rule 8 (declaration_statement -> DCL declaration_list SEMICOL .)
+    SYN             reduce using rule 8 (declaration_statement -> DCL declaration_list SEMICOL .)
+    TYPE            reduce using rule 8 (declaration_statement -> DCL declaration_list SEMICOL .)
+    ID              reduce using rule 8 (declaration_statement -> DCL declaration_list SEMICOL .)
+    $end            reduce using rule 8 (declaration_statement -> DCL declaration_list SEMICOL .)
 
 
 state 30
 
-    (29) discrete_mode -> character_mode .
+    (34) boolean_mode -> BOOL .
 
-    ASSIGN          reduce using rule 29 (discrete_mode -> character_mode .)
-    SEMICOL         reduce using rule 29 (discrete_mode -> character_mode .)
-    COMMA           reduce using rule 29 (discrete_mode -> character_mode .)
+    LPAREN          reduce using rule 34 (boolean_mode -> BOOL .)
+    ASSIGN          reduce using rule 34 (boolean_mode -> BOOL .)
+    SEMICOL         reduce using rule 34 (boolean_mode -> BOOL .)
+    COMMA           reduce using rule 34 (boolean_mode -> BOOL .)
+    LOC             reduce using rule 34 (boolean_mode -> BOOL .)
+    RPAREN          reduce using rule 34 (boolean_mode -> BOOL .)
+    RBRACK          reduce using rule 34 (boolean_mode -> BOOL .)
 
 
 state 31
 
-    (6) declaration_statement -> DCL declaration_list SEMICOL .
+    (36) discrete_range_mode -> discrete_mode_name . LPAREN literal_range RPAREN
 
-    DCL             reduce using rule 6 (declaration_statement -> DCL declaration_list SEMICOL .)
-    SYN             reduce using rule 6 (declaration_statement -> DCL declaration_list SEMICOL .)
-    $end            reduce using rule 6 (declaration_statement -> DCL declaration_list SEMICOL .)
+    LPAREN          shift and go to state 60
 
 
 state 32
 
-    (7) declaration_list -> declaration_list COMMA . declaration
-    (9) declaration -> . identifier_list mode
-    (10) declaration -> . identifier_list mode initialization
-    (18) identifier_list -> . identifier
-    (19) identifier_list -> . identifier_list COMMA identifier
-    (20) identifier -> . ID
+    (25) mode -> mode_name .
 
-    ID              shift and go to state 12
+    LOC             reduce using rule 25 (mode -> mode_name .)
+    RPAREN          reduce using rule 25 (mode -> mode_name .)
+    COMMA           reduce using rule 25 (mode -> mode_name .)
+    ASSIGN          reduce using rule 25 (mode -> mode_name .)
+    SEMICOL         reduce using rule 25 (mode -> mode_name .)
 
-    identifier_list                shift and go to state 15
-    declaration                    shift and go to state 48
-    identifier                     shift and go to state 13
 
 state 33
 
-    (9) declaration -> identifier_list mode .
-    (10) declaration -> identifier_list mode . initialization
-    (11) initialization -> . ASSIGN expression
+    (32) discrete_mode -> discrete_range_mode .
 
-    SEMICOL         reduce using rule 9 (declaration -> identifier_list mode .)
-    COMMA           reduce using rule 9 (declaration -> identifier_list mode .)
-    ASSIGN          shift and go to state 50
+    LPAREN          reduce using rule 32 (discrete_mode -> discrete_range_mode .)
+    LOC             reduce using rule 32 (discrete_mode -> discrete_range_mode .)
+    RPAREN          reduce using rule 32 (discrete_mode -> discrete_range_mode .)
+    COMMA           reduce using rule 32 (discrete_mode -> discrete_range_mode .)
+    ASSIGN          reduce using rule 32 (discrete_mode -> discrete_range_mode .)
+    SEMICOL         reduce using rule 32 (discrete_mode -> discrete_range_mode .)
+    RBRACK          reduce using rule 32 (discrete_mode -> discrete_range_mode .)
 
-    initialization                 shift and go to state 49
 
 state 34
 
-    (13) synonym_list -> synonym_list COMMA synonym_definition .
+    (44) composite_mode -> string_mode .
 
-    SEMICOL         reduce using rule 13 (synonym_list -> synonym_list COMMA synonym_definition .)
-    COMMA           reduce using rule 13 (synonym_list -> synonym_list COMMA synonym_definition .)
+    ASSIGN          reduce using rule 44 (composite_mode -> string_mode .)
+    SEMICOL         reduce using rule 44 (composite_mode -> string_mode .)
+    COMMA           reduce using rule 44 (composite_mode -> string_mode .)
+    LOC             reduce using rule 44 (composite_mode -> string_mode .)
+    RPAREN          reduce using rule 44 (composite_mode -> string_mode .)
 
 
 state 35
 
-    (19) identifier_list -> identifier_list COMMA identifier .
+    (27) mode -> reference_mode .
 
-    ASSIGN          reduce using rule 19 (identifier_list -> identifier_list COMMA identifier .)
-    COMMA           reduce using rule 19 (identifier_list -> identifier_list COMMA identifier .)
-    ID              reduce using rule 19 (identifier_list -> identifier_list COMMA identifier .)
-    INT             reduce using rule 19 (identifier_list -> identifier_list COMMA identifier .)
-    BOOL            reduce using rule 19 (identifier_list -> identifier_list COMMA identifier .)
-    CHAR            reduce using rule 19 (identifier_list -> identifier_list COMMA identifier .)
+    LOC             reduce using rule 27 (mode -> reference_mode .)
+    RPAREN          reduce using rule 27 (mode -> reference_mode .)
+    COMMA           reduce using rule 27 (mode -> reference_mode .)
+    ASSIGN          reduce using rule 27 (mode -> reference_mode .)
+    SEMICOL         reduce using rule 27 (mode -> reference_mode .)
 
 
 state 36
 
-    (36) operand0 -> operand1 .
-    (50) operand1 -> operand1 . operator2 operand2
-    (51) operator2 -> . arithmetic_additive_operator
-    (52) arithmetic_additive_operator -> . PLUS
-    (53) arithmetic_additive_operator -> . MINUS
+    (29) discrete_mode -> integer_mode .
 
-    AND             reduce using rule 36 (operand0 -> operand1 .)
-    OR              reduce using rule 36 (operand0 -> operand1 .)
-    EQUALS          reduce using rule 36 (operand0 -> operand1 .)
-    DIF             reduce using rule 36 (operand0 -> operand1 .)
-    GTR             reduce using rule 36 (operand0 -> operand1 .)
-    GEQ             reduce using rule 36 (operand0 -> operand1 .)
-    LSS             reduce using rule 36 (operand0 -> operand1 .)
-    LEQ             reduce using rule 36 (operand0 -> operand1 .)
-    IN              reduce using rule 36 (operand0 -> operand1 .)
-    SEMICOL         reduce using rule 36 (operand0 -> operand1 .)
-    COMMA           reduce using rule 36 (operand0 -> operand1 .)
-    PLUS            shift and go to state 52
-    MINUS           shift and go to state 51
+    LPAREN          reduce using rule 29 (discrete_mode -> integer_mode .)
+    LOC             reduce using rule 29 (discrete_mode -> integer_mode .)
+    RPAREN          reduce using rule 29 (discrete_mode -> integer_mode .)
+    COMMA           reduce using rule 29 (discrete_mode -> integer_mode .)
+    ASSIGN          reduce using rule 29 (discrete_mode -> integer_mode .)
+    SEMICOL         reduce using rule 29 (discrete_mode -> integer_mode .)
+    RBRACK          reduce using rule 29 (discrete_mode -> integer_mode .)
 
-    arithmetic_additive_operator   shift and go to state 54
-    operator2                      shift and go to state 53
 
 state 37
 
-    (61) monadic_operator -> MINUS .
+    (31) discrete_mode -> character_mode .
 
-    ICONST          reduce using rule 61 (monadic_operator -> MINUS .)
+    LPAREN          reduce using rule 31 (discrete_mode -> character_mode .)
+    LOC             reduce using rule 31 (discrete_mode -> character_mode .)
+    RPAREN          reduce using rule 31 (discrete_mode -> character_mode .)
+    COMMA           reduce using rule 31 (discrete_mode -> character_mode .)
+    ASSIGN          reduce using rule 31 (discrete_mode -> character_mode .)
+    SEMICOL         reduce using rule 31 (discrete_mode -> character_mode .)
+    RBRACK          reduce using rule 31 (discrete_mode -> character_mode .)
 
 
 state 38
 
-    (62) monadic_operator -> NOT .
+    (48) array_mode -> ARRAY . LBRACK index_mode_list RBRACK element_mode
 
-    ICONST          reduce using rule 62 (monadic_operator -> NOT .)
+    LBRACK          shift and go to state 61
 
 
 state 39
 
-    (63) operand4 -> ICONST .
+    (33) integer_mode -> INT .
 
-    TIMES           reduce using rule 63 (operand4 -> ICONST .)
-    DIVIDE          reduce using rule 63 (operand4 -> ICONST .)
-    PERC            reduce using rule 63 (operand4 -> ICONST .)
-    PLUS            reduce using rule 63 (operand4 -> ICONST .)
-    MINUS           reduce using rule 63 (operand4 -> ICONST .)
-    AND             reduce using rule 63 (operand4 -> ICONST .)
-    OR              reduce using rule 63 (operand4 -> ICONST .)
-    EQUALS          reduce using rule 63 (operand4 -> ICONST .)
-    DIF             reduce using rule 63 (operand4 -> ICONST .)
-    GTR             reduce using rule 63 (operand4 -> ICONST .)
-    GEQ             reduce using rule 63 (operand4 -> ICONST .)
-    LSS             reduce using rule 63 (operand4 -> ICONST .)
-    LEQ             reduce using rule 63 (operand4 -> ICONST .)
-    IN              reduce using rule 63 (operand4 -> ICONST .)
-    SEMICOL         reduce using rule 63 (operand4 -> ICONST .)
-    COMMA           reduce using rule 63 (operand4 -> ICONST .)
+    LPAREN          reduce using rule 33 (integer_mode -> INT .)
+    RBRACK          reduce using rule 33 (integer_mode -> INT .)
+    COMMA           reduce using rule 33 (integer_mode -> INT .)
+    ASSIGN          reduce using rule 33 (integer_mode -> INT .)
+    SEMICOL         reduce using rule 33 (integer_mode -> INT .)
+    LOC             reduce using rule 33 (integer_mode -> INT .)
+    RPAREN          reduce using rule 33 (integer_mode -> INT .)
 
 
 state 40
 
-    (54) operand2 -> operand3 .
+    (28) mode -> composite_mode .
 
-    TIMES           reduce using rule 54 (operand2 -> operand3 .)
-    DIVIDE          reduce using rule 54 (operand2 -> operand3 .)
-    PERC            reduce using rule 54 (operand2 -> operand3 .)
-    PLUS            reduce using rule 54 (operand2 -> operand3 .)
-    MINUS           reduce using rule 54 (operand2 -> operand3 .)
-    AND             reduce using rule 54 (operand2 -> operand3 .)
-    OR              reduce using rule 54 (operand2 -> operand3 .)
-    EQUALS          reduce using rule 54 (operand2 -> operand3 .)
-    DIF             reduce using rule 54 (operand2 -> operand3 .)
-    GTR             reduce using rule 54 (operand2 -> operand3 .)
-    GEQ             reduce using rule 54 (operand2 -> operand3 .)
-    LSS             reduce using rule 54 (operand2 -> operand3 .)
-    LEQ             reduce using rule 54 (operand2 -> operand3 .)
-    IN              reduce using rule 54 (operand2 -> operand3 .)
-    SEMICOL         reduce using rule 54 (operand2 -> operand3 .)
-    COMMA           reduce using rule 54 (operand2 -> operand3 .)
+    LOC             reduce using rule 28 (mode -> composite_mode .)
+    RPAREN          reduce using rule 28 (mode -> composite_mode .)
+    COMMA           reduce using rule 28 (mode -> composite_mode .)
+    ASSIGN          reduce using rule 28 (mode -> composite_mode .)
+    SEMICOL         reduce using rule 28 (mode -> composite_mode .)
 
 
 state 41
 
-    (60) operand3 -> operand4 .
+    (14) declaration -> identifier_list mode . initialization
+    (15) declaration -> identifier_list mode .
+    (16) initialization -> . ASSIGN expression
 
-    TIMES           reduce using rule 60 (operand3 -> operand4 .)
-    DIVIDE          reduce using rule 60 (operand3 -> operand4 .)
-    PERC            reduce using rule 60 (operand3 -> operand4 .)
-    PLUS            reduce using rule 60 (operand3 -> operand4 .)
-    MINUS           reduce using rule 60 (operand3 -> operand4 .)
-    AND             reduce using rule 60 (operand3 -> operand4 .)
-    OR              reduce using rule 60 (operand3 -> operand4 .)
-    EQUALS          reduce using rule 60 (operand3 -> operand4 .)
-    DIF             reduce using rule 60 (operand3 -> operand4 .)
-    GTR             reduce using rule 60 (operand3 -> operand4 .)
-    GEQ             reduce using rule 60 (operand3 -> operand4 .)
-    LSS             reduce using rule 60 (operand3 -> operand4 .)
-    LEQ             reduce using rule 60 (operand3 -> operand4 .)
-    IN              reduce using rule 60 (operand3 -> operand4 .)
-    SEMICOL         reduce using rule 60 (operand3 -> operand4 .)
-    COMMA           reduce using rule 60 (operand3 -> operand4 .)
+    SEMICOL         reduce using rule 15 (declaration -> identifier_list mode .)
+    COMMA           reduce using rule 15 (declaration -> identifier_list mode .)
+    ASSIGN          shift and go to state 63
 
+    initialization                 shift and go to state 62
 
 state 42
 
-    (59) operand3 -> monadic_operator . operand4
-    (63) operand4 -> . ICONST
+    (30) discrete_mode -> boolean_mode .
 
-    ICONST          shift and go to state 39
+    LPAREN          reduce using rule 30 (discrete_mode -> boolean_mode .)
+    LOC             reduce using rule 30 (discrete_mode -> boolean_mode .)
+    RPAREN          reduce using rule 30 (discrete_mode -> boolean_mode .)
+    COMMA           reduce using rule 30 (discrete_mode -> boolean_mode .)
+    ASSIGN          reduce using rule 30 (discrete_mode -> boolean_mode .)
+    SEMICOL         reduce using rule 30 (discrete_mode -> boolean_mode .)
+    RBRACK          reduce using rule 30 (discrete_mode -> boolean_mode .)
 
-    operand4                       shift and go to state 55
 
 state 43
 
-    (49) operand1 -> operand2 .
-    (55) operand2 -> operand2 . arithmetic_multiplicative_operator operand3
-    (56) arithmetic_multiplicative_operator -> . TIMES
-    (57) arithmetic_multiplicative_operator -> . DIVIDE
-    (58) arithmetic_multiplicative_operator -> . PERC
+    (45) composite_mode -> array_mode .
 
-    PLUS            reduce using rule 49 (operand1 -> operand2 .)
-    MINUS           reduce using rule 49 (operand1 -> operand2 .)
-    AND             reduce using rule 49 (operand1 -> operand2 .)
-    OR              reduce using rule 49 (operand1 -> operand2 .)
-    EQUALS          reduce using rule 49 (operand1 -> operand2 .)
-    DIF             reduce using rule 49 (operand1 -> operand2 .)
-    GTR             reduce using rule 49 (operand1 -> operand2 .)
-    GEQ             reduce using rule 49 (operand1 -> operand2 .)
-    LSS             reduce using rule 49 (operand1 -> operand2 .)
-    LEQ             reduce using rule 49 (operand1 -> operand2 .)
-    IN              reduce using rule 49 (operand1 -> operand2 .)
-    SEMICOL         reduce using rule 49 (operand1 -> operand2 .)
-    COMMA           reduce using rule 49 (operand1 -> operand2 .)
-    TIMES           shift and go to state 58
-    DIVIDE          shift and go to state 59
-    PERC            shift and go to state 57
+    ASSIGN          reduce using rule 45 (composite_mode -> array_mode .)
+    SEMICOL         reduce using rule 45 (composite_mode -> array_mode .)
+    COMMA           reduce using rule 45 (composite_mode -> array_mode .)
+    LOC             reduce using rule 45 (composite_mode -> array_mode .)
+    RPAREN          reduce using rule 45 (composite_mode -> array_mode .)
 
-    arithmetic_multiplicative_operator shift and go to state 56
 
 state 44
 
-    (35) expression -> operand0 .
-    (37) operand0 -> operand0 . operator1 operand1
-    (38) operator1 -> . relational_operator
-    (39) operator1 -> . membership_operator
-    (40) relational_operator -> . AND
-    (41) relational_operator -> . OR
-    (42) relational_operator -> . EQUALS
-    (43) relational_operator -> . DIF
-    (44) relational_operator -> . GTR
-    (45) relational_operator -> . GEQ
-    (46) relational_operator -> . LSS
-    (47) relational_operator -> . LEQ
-    (48) membership_operator -> . IN
+    (38) mode_name -> identifier .
+    (39) discrete_mode_name -> identifier .
 
-    SEMICOL         reduce using rule 35 (expression -> operand0 .)
-    COMMA           reduce using rule 35 (expression -> operand0 .)
-    AND             shift and go to state 69
-    OR              shift and go to state 70
-    EQUALS          shift and go to state 62
-    DIF             shift and go to state 60
-    GTR             shift and go to state 61
-    GEQ             shift and go to state 63
-    LSS             shift and go to state 71
-    LEQ             shift and go to state 67
-    IN              shift and go to state 68
+    ASSIGN          reduce using rule 38 (mode_name -> identifier .)
+    SEMICOL         reduce using rule 38 (mode_name -> identifier .)
+    COMMA           reduce using rule 38 (mode_name -> identifier .)
+    LOC             reduce using rule 38 (mode_name -> identifier .)
+    RPAREN          reduce using rule 38 (mode_name -> identifier .)
+    LPAREN          reduce using rule 39 (discrete_mode_name -> identifier .)
 
-    membership_operator            shift and go to state 66
-    operator1                      shift and go to state 65
-    relational_operator            shift and go to state 64
 
 state 45
 
-    (16) synonym_definition -> identifier_list ASSIGN constant_expression .
+    (55) identifier_list -> identifier_list COMMA . identifier
+    (56) identifier -> . ID
 
-    SEMICOL         reduce using rule 16 (synonym_definition -> identifier_list ASSIGN constant_expression .)
-    COMMA           reduce using rule 16 (synonym_definition -> identifier_list ASSIGN constant_expression .)
+    ID              shift and go to state 12
 
+    identifier                     shift and go to state 64
 
 state 46
 
-    (17) constant_expression -> expression .
+    (35) character_mode -> CHAR .
 
-    SEMICOL         reduce using rule 17 (constant_expression -> expression .)
-    COMMA           reduce using rule 17 (constant_expression -> expression .)
+    LPAREN          reduce using rule 35 (character_mode -> CHAR .)
+    ASSIGN          reduce using rule 35 (character_mode -> CHAR .)
+    SEMICOL         reduce using rule 35 (character_mode -> CHAR .)
+    COMMA           reduce using rule 35 (character_mode -> CHAR .)
+    LOC             reduce using rule 35 (character_mode -> CHAR .)
+    RPAREN          reduce using rule 35 (character_mode -> CHAR .)
+    RBRACK          reduce using rule 35 (character_mode -> CHAR .)
 
 
 state 47
 
-    (15) synonym_definition -> identifier_list mode ASSIGN . constant_expression
-    (17) constant_expression -> . expression
-    (35) expression -> . operand0
-    (36) operand0 -> . operand1
-    (37) operand0 -> . operand0 operator1 operand1
-    (49) operand1 -> . operand2
-    (50) operand1 -> . operand1 operator2 operand2
-    (54) operand2 -> . operand3
-    (55) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
-    (59) operand3 -> . monadic_operator operand4
-    (60) operand3 -> . operand4
-    (61) monadic_operator -> . MINUS
-    (62) monadic_operator -> . NOT
-    (63) operand4 -> . ICONST
+    (43) reference_mode -> REF . mode
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (38) mode_name -> . identifier
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (56) identifier -> . ID
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACK string_length RBRACK
+    (48) array_mode -> . ARRAY LBRACK index_mode_list RBRACK element_mode
+    (39) discrete_mode_name -> . identifier
 
-    MINUS           shift and go to state 37
-    NOT             shift and go to state 38
-    ICONST          shift and go to state 39
+    REF             shift and go to state 47
+    ID              shift and go to state 12
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    CHARS           shift and go to state 48
+    ARRAY           shift and go to state 38
 
-    operand1                       shift and go to state 36
-    operand3                       shift and go to state 40
-    operand4                       shift and go to state 41
-    monadic_operator               shift and go to state 42
-    operand2                       shift and go to state 43
-    operand0                       shift and go to state 44
-    constant_expression            shift and go to state 72
-    expression                     shift and go to state 46
+    array_mode                     shift and go to state 43
+    composite_mode                 shift and go to state 40
+    mode                           shift and go to state 65
+    discrete_mode_name             shift and go to state 31
+    boolean_mode                   shift and go to state 42
+    mode_name                      shift and go to state 32
+    discrete_range_mode            shift and go to state 33
+    identifier                     shift and go to state 44
+    string_mode                    shift and go to state 34
+    reference_mode                 shift and go to state 35
+    integer_mode                   shift and go to state 36
+    character_mode                 shift and go to state 37
+    discrete_mode                  shift and go to state 49
 
 state 48
 
-    (7) declaration_list -> declaration_list COMMA declaration .
+    (46) string_mode -> CHARS . LBRACK string_length RBRACK
 
-    SEMICOL         reduce using rule 7 (declaration_list -> declaration_list COMMA declaration .)
-    COMMA           reduce using rule 7 (declaration_list -> declaration_list COMMA declaration .)
+    LBRACK          shift and go to state 66
 
 
 state 49
 
-    (10) declaration -> identifier_list mode initialization .
+    (26) mode -> discrete_mode .
+    (37) discrete_range_mode -> discrete_mode . LPAREN literal_range RPAREN
 
-    SEMICOL         reduce using rule 10 (declaration -> identifier_list mode initialization .)
-    COMMA           reduce using rule 10 (declaration -> identifier_list mode initialization .)
+    LOC             reduce using rule 26 (mode -> discrete_mode .)
+    RPAREN          reduce using rule 26 (mode -> discrete_mode .)
+    COMMA           reduce using rule 26 (mode -> discrete_mode .)
+    ASSIGN          reduce using rule 26 (mode -> discrete_mode .)
+    SEMICOL         reduce using rule 26 (mode -> discrete_mode .)
+    LPAREN          shift and go to state 67
 
 
 state 50
 
-    (11) initialization -> ASSIGN . expression
-    (35) expression -> . operand0
-    (36) operand0 -> . operand1
-    (37) operand0 -> . operand0 operator1 operand1
-    (49) operand1 -> . operand2
-    (50) operand1 -> . operand1 operator2 operand2
-    (54) operand2 -> . operand3
-    (55) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
-    (59) operand3 -> . monadic_operator operand4
-    (60) operand3 -> . operand4
-    (61) monadic_operator -> . MINUS
-    (62) monadic_operator -> . NOT
-    (63) operand4 -> . ICONST
+    (22) newmode_list -> newmode_list COMMA . mode_definition
+    (24) mode_definition -> . identifier_list ASSIGN mode
+    (54) identifier_list -> . identifier
+    (55) identifier_list -> . identifier_list COMMA identifier
+    (56) identifier -> . ID
 
-    MINUS           shift and go to state 37
-    NOT             shift and go to state 38
-    ICONST          shift and go to state 39
+    ID              shift and go to state 12
 
-    operand1                       shift and go to state 36
-    monadic_operator               shift and go to state 42
-    operand4                       shift and go to state 41
-    operand3                       shift and go to state 40
-    operand2                       shift and go to state 43
-    operand0                       shift and go to state 44
-    expression                     shift and go to state 73
+    identifier_list                shift and go to state 21
+    mode_definition                shift and go to state 68
+    identifier                     shift and go to state 16
 
 state 51
 
-    (53) arithmetic_additive_operator -> MINUS .
+    (10) newmode_statement -> TYPE newmode_list SEMICOL .
 
-    MINUS           reduce using rule 53 (arithmetic_additive_operator -> MINUS .)
-    NOT             reduce using rule 53 (arithmetic_additive_operator -> MINUS .)
-    ICONST          reduce using rule 53 (arithmetic_additive_operator -> MINUS .)
+    END             reduce using rule 10 (newmode_statement -> TYPE newmode_list SEMICOL .)
+    DCL             reduce using rule 10 (newmode_statement -> TYPE newmode_list SEMICOL .)
+    SYN             reduce using rule 10 (newmode_statement -> TYPE newmode_list SEMICOL .)
+    TYPE            reduce using rule 10 (newmode_statement -> TYPE newmode_list SEMICOL .)
+    ID              reduce using rule 10 (newmode_statement -> TYPE newmode_list SEMICOL .)
+    $end            reduce using rule 10 (newmode_statement -> TYPE newmode_list SEMICOL .)
 
 
 state 52
 
-    (52) arithmetic_additive_operator -> PLUS .
+    (24) mode_definition -> identifier_list ASSIGN . mode
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (38) mode_name -> . identifier
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (56) identifier -> . ID
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACK string_length RBRACK
+    (48) array_mode -> . ARRAY LBRACK index_mode_list RBRACK element_mode
+    (39) discrete_mode_name -> . identifier
 
-    MINUS           reduce using rule 52 (arithmetic_additive_operator -> PLUS .)
-    NOT             reduce using rule 52 (arithmetic_additive_operator -> PLUS .)
-    ICONST          reduce using rule 52 (arithmetic_additive_operator -> PLUS .)
+    REF             shift and go to state 47
+    ID              shift and go to state 12
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    CHARS           shift and go to state 48
+    ARRAY           shift and go to state 38
 
+    array_mode                     shift and go to state 43
+    discrete_mode_name             shift and go to state 31
+    composite_mode                 shift and go to state 40
+    mode                           shift and go to state 69
+    boolean_mode                   shift and go to state 42
+    mode_name                      shift and go to state 32
+    discrete_range_mode            shift and go to state 33
+    identifier                     shift and go to state 44
+    string_mode                    shift and go to state 34
+    reference_mode                 shift and go to state 35
+    integer_mode                   shift and go to state 36
+    character_mode                 shift and go to state 37
+    discrete_mode                  shift and go to state 49
 
 state 53
 
-    (50) operand1 -> operand1 operator2 . operand2
-    (54) operand2 -> . operand3
-    (55) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
-    (59) operand3 -> . monadic_operator operand4
-    (60) operand3 -> . operand4
-    (61) monadic_operator -> . MINUS
-    (62) monadic_operator -> . NOT
-    (63) operand4 -> . ICONST
+    (17) synonym_list -> synonym_list COMMA . synonym_definition
+    (19) synonym_definition -> . identifier_list mode ASSIGN constant_expression
+    (20) synonym_definition -> . identifier_list ASSIGN constant_expression
+    (54) identifier_list -> . identifier
+    (55) identifier_list -> . identifier_list COMMA identifier
+    (56) identifier -> . ID
 
-    MINUS           shift and go to state 37
-    NOT             shift and go to state 38
-    ICONST          shift and go to state 39
+    ID              shift and go to state 12
 
-    monadic_operator               shift and go to state 42
-    operand4                       shift and go to state 41
-    operand3                       shift and go to state 40
-    operand2                       shift and go to state 74
+    synonym_definition             shift and go to state 70
+    identifier                     shift and go to state 16
+    identifier_list                shift and go to state 25
 
 state 54
 
-    (51) operator2 -> arithmetic_additive_operator .
+    (9) synonym_statement -> SYN synonym_list SEMICOL .
 
-    MINUS           reduce using rule 51 (operator2 -> arithmetic_additive_operator .)
-    NOT             reduce using rule 51 (operator2 -> arithmetic_additive_operator .)
-    ICONST          reduce using rule 51 (operator2 -> arithmetic_additive_operator .)
+    DCL             reduce using rule 9 (synonym_statement -> SYN synonym_list SEMICOL .)
+    SYN             reduce using rule 9 (synonym_statement -> SYN synonym_list SEMICOL .)
+    TYPE            reduce using rule 9 (synonym_statement -> SYN synonym_list SEMICOL .)
+    ID              reduce using rule 9 (synonym_statement -> SYN synonym_list SEMICOL .)
+    $end            reduce using rule 9 (synonym_statement -> SYN synonym_list SEMICOL .)
+    END             reduce using rule 9 (synonym_statement -> SYN synonym_list SEMICOL .)
 
 
 state 55
 
-    (59) operand3 -> monadic_operator operand4 .
+    (20) synonym_definition -> identifier_list ASSIGN . constant_expression
+    (21) constant_expression -> . expression
+    (58) expression -> . operand0
+    (59) operand0 -> . operand1
+    (60) operand0 -> . operand0 operator1 operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
 
-    TIMES           reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    DIVIDE          reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    PERC            reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    PLUS            reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    MINUS           reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    AND             reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    OR              reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    EQUALS          reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    DIF             reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    GTR             reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    GEQ             reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    LSS             reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    LEQ             reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    IN              reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    SEMICOL         reduce using rule 59 (operand3 -> monadic_operator operand4 .)
-    COMMA           reduce using rule 59 (operand3 -> monadic_operator operand4 .)
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
 
+    operand1                       shift and go to state 71
+    expression                     shift and go to state 72
+    operand2                       shift and go to state 74
+    operand3                       shift and go to state 76
+    operand4                       shift and go to state 77
+    operand0                       shift and go to state 79
+    constant_expression            shift and go to state 80
+    monadic_operator               shift and go to state 81
 
 state 56
 
-    (55) operand2 -> operand2 arithmetic_multiplicative_operator . operand3
-    (59) operand3 -> . monadic_operator operand4
-    (60) operand3 -> . operand4
-    (61) monadic_operator -> . MINUS
-    (62) monadic_operator -> . NOT
-    (63) operand4 -> . ICONST
+    (19) synonym_definition -> identifier_list mode . ASSIGN constant_expression
 
-    MINUS           shift and go to state 37
-    NOT             shift and go to state 38
-    ICONST          shift and go to state 39
+    ASSIGN          shift and go to state 82
 
-    operand3                       shift and go to state 75
-    monadic_operator               shift and go to state 42
-    operand4                       shift and go to state 41
 
 state 57
 
-    (58) arithmetic_multiplicative_operator -> PERC .
+    (11) procedure_statement -> label_id COLON procedure_definition SEMICOL .
 
-    MINUS           reduce using rule 58 (arithmetic_multiplicative_operator -> PERC .)
-    NOT             reduce using rule 58 (arithmetic_multiplicative_operator -> PERC .)
-    ICONST          reduce using rule 58 (arithmetic_multiplicative_operator -> PERC .)
+    END             reduce using rule 11 (procedure_statement -> label_id COLON procedure_definition SEMICOL .)
+    DCL             reduce using rule 11 (procedure_statement -> label_id COLON procedure_definition SEMICOL .)
+    SYN             reduce using rule 11 (procedure_statement -> label_id COLON procedure_definition SEMICOL .)
+    TYPE            reduce using rule 11 (procedure_statement -> label_id COLON procedure_definition SEMICOL .)
+    ID              reduce using rule 11 (procedure_statement -> label_id COLON procedure_definition SEMICOL .)
+    $end            reduce using rule 11 (procedure_statement -> label_id COLON procedure_definition SEMICOL .)
 
 
 state 58
 
-    (56) arithmetic_multiplicative_operator -> TIMES .
+    (88) procedure_definition -> PROC LPAREN . formal_parameter_list RPAREN result_spec SEMICOL statement_list END
+    (89) procedure_definition -> PROC LPAREN . formal_parameter_list RPAREN result_spec SEMICOL END
+    (90) procedure_definition -> PROC LPAREN . formal_parameter_list RPAREN SEMICOL statement_list END
+    (91) procedure_definition -> PROC LPAREN . RPAREN result_spec SEMICOL statement_list END
+    (92) procedure_definition -> PROC LPAREN . formal_parameter_list RPAREN SEMICOL END
+    (93) procedure_definition -> PROC LPAREN . RPAREN result_spec SEMICOL END
+    (94) procedure_definition -> PROC LPAREN . RPAREN SEMICOL statement_list END
+    (95) procedure_definition -> PROC LPAREN . RPAREN SEMICOL END
+    (96) formal_parameter_list -> . formal_parameter_list COMMA formal_parameter
+    (97) formal_parameter_list -> . formal_parameter
+    (98) formal_parameter -> . identifier_list parameter_spec
+    (54) identifier_list -> . identifier
+    (55) identifier_list -> . identifier_list COMMA identifier
+    (56) identifier -> . ID
 
-    MINUS           reduce using rule 56 (arithmetic_multiplicative_operator -> TIMES .)
-    NOT             reduce using rule 56 (arithmetic_multiplicative_operator -> TIMES .)
-    ICONST          reduce using rule 56 (arithmetic_multiplicative_operator -> TIMES .)
+    RPAREN          shift and go to state 83
+    ID              shift and go to state 12
 
+    formal_parameter_list          shift and go to state 85
+    identifier                     shift and go to state 16
+    formal_parameter               shift and go to state 86
+    identifier_list                shift and go to state 84
 
 state 59
 
-    (57) arithmetic_multiplicative_operator -> DIVIDE .
+    (12) declaration_list -> declaration_list COMMA declaration .
 
-    MINUS           reduce using rule 57 (arithmetic_multiplicative_operator -> DIVIDE .)
-    NOT             reduce using rule 57 (arithmetic_multiplicative_operator -> DIVIDE .)
-    ICONST          reduce using rule 57 (arithmetic_multiplicative_operator -> DIVIDE .)
+    SEMICOL         reduce using rule 12 (declaration_list -> declaration_list COMMA declaration .)
+    COMMA           reduce using rule 12 (declaration_list -> declaration_list COMMA declaration .)
 
 
 state 60
 
-    (43) relational_operator -> DIF .
+    (36) discrete_range_mode -> discrete_mode_name LPAREN . literal_range RPAREN
+    (40) literal_range -> . lower_bound COLON upper_bound
+    (41) lower_bound -> . expression
+    (58) expression -> . operand0
+    (59) operand0 -> . operand1
+    (60) operand0 -> . operand0 operator1 operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
 
-    MINUS           reduce using rule 43 (relational_operator -> DIF .)
-    NOT             reduce using rule 43 (relational_operator -> DIF .)
-    ICONST          reduce using rule 43 (relational_operator -> DIF .)
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
 
+    lower_bound                    shift and go to state 87
+    operand1                       shift and go to state 71
+    expression                     shift and go to state 88
+    operand2                       shift and go to state 74
+    literal_range                  shift and go to state 89
+    operand3                       shift and go to state 76
+    operand4                       shift and go to state 77
+    operand0                       shift and go to state 79
+    monadic_operator               shift and go to state 81
 
 state 61
 
-    (44) relational_operator -> GTR .
+    (48) array_mode -> ARRAY LBRACK . index_mode_list RBRACK element_mode
+    (49) index_mode_list -> . index_mode_list COMMA index_mode
+    (50) index_mode_list -> . index_mode
+    (51) index_mode -> . discrete_mode
+    (52) index_mode -> . literal_range
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (40) literal_range -> . lower_bound COLON upper_bound
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (41) lower_bound -> . expression
+    (39) discrete_mode_name -> . identifier
+    (58) expression -> . operand0
+    (56) identifier -> . ID
+    (59) operand0 -> . operand1
+    (60) operand0 -> . operand0 operator1 operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
 
-    MINUS           reduce using rule 44 (relational_operator -> GTR .)
-    NOT             reduce using rule 44 (relational_operator -> GTR .)
-    ICONST          reduce using rule 44 (relational_operator -> GTR .)
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    ID              shift and go to state 12
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
 
+    integer_mode                   shift and go to state 36
+    index_mode                     shift and go to state 90
+    operand2                       shift and go to state 74
+    discrete_mode_name             shift and go to state 31
+    literal_range                  shift and go to state 91
+    discrete_range_mode            shift and go to state 33
+    operand4                       shift and go to state 77
+    operand0                       shift and go to state 79
+    character_mode                 shift and go to state 37
+    lower_bound                    shift and go to state 87
+    monadic_operator               shift and go to state 81
+    operand1                       shift and go to state 71
+    expression                     shift and go to state 88
+    index_mode_list                shift and go to state 93
+    boolean_mode                   shift and go to state 42
+    identifier                     shift and go to state 92
+    operand3                       shift and go to state 76
+    discrete_mode                  shift and go to state 94
 
 state 62
 
-    (42) relational_operator -> EQUALS .
+    (14) declaration -> identifier_list mode initialization .
 
-    MINUS           reduce using rule 42 (relational_operator -> EQUALS .)
-    NOT             reduce using rule 42 (relational_operator -> EQUALS .)
-    ICONST          reduce using rule 42 (relational_operator -> EQUALS .)
+    SEMICOL         reduce using rule 14 (declaration -> identifier_list mode initialization .)
+    COMMA           reduce using rule 14 (declaration -> identifier_list mode initialization .)
 
 
 state 63
 
-    (45) relational_operator -> GEQ .
+    (16) initialization -> ASSIGN . expression
+    (58) expression -> . operand0
+    (59) operand0 -> . operand1
+    (60) operand0 -> . operand0 operator1 operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
 
-    MINUS           reduce using rule 45 (relational_operator -> GEQ .)
-    NOT             reduce using rule 45 (relational_operator -> GEQ .)
-    ICONST          reduce using rule 45 (relational_operator -> GEQ .)
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
 
+    operand3                       shift and go to state 76
+    operand4                       shift and go to state 77
+    operand1                       shift and go to state 71
+    operand0                       shift and go to state 79
+    expression                     shift and go to state 95
+    operand2                       shift and go to state 74
+    monadic_operator               shift and go to state 81
 
 state 64
 
-    (38) operator1 -> relational_operator .
+    (55) identifier_list -> identifier_list COMMA identifier .
 
-    MINUS           reduce using rule 38 (operator1 -> relational_operator .)
-    NOT             reduce using rule 38 (operator1 -> relational_operator .)
-    ICONST          reduce using rule 38 (operator1 -> relational_operator .)
+    COMMA           reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
+    REF             reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
+    ID              reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
+    INT             reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
+    BOOL            reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
+    CHAR            reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
+    CHARS           reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
+    ARRAY           reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
+    ASSIGN          reduce using rule 55 (identifier_list -> identifier_list COMMA identifier .)
 
 
 state 65
 
-    (37) operand0 -> operand0 operator1 . operand1
-    (49) operand1 -> . operand2
-    (50) operand1 -> . operand1 operator2 operand2
-    (54) operand2 -> . operand3
-    (55) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
-    (59) operand3 -> . monadic_operator operand4
-    (60) operand3 -> . operand4
-    (61) monadic_operator -> . MINUS
-    (62) monadic_operator -> . NOT
-    (63) operand4 -> . ICONST
+    (43) reference_mode -> REF mode .
 
-    MINUS           shift and go to state 37
-    NOT             shift and go to state 38
-    ICONST          shift and go to state 39
+    ASSIGN          reduce using rule 43 (reference_mode -> REF mode .)
+    SEMICOL         reduce using rule 43 (reference_mode -> REF mode .)
+    COMMA           reduce using rule 43 (reference_mode -> REF mode .)
+    LOC             reduce using rule 43 (reference_mode -> REF mode .)
+    RPAREN          reduce using rule 43 (reference_mode -> REF mode .)
 
-    operand1                       shift and go to state 76
-    monadic_operator               shift and go to state 42
-    operand4                       shift and go to state 41
-    operand3                       shift and go to state 40
-    operand2                       shift and go to state 43
 
 state 66
 
-    (39) operator1 -> membership_operator .
+    (46) string_mode -> CHARS LBRACK . string_length RBRACK
+    (47) string_length -> . integer_literal
+    (57) integer_literal -> . ICONST
 
-    MINUS           reduce using rule 39 (operator1 -> membership_operator .)
-    NOT             reduce using rule 39 (operator1 -> membership_operator .)
-    ICONST          reduce using rule 39 (operator1 -> membership_operator .)
+    ICONST          shift and go to state 97
 
+    integer_literal                shift and go to state 96
+    string_length                  shift and go to state 98
 
 state 67
 
-    (47) relational_operator -> LEQ .
+    (37) discrete_range_mode -> discrete_mode LPAREN . literal_range RPAREN
+    (40) literal_range -> . lower_bound COLON upper_bound
+    (41) lower_bound -> . expression
+    (58) expression -> . operand0
+    (59) operand0 -> . operand1
+    (60) operand0 -> . operand0 operator1 operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
 
-    MINUS           reduce using rule 47 (relational_operator -> LEQ .)
-    NOT             reduce using rule 47 (relational_operator -> LEQ .)
-    ICONST          reduce using rule 47 (relational_operator -> LEQ .)
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
 
+    lower_bound                    shift and go to state 87
+    operand1                       shift and go to state 71
+    expression                     shift and go to state 88
+    operand2                       shift and go to state 74
+    literal_range                  shift and go to state 99
+    operand3                       shift and go to state 76
+    operand4                       shift and go to state 77
+    operand0                       shift and go to state 79
+    monadic_operator               shift and go to state 81
 
 state 68
 
-    (48) membership_operator -> IN .
+    (22) newmode_list -> newmode_list COMMA mode_definition .
 
-    MINUS           reduce using rule 48 (membership_operator -> IN .)
-    NOT             reduce using rule 48 (membership_operator -> IN .)
-    ICONST          reduce using rule 48 (membership_operator -> IN .)
+    SEMICOL         reduce using rule 22 (newmode_list -> newmode_list COMMA mode_definition .)
+    COMMA           reduce using rule 22 (newmode_list -> newmode_list COMMA mode_definition .)
 
 
 state 69
 
-    (40) relational_operator -> AND .
+    (24) mode_definition -> identifier_list ASSIGN mode .
 
-    MINUS           reduce using rule 40 (relational_operator -> AND .)
-    NOT             reduce using rule 40 (relational_operator -> AND .)
-    ICONST          reduce using rule 40 (relational_operator -> AND .)
+    SEMICOL         reduce using rule 24 (mode_definition -> identifier_list ASSIGN mode .)
+    COMMA           reduce using rule 24 (mode_definition -> identifier_list ASSIGN mode .)
 
 
 state 70
 
-    (41) relational_operator -> OR .
+    (17) synonym_list -> synonym_list COMMA synonym_definition .
 
-    MINUS           reduce using rule 41 (relational_operator -> OR .)
-    NOT             reduce using rule 41 (relational_operator -> OR .)
-    ICONST          reduce using rule 41 (relational_operator -> OR .)
+    SEMICOL         reduce using rule 17 (synonym_list -> synonym_list COMMA synonym_definition .)
+    COMMA           reduce using rule 17 (synonym_list -> synonym_list COMMA synonym_definition .)
 
 
 state 71
 
-    (46) relational_operator -> LSS .
+    (59) operand0 -> operand1 .
+    (73) operand1 -> operand1 . operator2 operand2
+    (74) operator2 -> . arithmetic_additive_operator
+    (75) arithmetic_additive_operator -> . PLUS
+    (76) arithmetic_additive_operator -> . MINUS
 
-    MINUS           reduce using rule 46 (relational_operator -> LSS .)
-    NOT             reduce using rule 46 (relational_operator -> LSS .)
-    ICONST          reduce using rule 46 (relational_operator -> LSS .)
+    AND             reduce using rule 59 (operand0 -> operand1 .)
+    OR              reduce using rule 59 (operand0 -> operand1 .)
+    EQUALS          reduce using rule 59 (operand0 -> operand1 .)
+    DIF             reduce using rule 59 (operand0 -> operand1 .)
+    GTR             reduce using rule 59 (operand0 -> operand1 .)
+    GEQ             reduce using rule 59 (operand0 -> operand1 .)
+    LSS             reduce using rule 59 (operand0 -> operand1 .)
+    LEQ             reduce using rule 59 (operand0 -> operand1 .)
+    IN              reduce using rule 59 (operand0 -> operand1 .)
+    SEMICOL         reduce using rule 59 (operand0 -> operand1 .)
+    COMMA           reduce using rule 59 (operand0 -> operand1 .)
+    COLON           reduce using rule 59 (operand0 -> operand1 .)
+    RPAREN          reduce using rule 59 (operand0 -> operand1 .)
+    RBRACK          reduce using rule 59 (operand0 -> operand1 .)
+    PLUS            shift and go to state 103
+    MINUS           shift and go to state 100
 
+    operator2                      shift and go to state 101
+    arithmetic_additive_operator   shift and go to state 102
 
 state 72
 
-    (15) synonym_definition -> identifier_list mode ASSIGN constant_expression .
+    (21) constant_expression -> expression .
 
-    SEMICOL         reduce using rule 15 (synonym_definition -> identifier_list mode ASSIGN constant_expression .)
-    COMMA           reduce using rule 15 (synonym_definition -> identifier_list mode ASSIGN constant_expression .)
+    SEMICOL         reduce using rule 21 (constant_expression -> expression .)
+    COMMA           reduce using rule 21 (constant_expression -> expression .)
 
 
 state 73
 
-    (11) initialization -> ASSIGN expression .
+    (85) monadic_operator -> NOT .
 
-    SEMICOL         reduce using rule 11 (initialization -> ASSIGN expression .)
-    COMMA           reduce using rule 11 (initialization -> ASSIGN expression .)
+    ICONST          reduce using rule 85 (monadic_operator -> NOT .)
 
 
 state 74
 
-    (50) operand1 -> operand1 operator2 operand2 .
-    (55) operand2 -> operand2 . arithmetic_multiplicative_operator operand3
-    (56) arithmetic_multiplicative_operator -> . TIMES
-    (57) arithmetic_multiplicative_operator -> . DIVIDE
-    (58) arithmetic_multiplicative_operator -> . PERC
+    (72) operand1 -> operand2 .
+    (78) operand2 -> operand2 . arithmetic_multiplicative_operator operand3
+    (79) arithmetic_multiplicative_operator -> . TIMES
+    (80) arithmetic_multiplicative_operator -> . DIVIDE
+    (81) arithmetic_multiplicative_operator -> . PERC
 
-    PLUS            reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    MINUS           reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    AND             reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    OR              reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    EQUALS          reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    DIF             reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    GTR             reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    GEQ             reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    LSS             reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    LEQ             reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    IN              reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    SEMICOL         reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    COMMA           reduce using rule 50 (operand1 -> operand1 operator2 operand2 .)
-    TIMES           shift and go to state 58
-    DIVIDE          shift and go to state 59
-    PERC            shift and go to state 57
+    PLUS            reduce using rule 72 (operand1 -> operand2 .)
+    MINUS           reduce using rule 72 (operand1 -> operand2 .)
+    AND             reduce using rule 72 (operand1 -> operand2 .)
+    OR              reduce using rule 72 (operand1 -> operand2 .)
+    EQUALS          reduce using rule 72 (operand1 -> operand2 .)
+    DIF             reduce using rule 72 (operand1 -> operand2 .)
+    GTR             reduce using rule 72 (operand1 -> operand2 .)
+    GEQ             reduce using rule 72 (operand1 -> operand2 .)
+    LSS             reduce using rule 72 (operand1 -> operand2 .)
+    LEQ             reduce using rule 72 (operand1 -> operand2 .)
+    IN              reduce using rule 72 (operand1 -> operand2 .)
+    RPAREN          reduce using rule 72 (operand1 -> operand2 .)
+    RBRACK          reduce using rule 72 (operand1 -> operand2 .)
+    COMMA           reduce using rule 72 (operand1 -> operand2 .)
+    SEMICOL         reduce using rule 72 (operand1 -> operand2 .)
+    COLON           reduce using rule 72 (operand1 -> operand2 .)
+    TIMES           shift and go to state 107
+    DIVIDE          shift and go to state 105
+    PERC            shift and go to state 104
 
-    arithmetic_multiplicative_operator shift and go to state 56
+    arithmetic_multiplicative_operator shift and go to state 106
 
 state 75
 
-    (55) operand2 -> operand2 arithmetic_multiplicative_operator operand3 .
+    (84) monadic_operator -> MINUS .
 
-    TIMES           reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    DIVIDE          reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    PERC            reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    PLUS            reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    MINUS           reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    AND             reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    OR              reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    EQUALS          reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    DIF             reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    GTR             reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    GEQ             reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    LSS             reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    LEQ             reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    IN              reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    SEMICOL         reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    COMMA           reduce using rule 55 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    ICONST          reduce using rule 84 (monadic_operator -> MINUS .)
 
 
 state 76
 
-    (37) operand0 -> operand0 operator1 operand1 .
-    (50) operand1 -> operand1 . operator2 operand2
-    (51) operator2 -> . arithmetic_additive_operator
-    (52) arithmetic_additive_operator -> . PLUS
-    (53) arithmetic_additive_operator -> . MINUS
+    (77) operand2 -> operand3 .
 
-    AND             reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    OR              reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    EQUALS          reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    DIF             reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    GTR             reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    GEQ             reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    LSS             reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    LEQ             reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    IN              reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    SEMICOL         reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    COMMA           reduce using rule 37 (operand0 -> operand0 operator1 operand1 .)
-    PLUS            shift and go to state 52
-    MINUS           shift and go to state 51
+    TIMES           reduce using rule 77 (operand2 -> operand3 .)
+    DIVIDE          reduce using rule 77 (operand2 -> operand3 .)
+    PERC            reduce using rule 77 (operand2 -> operand3 .)
+    PLUS            reduce using rule 77 (operand2 -> operand3 .)
+    MINUS           reduce using rule 77 (operand2 -> operand3 .)
+    AND             reduce using rule 77 (operand2 -> operand3 .)
+    OR              reduce using rule 77 (operand2 -> operand3 .)
+    EQUALS          reduce using rule 77 (operand2 -> operand3 .)
+    DIF             reduce using rule 77 (operand2 -> operand3 .)
+    GTR             reduce using rule 77 (operand2 -> operand3 .)
+    GEQ             reduce using rule 77 (operand2 -> operand3 .)
+    LSS             reduce using rule 77 (operand2 -> operand3 .)
+    LEQ             reduce using rule 77 (operand2 -> operand3 .)
+    IN              reduce using rule 77 (operand2 -> operand3 .)
+    COLON           reduce using rule 77 (operand2 -> operand3 .)
+    SEMICOL         reduce using rule 77 (operand2 -> operand3 .)
+    COMMA           reduce using rule 77 (operand2 -> operand3 .)
+    RPAREN          reduce using rule 77 (operand2 -> operand3 .)
+    RBRACK          reduce using rule 77 (operand2 -> operand3 .)
 
-    operator2                      shift and go to state 53
-    arithmetic_additive_operator   shift and go to state 54
+
+state 77
+
+    (83) operand3 -> operand4 .
+
+    TIMES           reduce using rule 83 (operand3 -> operand4 .)
+    DIVIDE          reduce using rule 83 (operand3 -> operand4 .)
+    PERC            reduce using rule 83 (operand3 -> operand4 .)
+    PLUS            reduce using rule 83 (operand3 -> operand4 .)
+    MINUS           reduce using rule 83 (operand3 -> operand4 .)
+    AND             reduce using rule 83 (operand3 -> operand4 .)
+    OR              reduce using rule 83 (operand3 -> operand4 .)
+    EQUALS          reduce using rule 83 (operand3 -> operand4 .)
+    DIF             reduce using rule 83 (operand3 -> operand4 .)
+    GTR             reduce using rule 83 (operand3 -> operand4 .)
+    GEQ             reduce using rule 83 (operand3 -> operand4 .)
+    LSS             reduce using rule 83 (operand3 -> operand4 .)
+    LEQ             reduce using rule 83 (operand3 -> operand4 .)
+    IN              reduce using rule 83 (operand3 -> operand4 .)
+    SEMICOL         reduce using rule 83 (operand3 -> operand4 .)
+    COMMA           reduce using rule 83 (operand3 -> operand4 .)
+    COLON           reduce using rule 83 (operand3 -> operand4 .)
+    RPAREN          reduce using rule 83 (operand3 -> operand4 .)
+    RBRACK          reduce using rule 83 (operand3 -> operand4 .)
+
+
+state 78
+
+    (86) operand4 -> ICONST .
+
+    TIMES           reduce using rule 86 (operand4 -> ICONST .)
+    DIVIDE          reduce using rule 86 (operand4 -> ICONST .)
+    PERC            reduce using rule 86 (operand4 -> ICONST .)
+    PLUS            reduce using rule 86 (operand4 -> ICONST .)
+    MINUS           reduce using rule 86 (operand4 -> ICONST .)
+    AND             reduce using rule 86 (operand4 -> ICONST .)
+    OR              reduce using rule 86 (operand4 -> ICONST .)
+    EQUALS          reduce using rule 86 (operand4 -> ICONST .)
+    DIF             reduce using rule 86 (operand4 -> ICONST .)
+    GTR             reduce using rule 86 (operand4 -> ICONST .)
+    GEQ             reduce using rule 86 (operand4 -> ICONST .)
+    LSS             reduce using rule 86 (operand4 -> ICONST .)
+    LEQ             reduce using rule 86 (operand4 -> ICONST .)
+    IN              reduce using rule 86 (operand4 -> ICONST .)
+    SEMICOL         reduce using rule 86 (operand4 -> ICONST .)
+    COMMA           reduce using rule 86 (operand4 -> ICONST .)
+    COLON           reduce using rule 86 (operand4 -> ICONST .)
+    RPAREN          reduce using rule 86 (operand4 -> ICONST .)
+    RBRACK          reduce using rule 86 (operand4 -> ICONST .)
+
+
+state 79
+
+    (58) expression -> operand0 .
+    (60) operand0 -> operand0 . operator1 operand1
+    (61) operator1 -> . relational_operator
+    (62) operator1 -> . membership_operator
+    (63) relational_operator -> . AND
+    (64) relational_operator -> . OR
+    (65) relational_operator -> . EQUALS
+    (66) relational_operator -> . DIF
+    (67) relational_operator -> . GTR
+    (68) relational_operator -> . GEQ
+    (69) relational_operator -> . LSS
+    (70) relational_operator -> . LEQ
+    (71) membership_operator -> . IN
+
+    COLON           reduce using rule 58 (expression -> operand0 .)
+    RPAREN          reduce using rule 58 (expression -> operand0 .)
+    RBRACK          reduce using rule 58 (expression -> operand0 .)
+    COMMA           reduce using rule 58 (expression -> operand0 .)
+    SEMICOL         reduce using rule 58 (expression -> operand0 .)
+    AND             shift and go to state 110
+    OR              shift and go to state 109
+    EQUALS          shift and go to state 115
+    DIF             shift and go to state 112
+    GTR             shift and go to state 111
+    GEQ             shift and go to state 117
+    LSS             shift and go to state 116
+    LEQ             shift and go to state 108
+    IN              shift and go to state 114
+
+    membership_operator            shift and go to state 119
+    relational_operator            shift and go to state 113
+    operator1                      shift and go to state 118
+
+state 80
+
+    (20) synonym_definition -> identifier_list ASSIGN constant_expression .
+
+    SEMICOL         reduce using rule 20 (synonym_definition -> identifier_list ASSIGN constant_expression .)
+    COMMA           reduce using rule 20 (synonym_definition -> identifier_list ASSIGN constant_expression .)
+
+
+state 81
+
+    (82) operand3 -> monadic_operator . operand4
+    (86) operand4 -> . ICONST
+
+    ICONST          shift and go to state 78
+
+    operand4                       shift and go to state 120
+
+state 82
+
+    (19) synonym_definition -> identifier_list mode ASSIGN . constant_expression
+    (21) constant_expression -> . expression
+    (58) expression -> . operand0
+    (59) operand0 -> . operand1
+    (60) operand0 -> . operand0 operator1 operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
+
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
+
+    operand1                       shift and go to state 71
+    expression                     shift and go to state 72
+    operand2                       shift and go to state 74
+    operand3                       shift and go to state 76
+    operand4                       shift and go to state 77
+    operand0                       shift and go to state 79
+    constant_expression            shift and go to state 121
+    monadic_operator               shift and go to state 81
+
+state 83
+
+    (91) procedure_definition -> PROC LPAREN RPAREN . result_spec SEMICOL statement_list END
+    (93) procedure_definition -> PROC LPAREN RPAREN . result_spec SEMICOL END
+    (94) procedure_definition -> PROC LPAREN RPAREN . SEMICOL statement_list END
+    (95) procedure_definition -> PROC LPAREN RPAREN . SEMICOL END
+    (102) result_spec -> . RETURNS LPAREN mode result_attribute RPAREN
+    (103) result_spec -> . RETURNS LPAREN mode RPAREN
+
+    SEMICOL         shift and go to state 123
+    RETURNS         shift and go to state 124
+
+    result_spec                    shift and go to state 122
+
+state 84
+
+    (98) formal_parameter -> identifier_list . parameter_spec
+    (55) identifier_list -> identifier_list . COMMA identifier
+    (99) parameter_spec -> . mode parameter_attribute
+    (100) parameter_spec -> . mode
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (38) mode_name -> . identifier
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (56) identifier -> . ID
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACK string_length RBRACK
+    (48) array_mode -> . ARRAY LBRACK index_mode_list RBRACK element_mode
+    (39) discrete_mode_name -> . identifier
+
+    COMMA           shift and go to state 45
+    REF             shift and go to state 47
+    ID              shift and go to state 12
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    CHARS           shift and go to state 48
+    ARRAY           shift and go to state 38
+
+    array_mode                     shift and go to state 43
+    discrete_mode_name             shift and go to state 31
+    composite_mode                 shift and go to state 40
+    mode                           shift and go to state 126
+    parameter_spec                 shift and go to state 125
+    boolean_mode                   shift and go to state 42
+    mode_name                      shift and go to state 32
+    discrete_range_mode            shift and go to state 33
+    identifier                     shift and go to state 44
+    string_mode                    shift and go to state 34
+    reference_mode                 shift and go to state 35
+    integer_mode                   shift and go to state 36
+    character_mode                 shift and go to state 37
+    discrete_mode                  shift and go to state 49
+
+state 85
+
+    (88) procedure_definition -> PROC LPAREN formal_parameter_list . RPAREN result_spec SEMICOL statement_list END
+    (89) procedure_definition -> PROC LPAREN formal_parameter_list . RPAREN result_spec SEMICOL END
+    (90) procedure_definition -> PROC LPAREN formal_parameter_list . RPAREN SEMICOL statement_list END
+    (92) procedure_definition -> PROC LPAREN formal_parameter_list . RPAREN SEMICOL END
+    (96) formal_parameter_list -> formal_parameter_list . COMMA formal_parameter
+
+    RPAREN          shift and go to state 127
+    COMMA           shift and go to state 128
+
+
+state 86
+
+    (97) formal_parameter_list -> formal_parameter .
+
+    RPAREN          reduce using rule 97 (formal_parameter_list -> formal_parameter .)
+    COMMA           reduce using rule 97 (formal_parameter_list -> formal_parameter .)
+
+
+state 87
+
+    (40) literal_range -> lower_bound . COLON upper_bound
+
+    COLON           shift and go to state 129
+
+
+state 88
+
+    (41) lower_bound -> expression .
+
+    COLON           reduce using rule 41 (lower_bound -> expression .)
+
+
+state 89
+
+    (36) discrete_range_mode -> discrete_mode_name LPAREN literal_range . RPAREN
+
+    RPAREN          shift and go to state 130
+
+
+state 90
+
+    (50) index_mode_list -> index_mode .
+
+    RBRACK          reduce using rule 50 (index_mode_list -> index_mode .)
+    COMMA           reduce using rule 50 (index_mode_list -> index_mode .)
+
+
+state 91
+
+    (52) index_mode -> literal_range .
+
+    RBRACK          reduce using rule 52 (index_mode -> literal_range .)
+    COMMA           reduce using rule 52 (index_mode -> literal_range .)
+
+
+state 92
+
+    (39) discrete_mode_name -> identifier .
+
+    LPAREN          reduce using rule 39 (discrete_mode_name -> identifier .)
+
+
+state 93
+
+    (48) array_mode -> ARRAY LBRACK index_mode_list . RBRACK element_mode
+    (49) index_mode_list -> index_mode_list . COMMA index_mode
+
+    RBRACK          shift and go to state 132
+    COMMA           shift and go to state 131
+
+
+state 94
+
+    (51) index_mode -> discrete_mode .
+    (37) discrete_range_mode -> discrete_mode . LPAREN literal_range RPAREN
+
+    RBRACK          reduce using rule 51 (index_mode -> discrete_mode .)
+    COMMA           reduce using rule 51 (index_mode -> discrete_mode .)
+    LPAREN          shift and go to state 67
+
+
+state 95
+
+    (16) initialization -> ASSIGN expression .
+
+    SEMICOL         reduce using rule 16 (initialization -> ASSIGN expression .)
+    COMMA           reduce using rule 16 (initialization -> ASSIGN expression .)
+
+
+state 96
+
+    (47) string_length -> integer_literal .
+
+    RBRACK          reduce using rule 47 (string_length -> integer_literal .)
+
+
+state 97
+
+    (57) integer_literal -> ICONST .
+
+    RBRACK          reduce using rule 57 (integer_literal -> ICONST .)
+
+
+state 98
+
+    (46) string_mode -> CHARS LBRACK string_length . RBRACK
+
+    RBRACK          shift and go to state 133
+
+
+state 99
+
+    (37) discrete_range_mode -> discrete_mode LPAREN literal_range . RPAREN
+
+    RPAREN          shift and go to state 134
+
+
+state 100
+
+    (76) arithmetic_additive_operator -> MINUS .
+
+    MINUS           reduce using rule 76 (arithmetic_additive_operator -> MINUS .)
+    NOT             reduce using rule 76 (arithmetic_additive_operator -> MINUS .)
+    ICONST          reduce using rule 76 (arithmetic_additive_operator -> MINUS .)
+
+
+state 101
+
+    (73) operand1 -> operand1 operator2 . operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
+
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
+
+    operand3                       shift and go to state 76
+    operand4                       shift and go to state 77
+    operand2                       shift and go to state 135
+    monadic_operator               shift and go to state 81
+
+state 102
+
+    (74) operator2 -> arithmetic_additive_operator .
+
+    MINUS           reduce using rule 74 (operator2 -> arithmetic_additive_operator .)
+    NOT             reduce using rule 74 (operator2 -> arithmetic_additive_operator .)
+    ICONST          reduce using rule 74 (operator2 -> arithmetic_additive_operator .)
+
+
+state 103
+
+    (75) arithmetic_additive_operator -> PLUS .
+
+    MINUS           reduce using rule 75 (arithmetic_additive_operator -> PLUS .)
+    NOT             reduce using rule 75 (arithmetic_additive_operator -> PLUS .)
+    ICONST          reduce using rule 75 (arithmetic_additive_operator -> PLUS .)
+
+
+state 104
+
+    (81) arithmetic_multiplicative_operator -> PERC .
+
+    MINUS           reduce using rule 81 (arithmetic_multiplicative_operator -> PERC .)
+    NOT             reduce using rule 81 (arithmetic_multiplicative_operator -> PERC .)
+    ICONST          reduce using rule 81 (arithmetic_multiplicative_operator -> PERC .)
+
+
+state 105
+
+    (80) arithmetic_multiplicative_operator -> DIVIDE .
+
+    MINUS           reduce using rule 80 (arithmetic_multiplicative_operator -> DIVIDE .)
+    NOT             reduce using rule 80 (arithmetic_multiplicative_operator -> DIVIDE .)
+    ICONST          reduce using rule 80 (arithmetic_multiplicative_operator -> DIVIDE .)
+
+
+state 106
+
+    (78) operand2 -> operand2 arithmetic_multiplicative_operator . operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
+
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
+
+    operand3                       shift and go to state 136
+    operand4                       shift and go to state 77
+    monadic_operator               shift and go to state 81
+
+state 107
+
+    (79) arithmetic_multiplicative_operator -> TIMES .
+
+    MINUS           reduce using rule 79 (arithmetic_multiplicative_operator -> TIMES .)
+    NOT             reduce using rule 79 (arithmetic_multiplicative_operator -> TIMES .)
+    ICONST          reduce using rule 79 (arithmetic_multiplicative_operator -> TIMES .)
+
+
+state 108
+
+    (70) relational_operator -> LEQ .
+
+    MINUS           reduce using rule 70 (relational_operator -> LEQ .)
+    NOT             reduce using rule 70 (relational_operator -> LEQ .)
+    ICONST          reduce using rule 70 (relational_operator -> LEQ .)
+
+
+state 109
+
+    (64) relational_operator -> OR .
+
+    MINUS           reduce using rule 64 (relational_operator -> OR .)
+    NOT             reduce using rule 64 (relational_operator -> OR .)
+    ICONST          reduce using rule 64 (relational_operator -> OR .)
+
+
+state 110
+
+    (63) relational_operator -> AND .
+
+    MINUS           reduce using rule 63 (relational_operator -> AND .)
+    NOT             reduce using rule 63 (relational_operator -> AND .)
+    ICONST          reduce using rule 63 (relational_operator -> AND .)
+
+
+state 111
+
+    (67) relational_operator -> GTR .
+
+    MINUS           reduce using rule 67 (relational_operator -> GTR .)
+    NOT             reduce using rule 67 (relational_operator -> GTR .)
+    ICONST          reduce using rule 67 (relational_operator -> GTR .)
+
+
+state 112
+
+    (66) relational_operator -> DIF .
+
+    MINUS           reduce using rule 66 (relational_operator -> DIF .)
+    NOT             reduce using rule 66 (relational_operator -> DIF .)
+    ICONST          reduce using rule 66 (relational_operator -> DIF .)
+
+
+state 113
+
+    (61) operator1 -> relational_operator .
+
+    MINUS           reduce using rule 61 (operator1 -> relational_operator .)
+    NOT             reduce using rule 61 (operator1 -> relational_operator .)
+    ICONST          reduce using rule 61 (operator1 -> relational_operator .)
+
+
+state 114
+
+    (71) membership_operator -> IN .
+
+    MINUS           reduce using rule 71 (membership_operator -> IN .)
+    NOT             reduce using rule 71 (membership_operator -> IN .)
+    ICONST          reduce using rule 71 (membership_operator -> IN .)
+
+
+state 115
+
+    (65) relational_operator -> EQUALS .
+
+    MINUS           reduce using rule 65 (relational_operator -> EQUALS .)
+    NOT             reduce using rule 65 (relational_operator -> EQUALS .)
+    ICONST          reduce using rule 65 (relational_operator -> EQUALS .)
+
+
+state 116
+
+    (69) relational_operator -> LSS .
+
+    MINUS           reduce using rule 69 (relational_operator -> LSS .)
+    NOT             reduce using rule 69 (relational_operator -> LSS .)
+    ICONST          reduce using rule 69 (relational_operator -> LSS .)
+
+
+state 117
+
+    (68) relational_operator -> GEQ .
+
+    MINUS           reduce using rule 68 (relational_operator -> GEQ .)
+    NOT             reduce using rule 68 (relational_operator -> GEQ .)
+    ICONST          reduce using rule 68 (relational_operator -> GEQ .)
+
+
+state 118
+
+    (60) operand0 -> operand0 operator1 . operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
+
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
+
+    operand3                       shift and go to state 76
+    operand4                       shift and go to state 77
+    operand1                       shift and go to state 137
+    operand2                       shift and go to state 74
+    monadic_operator               shift and go to state 81
+
+state 119
+
+    (62) operator1 -> membership_operator .
+
+    MINUS           reduce using rule 62 (operator1 -> membership_operator .)
+    NOT             reduce using rule 62 (operator1 -> membership_operator .)
+    ICONST          reduce using rule 62 (operator1 -> membership_operator .)
+
+
+state 120
+
+    (82) operand3 -> monadic_operator operand4 .
+
+    TIMES           reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    DIVIDE          reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    PERC            reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    PLUS            reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    MINUS           reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    AND             reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    OR              reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    EQUALS          reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    DIF             reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    GTR             reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    GEQ             reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    LSS             reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    LEQ             reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    IN              reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    SEMICOL         reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    COMMA           reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    COLON           reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    RPAREN          reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+    RBRACK          reduce using rule 82 (operand3 -> monadic_operator operand4 .)
+
+
+state 121
+
+    (19) synonym_definition -> identifier_list mode ASSIGN constant_expression .
+
+    SEMICOL         reduce using rule 19 (synonym_definition -> identifier_list mode ASSIGN constant_expression .)
+    COMMA           reduce using rule 19 (synonym_definition -> identifier_list mode ASSIGN constant_expression .)
+
+
+state 122
+
+    (91) procedure_definition -> PROC LPAREN RPAREN result_spec . SEMICOL statement_list END
+    (93) procedure_definition -> PROC LPAREN RPAREN result_spec . SEMICOL END
+
+    SEMICOL         shift and go to state 138
+
+
+state 123
+
+    (94) procedure_definition -> PROC LPAREN RPAREN SEMICOL . statement_list END
+    (95) procedure_definition -> PROC LPAREN RPAREN SEMICOL . END
+    (2) statement_list -> . statement_list statement
+    (3) statement_list -> . statement
+    (4) statement -> . declaration_statement
+    (5) statement -> . synonym_statement
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
+
+    END             shift and go to state 140
+    DCL             shift and go to state 7
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
+
+    statement                      shift and go to state 1
+    statement_list                 shift and go to state 139
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+    label_id                       shift and go to state 5
+
+state 124
+
+    (102) result_spec -> RETURNS . LPAREN mode result_attribute RPAREN
+    (103) result_spec -> RETURNS . LPAREN mode RPAREN
+
+    LPAREN          shift and go to state 141
+
+
+state 125
+
+    (98) formal_parameter -> identifier_list parameter_spec .
+
+    RPAREN          reduce using rule 98 (formal_parameter -> identifier_list parameter_spec .)
+    COMMA           reduce using rule 98 (formal_parameter -> identifier_list parameter_spec .)
+
+
+state 126
+
+    (99) parameter_spec -> mode . parameter_attribute
+    (100) parameter_spec -> mode .
+    (101) parameter_attribute -> . LOC
+
+    RPAREN          reduce using rule 100 (parameter_spec -> mode .)
+    COMMA           reduce using rule 100 (parameter_spec -> mode .)
+    LOC             shift and go to state 142
+
+    parameter_attribute            shift and go to state 143
+
+state 127
+
+    (88) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN . result_spec SEMICOL statement_list END
+    (89) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN . result_spec SEMICOL END
+    (90) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN . SEMICOL statement_list END
+    (92) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN . SEMICOL END
+    (102) result_spec -> . RETURNS LPAREN mode result_attribute RPAREN
+    (103) result_spec -> . RETURNS LPAREN mode RPAREN
+
+    SEMICOL         shift and go to state 145
+    RETURNS         shift and go to state 124
+
+    result_spec                    shift and go to state 144
+
+state 128
+
+    (96) formal_parameter_list -> formal_parameter_list COMMA . formal_parameter
+    (98) formal_parameter -> . identifier_list parameter_spec
+    (54) identifier_list -> . identifier
+    (55) identifier_list -> . identifier_list COMMA identifier
+    (56) identifier -> . ID
+
+    ID              shift and go to state 12
+
+    formal_parameter               shift and go to state 146
+    identifier_list                shift and go to state 84
+    identifier                     shift and go to state 16
+
+state 129
+
+    (40) literal_range -> lower_bound COLON . upper_bound
+    (42) upper_bound -> . expression
+    (58) expression -> . operand0
+    (59) operand0 -> . operand1
+    (60) operand0 -> . operand0 operator1 operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
+
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
+
+    operand1                       shift and go to state 71
+    expression                     shift and go to state 147
+    operand2                       shift and go to state 74
+    operand3                       shift and go to state 76
+    operand4                       shift and go to state 77
+    operand0                       shift and go to state 79
+    upper_bound                    shift and go to state 148
+    monadic_operator               shift and go to state 81
+
+state 130
+
+    (36) discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .
+
+    LPAREN          reduce using rule 36 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    ASSIGN          reduce using rule 36 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    SEMICOL         reduce using rule 36 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    COMMA           reduce using rule 36 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    LOC             reduce using rule 36 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    RPAREN          reduce using rule 36 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    RBRACK          reduce using rule 36 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+
+
+state 131
+
+    (49) index_mode_list -> index_mode_list COMMA . index_mode
+    (51) index_mode -> . discrete_mode
+    (52) index_mode -> . literal_range
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (40) literal_range -> . lower_bound COLON upper_bound
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (41) lower_bound -> . expression
+    (39) discrete_mode_name -> . identifier
+    (58) expression -> . operand0
+    (56) identifier -> . ID
+    (59) operand0 -> . operand1
+    (60) operand0 -> . operand0 operator1 operand1
+    (72) operand1 -> . operand2
+    (73) operand1 -> . operand1 operator2 operand2
+    (77) operand2 -> . operand3
+    (78) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (82) operand3 -> . monadic_operator operand4
+    (83) operand3 -> . operand4
+    (84) monadic_operator -> . MINUS
+    (85) monadic_operator -> . NOT
+    (86) operand4 -> . ICONST
+
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    ID              shift and go to state 12
+    MINUS           shift and go to state 75
+    NOT             shift and go to state 73
+    ICONST          shift and go to state 78
+
+    integer_mode                   shift and go to state 36
+    index_mode                     shift and go to state 149
+    operand2                       shift and go to state 74
+    discrete_mode_name             shift and go to state 31
+    literal_range                  shift and go to state 91
+    discrete_range_mode            shift and go to state 33
+    operand4                       shift and go to state 77
+    operand0                       shift and go to state 79
+    character_mode                 shift and go to state 37
+    lower_bound                    shift and go to state 87
+    monadic_operator               shift and go to state 81
+    operand1                       shift and go to state 71
+    expression                     shift and go to state 88
+    boolean_mode                   shift and go to state 42
+    identifier                     shift and go to state 92
+    operand3                       shift and go to state 76
+    discrete_mode                  shift and go to state 94
+
+state 132
+
+    (48) array_mode -> ARRAY LBRACK index_mode_list RBRACK . element_mode
+    (53) element_mode -> . mode
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (38) mode_name -> . identifier
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (56) identifier -> . ID
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACK string_length RBRACK
+    (48) array_mode -> . ARRAY LBRACK index_mode_list RBRACK element_mode
+    (39) discrete_mode_name -> . identifier
+
+    REF             shift and go to state 47
+    ID              shift and go to state 12
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    CHARS           shift and go to state 48
+    ARRAY           shift and go to state 38
+
+    array_mode                     shift and go to state 43
+    composite_mode                 shift and go to state 40
+    mode                           shift and go to state 151
+    element_mode                   shift and go to state 150
+    discrete_mode_name             shift and go to state 31
+    boolean_mode                   shift and go to state 42
+    mode_name                      shift and go to state 32
+    discrete_range_mode            shift and go to state 33
+    identifier                     shift and go to state 44
+    string_mode                    shift and go to state 34
+    reference_mode                 shift and go to state 35
+    integer_mode                   shift and go to state 36
+    character_mode                 shift and go to state 37
+    discrete_mode                  shift and go to state 49
+
+state 133
+
+    (46) string_mode -> CHARS LBRACK string_length RBRACK .
+
+    LOC             reduce using rule 46 (string_mode -> CHARS LBRACK string_length RBRACK .)
+    RPAREN          reduce using rule 46 (string_mode -> CHARS LBRACK string_length RBRACK .)
+    COMMA           reduce using rule 46 (string_mode -> CHARS LBRACK string_length RBRACK .)
+    ASSIGN          reduce using rule 46 (string_mode -> CHARS LBRACK string_length RBRACK .)
+    SEMICOL         reduce using rule 46 (string_mode -> CHARS LBRACK string_length RBRACK .)
+
+
+state 134
+
+    (37) discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .
+
+    LPAREN          reduce using rule 37 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    ASSIGN          reduce using rule 37 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    SEMICOL         reduce using rule 37 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    COMMA           reduce using rule 37 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    LOC             reduce using rule 37 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    RPAREN          reduce using rule 37 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    RBRACK          reduce using rule 37 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+
+
+state 135
+
+    (73) operand1 -> operand1 operator2 operand2 .
+    (78) operand2 -> operand2 . arithmetic_multiplicative_operator operand3
+    (79) arithmetic_multiplicative_operator -> . TIMES
+    (80) arithmetic_multiplicative_operator -> . DIVIDE
+    (81) arithmetic_multiplicative_operator -> . PERC
+
+    PLUS            reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    MINUS           reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    AND             reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    OR              reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    EQUALS          reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    DIF             reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    GTR             reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    GEQ             reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    LSS             reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    LEQ             reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    IN              reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    RPAREN          reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    RBRACK          reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    COMMA           reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    SEMICOL         reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    COLON           reduce using rule 73 (operand1 -> operand1 operator2 operand2 .)
+    TIMES           shift and go to state 107
+    DIVIDE          shift and go to state 105
+    PERC            shift and go to state 104
+
+    arithmetic_multiplicative_operator shift and go to state 106
+
+state 136
+
+    (78) operand2 -> operand2 arithmetic_multiplicative_operator operand3 .
+
+    TIMES           reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    DIVIDE          reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    PERC            reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    PLUS            reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    MINUS           reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    AND             reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    OR              reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    EQUALS          reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    DIF             reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    GTR             reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    GEQ             reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    LSS             reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    LEQ             reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    IN              reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    COLON           reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    SEMICOL         reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    COMMA           reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    RPAREN          reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    RBRACK          reduce using rule 78 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+
+
+state 137
+
+    (60) operand0 -> operand0 operator1 operand1 .
+    (73) operand1 -> operand1 . operator2 operand2
+    (74) operator2 -> . arithmetic_additive_operator
+    (75) arithmetic_additive_operator -> . PLUS
+    (76) arithmetic_additive_operator -> . MINUS
+
+    AND             reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    OR              reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    EQUALS          reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    DIF             reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    GTR             reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    GEQ             reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    LSS             reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    LEQ             reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    IN              reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    SEMICOL         reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    COMMA           reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    COLON           reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    RPAREN          reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    RBRACK          reduce using rule 60 (operand0 -> operand0 operator1 operand1 .)
+    PLUS            shift and go to state 103
+    MINUS           shift and go to state 100
+
+    operator2                      shift and go to state 101
+    arithmetic_additive_operator   shift and go to state 102
+
+state 138
+
+    (91) procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL . statement_list END
+    (93) procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL . END
+    (2) statement_list -> . statement_list statement
+    (3) statement_list -> . statement
+    (4) statement -> . declaration_statement
+    (5) statement -> . synonym_statement
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
+
+    END             shift and go to state 153
+    DCL             shift and go to state 7
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
+
+    statement                      shift and go to state 1
+    statement_list                 shift and go to state 152
+    label_id                       shift and go to state 5
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+
+state 139
+
+    (94) procedure_definition -> PROC LPAREN RPAREN SEMICOL statement_list . END
+    (2) statement_list -> statement_list . statement
+    (4) statement -> . declaration_statement
+    (5) statement -> . synonym_statement
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
+
+    END             shift and go to state 154
+    DCL             shift and go to state 7
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
+
+    statement                      shift and go to state 14
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+    label_id                       shift and go to state 5
+
+state 140
+
+    (95) procedure_definition -> PROC LPAREN RPAREN SEMICOL END .
+
+    SEMICOL         reduce using rule 95 (procedure_definition -> PROC LPAREN RPAREN SEMICOL END .)
+
+
+state 141
+
+    (102) result_spec -> RETURNS LPAREN . mode result_attribute RPAREN
+    (103) result_spec -> RETURNS LPAREN . mode RPAREN
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (38) mode_name -> . identifier
+    (29) discrete_mode -> . integer_mode
+    (30) discrete_mode -> . boolean_mode
+    (31) discrete_mode -> . character_mode
+    (32) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (56) identifier -> . ID
+    (33) integer_mode -> . INT
+    (34) boolean_mode -> . BOOL
+    (35) character_mode -> . CHAR
+    (36) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (37) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACK string_length RBRACK
+    (48) array_mode -> . ARRAY LBRACK index_mode_list RBRACK element_mode
+    (39) discrete_mode_name -> . identifier
+
+    REF             shift and go to state 47
+    ID              shift and go to state 12
+    INT             shift and go to state 39
+    BOOL            shift and go to state 30
+    CHAR            shift and go to state 46
+    CHARS           shift and go to state 48
+    ARRAY           shift and go to state 38
+
+    composite_mode                 shift and go to state 40
+    mode                           shift and go to state 155
+    array_mode                     shift and go to state 43
+    discrete_mode_name             shift and go to state 31
+    boolean_mode                   shift and go to state 42
+    mode_name                      shift and go to state 32
+    discrete_range_mode            shift and go to state 33
+    identifier                     shift and go to state 44
+    string_mode                    shift and go to state 34
+    reference_mode                 shift and go to state 35
+    integer_mode                   shift and go to state 36
+    character_mode                 shift and go to state 37
+    discrete_mode                  shift and go to state 49
+
+state 142
+
+    (101) parameter_attribute -> LOC .
+
+    RPAREN          reduce using rule 101 (parameter_attribute -> LOC .)
+    COMMA           reduce using rule 101 (parameter_attribute -> LOC .)
+
+
+state 143
+
+    (99) parameter_spec -> mode parameter_attribute .
+
+    RPAREN          reduce using rule 99 (parameter_spec -> mode parameter_attribute .)
+    COMMA           reduce using rule 99 (parameter_spec -> mode parameter_attribute .)
+
+
+state 144
+
+    (88) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec . SEMICOL statement_list END
+    (89) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec . SEMICOL END
+
+    SEMICOL         shift and go to state 156
+
+
+state 145
+
+    (90) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL . statement_list END
+    (92) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL . END
+    (2) statement_list -> . statement_list statement
+    (3) statement_list -> . statement
+    (4) statement -> . declaration_statement
+    (5) statement -> . synonym_statement
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
+
+    END             shift and go to state 158
+    DCL             shift and go to state 7
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
+
+    statement                      shift and go to state 1
+    statement_list                 shift and go to state 157
+    label_id                       shift and go to state 5
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+
+state 146
+
+    (96) formal_parameter_list -> formal_parameter_list COMMA formal_parameter .
+
+    RPAREN          reduce using rule 96 (formal_parameter_list -> formal_parameter_list COMMA formal_parameter .)
+    COMMA           reduce using rule 96 (formal_parameter_list -> formal_parameter_list COMMA formal_parameter .)
+
+
+state 147
+
+    (42) upper_bound -> expression .
+
+    RPAREN          reduce using rule 42 (upper_bound -> expression .)
+    RBRACK          reduce using rule 42 (upper_bound -> expression .)
+    COMMA           reduce using rule 42 (upper_bound -> expression .)
+
+
+state 148
+
+    (40) literal_range -> lower_bound COLON upper_bound .
+
+    RPAREN          reduce using rule 40 (literal_range -> lower_bound COLON upper_bound .)
+    RBRACK          reduce using rule 40 (literal_range -> lower_bound COLON upper_bound .)
+    COMMA           reduce using rule 40 (literal_range -> lower_bound COLON upper_bound .)
+
+
+state 149
+
+    (49) index_mode_list -> index_mode_list COMMA index_mode .
+
+    RBRACK          reduce using rule 49 (index_mode_list -> index_mode_list COMMA index_mode .)
+    COMMA           reduce using rule 49 (index_mode_list -> index_mode_list COMMA index_mode .)
+
+
+state 150
+
+    (48) array_mode -> ARRAY LBRACK index_mode_list RBRACK element_mode .
+
+    ASSIGN          reduce using rule 48 (array_mode -> ARRAY LBRACK index_mode_list RBRACK element_mode .)
+    SEMICOL         reduce using rule 48 (array_mode -> ARRAY LBRACK index_mode_list RBRACK element_mode .)
+    COMMA           reduce using rule 48 (array_mode -> ARRAY LBRACK index_mode_list RBRACK element_mode .)
+    LOC             reduce using rule 48 (array_mode -> ARRAY LBRACK index_mode_list RBRACK element_mode .)
+    RPAREN          reduce using rule 48 (array_mode -> ARRAY LBRACK index_mode_list RBRACK element_mode .)
+
+
+state 151
+
+    (53) element_mode -> mode .
+
+    ASSIGN          reduce using rule 53 (element_mode -> mode .)
+    SEMICOL         reduce using rule 53 (element_mode -> mode .)
+    COMMA           reduce using rule 53 (element_mode -> mode .)
+    LOC             reduce using rule 53 (element_mode -> mode .)
+    RPAREN          reduce using rule 53 (element_mode -> mode .)
+
+
+state 152
+
+    (91) procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL statement_list . END
+    (2) statement_list -> statement_list . statement
+    (4) statement -> . declaration_statement
+    (5) statement -> . synonym_statement
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
+
+    END             shift and go to state 159
+    DCL             shift and go to state 7
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
+
+    statement                      shift and go to state 14
+    label_id                       shift and go to state 5
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+
+state 153
+
+    (93) procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL END .
+
+    SEMICOL         reduce using rule 93 (procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL END .)
+
+
+state 154
+
+    (94) procedure_definition -> PROC LPAREN RPAREN SEMICOL statement_list END .
+
+    SEMICOL         reduce using rule 94 (procedure_definition -> PROC LPAREN RPAREN SEMICOL statement_list END .)
+
+
+state 155
+
+    (102) result_spec -> RETURNS LPAREN mode . result_attribute RPAREN
+    (103) result_spec -> RETURNS LPAREN mode . RPAREN
+    (104) result_attribute -> . LOC
+
+    RPAREN          shift and go to state 161
+    LOC             shift and go to state 162
+
+    result_attribute               shift and go to state 160
+
+state 156
+
+    (88) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL . statement_list END
+    (89) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL . END
+    (2) statement_list -> . statement_list statement
+    (3) statement_list -> . statement
+    (4) statement -> . declaration_statement
+    (5) statement -> . synonym_statement
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
+
+    END             shift and go to state 164
+    DCL             shift and go to state 7
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
+
+    statement                      shift and go to state 1
+    statement_list                 shift and go to state 163
+    label_id                       shift and go to state 5
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+
+state 157
+
+    (90) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL statement_list . END
+    (2) statement_list -> statement_list . statement
+    (4) statement -> . declaration_statement
+    (5) statement -> . synonym_statement
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
+
+    END             shift and go to state 165
+    DCL             shift and go to state 7
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
+
+    statement                      shift and go to state 14
+    label_id                       shift and go to state 5
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+
+state 158
+
+    (92) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL END .
+
+    SEMICOL         reduce using rule 92 (procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL END .)
+
+
+state 159
+
+    (91) procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL statement_list END .
+
+    SEMICOL         reduce using rule 91 (procedure_definition -> PROC LPAREN RPAREN result_spec SEMICOL statement_list END .)
+
+
+state 160
+
+    (102) result_spec -> RETURNS LPAREN mode result_attribute . RPAREN
+
+    RPAREN          shift and go to state 166
+
+
+state 161
+
+    (103) result_spec -> RETURNS LPAREN mode RPAREN .
+
+    SEMICOL         reduce using rule 103 (result_spec -> RETURNS LPAREN mode RPAREN .)
+
+
+state 162
+
+    (104) result_attribute -> LOC .
+
+    RPAREN          reduce using rule 104 (result_attribute -> LOC .)
+
+
+state 163
+
+    (88) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list . END
+    (2) statement_list -> statement_list . statement
+    (4) statement -> . declaration_statement
+    (5) statement -> . synonym_statement
+    (6) statement -> . newmode_statement
+    (7) statement -> . procedure_statement
+    (8) declaration_statement -> . DCL declaration_list SEMICOL
+    (9) synonym_statement -> . SYN synonym_list SEMICOL
+    (10) newmode_statement -> . TYPE newmode_list SEMICOL
+    (11) procedure_statement -> . label_id COLON procedure_definition SEMICOL
+    (87) label_id -> . identifier
+    (56) identifier -> . ID
+
+    END             shift and go to state 167
+    DCL             shift and go to state 7
+    SYN             shift and go to state 13
+    TYPE            shift and go to state 8
+    ID              shift and go to state 12
+
+    statement                      shift and go to state 14
+    label_id                       shift and go to state 5
+    newmode_statement              shift and go to state 6
+    identifier                     shift and go to state 2
+    procedure_statement            shift and go to state 9
+    synonym_statement              shift and go to state 10
+    declaration_statement          shift and go to state 11
+
+state 164
+
+    (89) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL END .
+
+    SEMICOL         reduce using rule 89 (procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL END .)
+
+
+state 165
+
+    (90) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL statement_list END .
+
+    SEMICOL         reduce using rule 90 (procedure_definition -> PROC LPAREN formal_parameter_list RPAREN SEMICOL statement_list END .)
+
+
+state 166
+
+    (102) result_spec -> RETURNS LPAREN mode result_attribute RPAREN .
+
+    SEMICOL         reduce using rule 102 (result_spec -> RETURNS LPAREN mode result_attribute RPAREN .)
+
+
+state 167
+
+    (88) procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list END .
+
+    SEMICOL         reduce using rule 88 (procedure_definition -> PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list END .)
+

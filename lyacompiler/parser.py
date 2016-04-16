@@ -51,7 +51,7 @@ class LyaParser(object):
         """program : statement_list"""
         p[0] = ('program',) + p[1]
 
-    #### Statement
+    # Statement
 
     def p_statement_list(self, p):
         """statement_list : statement_list statement
@@ -59,17 +59,16 @@ class LyaParser(object):
         if len(p) == 2:
             p[0] = (p[1],)
         else:
-            l = len(p)
-            ll = len(p[1])
             p[0] = p[1] + (p[2],)
 
     def p_statement(self, p):
         """statement : declaration_statement
                      | synonym_statement
-                     | newmode_statement"""
-                     # | procedure_statement
+                     | newmode_statement
+                     | procedure_statement"""
                      # | action_statement"""
-        p[0] = ('statement', p[1])
+        #p[0] = ('statement', p[1])
+        p[0] = p[1]
 
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
@@ -82,6 +81,10 @@ class LyaParser(object):
     def p_newmode_statement(self, p):
         """newmode_statement : TYPE newmode_list SEMICOL"""
         p[0] = ('newmode_statement', p[2])
+
+    def p_procedure_statement(self, p):
+        """procedure_statement : label_id COLON procedure_definition SEMICOL"""
+        p[0] = ('procedure_statement', p[1], p[3])
 
     #### Declaration
 
@@ -379,42 +382,83 @@ class LyaParser(object):
     #     """referenced_location:         ARROW location"""
     #     p[0] = ("referenced_location", p[2])
 
-    # ####### Expression (Fake)
-    # def p_expression_plus(self, p):
-    #     'expression : expression PLUS term'
-    #     p[0] = ('plus-expression', p[1], p[3])
-    #
-    # def p_expression_minus(self, p):
-    #     'expression : expression MINUS term'
-    #     p[0] = ('minus-expression', p[1], p[3])
-    #
-    # def p_expression_term(self, p):
-    #     'expression : term'
-    #     p[0] = ('term-expression', p[1])
-    #
-    # def p_term_times(self, p):
-    #     'term : term TIMES factor'
-    #     p[0] = ('times-term', p[1], p[3])
-    #
-    # def p_term_div(self, p):
-    #     'term : term DIVIDE factor'
-    #     p[0] = ('divide-term', p[1], p[3])
-    #
-    # def p_term_factor(self, p):
-    #     'term : factor'
-    #     p[0] = ('factor-term', p[1])
-    #
-    # def p_factor_num(self, p):
-    #     'factor : ICONST'
-    #     p[0] = ('num-factor', p[1])
-    #
-    # def p_factor_expr(self, p):
-    #     'factor : LPAREN expression RPAREN'
-    #     p[0] = ('expr-factor', p[2])
+    # Action
 
-    # def p_empty(self, p):
-    #     'empty : '
-    #     p[0] = None
+    def p_label_id(self, p):
+        """label_id : identifier"""
+        p[0] = ('label_id', p[1])
+
+    # Procedure
+
+    def p_procedure_definition_prs(self, p):
+        """procedure_definition : PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list END"""
+        p[0] = ('procedure_definition', p[3], p[5], ('statement_list',) + p[7])
+
+    def p_procedure_definition_pr(self, p):
+        """procedure_definition : PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL END"""
+        p[0] = ('procedure_definition', p[3], p[5])
+
+    def p_procedure_definition_ps(self, p):
+        """procedure_definition : PROC LPAREN formal_parameter_list RPAREN SEMICOL statement_list END"""
+        p[0] = ('procedure_definition', p[3], ('statement_list',) + p[6])
+
+    def p_procedure_definition_rs(self, p):
+        """procedure_definition : PROC LPAREN RPAREN result_spec SEMICOL statement_list END"""
+        p[0] = ('procedure_definition', p[4], ('statement_list',) + p[6])
+
+    def p_procedure_definition_p(self, p):
+        """procedure_definition : PROC LPAREN formal_parameter_list RPAREN SEMICOL END"""
+        p[0] = ('procedure_definition', p[3])
+
+    def p_procedure_definition_r(self, p):
+        """procedure_definition : PROC LPAREN RPAREN result_spec SEMICOL END"""
+        p[0] = ('procedure_definition', p[4])
+
+    def p_procedure_definition_s(self, p):
+        """procedure_definition : PROC LPAREN RPAREN SEMICOL statement_list END"""
+        p[0] = ('procedure_definition', ('statement_list',) + p[5])
+
+    def p_procedure_definition(self, p):
+        """procedure_definition : PROC LPAREN RPAREN SEMICOL END"""
+        p[0] = ('procedure_definition',)
+
+    def p_formal_parameter_list(self, p):
+        """formal_parameter_list : formal_parameter_list COMMA formal_parameter
+                                 | formal_parameter"""
+        if len(p) == 2:
+            p[0] = ('formal_parameter_list', (p[1]))
+        else:
+            p[0] = p[1] + (p[3],)
+
+    def p_formal_parameter(self, p):
+        """formal_parameter : identifier_list parameter_spec"""
+        p[0] = ('formal_parameter', p[1], p[2])
+
+    def p_parameter_spec(self, p):
+        """parameter_spec : mode parameter_attribute
+                          | mode"""
+        if len(p) == 2:
+            p[0] = ('parameter_spec', p[1])
+        else:
+            p[0] = ('parameter_spec', p[1], p[2])
+
+    def p_parameter_attribute(self, p):
+        """parameter_attribute : LOC"""
+        p[0] = ('parameter_attribute', p[1])
+
+    def p_result_spec_attr(self, p):
+        """result_spec : RETURNS LPAREN mode result_attribute RPAREN"""
+        p[0] = ("returns_mode", p[3], p[4])
+
+    def p_result_spec(self, p):
+        """result_spec : RETURNS LPAREN mode RPAREN"""
+        p[0] = ("returns_spec", p[3])
+
+    def p_result_attribute(self, p):
+        """result_attribute : LOC"""
+        p[0] = ("result_attribute",)
+
+    # Error
 
     def p_error(self, p):
         try:
@@ -489,9 +533,56 @@ if __name__ == "__main__":
     dcl cma2 array [bool, int] char;
     """
 
+    lya_source_procedure1 = """
+    power: proc (n int, r int) returns (int);
+        dcl c int;
+        type t = bool;
+    end;
+    """
+
+    lya_source_procedure2 = """
+    power: proc (n int, r int) returns (int);
+    end;
+    """
+
+    lya_source_procedure3 = """
+    power: proc (n int, r int);
+        dcl c int;
+        type t = bool;
+    end;
+    """
+
+    lya_source_procedure4 = """
+    power: proc () returns (int);
+        dcl c int;
+        type t = bool;
+    end;
+    """
+
+    lya_source_procedure5 = """
+    power: proc (n int, r int);
+    end;
+    """
+
+    lya_source_procedure6 = """
+    power: proc () returns (int);
+    end;
+    """
+
+    lya_source_procedure7 = """
+    power: proc ();
+        dcl c int;
+    end;
+    """
+
+    lya_source_procedure8 = """
+    power: proc ();
+    end;
+    """
+
    # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    source = lya_source_composite_mode
+    source = lya_source_procedure8
 
     print(source)
 

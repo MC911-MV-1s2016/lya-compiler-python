@@ -340,8 +340,8 @@ class LyaParser(object):
         p[0] = ("operand1", p[1], p[2], p[3])
 
     def p_operator2(self, p):
-        """operator2 :           arithmetic_additive_operator"""
-        #             |           string_concatenation_operator"""
+        """operator2 :           arithmetic_additive_operator
+                     |           string_concatenation_operator"""
         p[0] = ("operator2", p[1])
 
     def p_arithmetic_additive_operator(self, p):
@@ -349,9 +349,9 @@ class LyaParser(object):
                                         | MINUS"""
         p[0] = ("arithmetic_additive_operator", p[1])
 
-    # def p_string_concatenation_operator(self, p):
-    #     """string_concatenation_operator:       CONCAT"""
-    #     p[0] = ("string_concatenation_operator", p[1])
+    def p_string_concatenation_operator(self, p):
+        """string_concatenation_operator :       CONCAT"""
+        p[0] = ("string_concatenation_operator", p[1])
 
     def p_operand2(self, p):
         """operand2 :            operand3"""
@@ -734,9 +734,11 @@ if __name__ == "__main__":
     fi;
     """
 
-   # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
+    lya_source = """dcl var1 int=3+5-7*7/9%3;
+                        dcl var2 int = 2 in 3;
+                        dcl var3 bool = 5 && 3 || 1 == 2 & 2;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    source = lya_source_if6
+    source = lya_source
 
     print(source)
 

@@ -65,19 +65,23 @@ class LyaParser(object):
 
     def p_statement(self, p):
         """statement : declaration_statement
-                     | synonym_statement"""
-                     # | newmode_statement
+                     | synonym_statement
+                     | newmode_statement"""
                      # | procedure_statement
                      # | action_statement"""
         p[0] = ('statement', p[1])
 
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
-        p[0] = ('declaration-statement', p[2])
+        p[0] = ('declaration_statement', p[2])
 
     def p_synonym_statement(self, p):
         """synonym_statement : SYN synonym_list SEMICOL"""
-        p[0] = ('synonym-statement', p[2])
+        p[0] = ('synonym_statement', p[2])
+
+    def p_newmode_statement(self, p):
+        """newmode_statement : TYPE newmode_list SEMICOL"""
+        p[0] = ('newmode_statement', p[2])
 
     #### Declaration
 
@@ -85,7 +89,7 @@ class LyaParser(object):
         """declaration_list : declaration_list COMMA declaration
                             | declaration"""
         if len(p) == 2:
-            p[0] = ('declaration-list', (p[1]))
+            p[0] = ('declaration_list', (p[1]))
         else:
             p[0] = p[1] + (p[3],)
 
@@ -103,7 +107,7 @@ class LyaParser(object):
 
     def p_initialization(self, p):
         """initialization : ASSIGN expression"""
-        p[0] = ('initialization', 'expression')#p[2])
+        p[0] = ('initialization', p[2])
 
     #### Synonym
 
@@ -111,47 +115,39 @@ class LyaParser(object):
         """synonym_list : synonym_list COMMA synonym_definition
                         | synonym_definition"""
         if len(p) == 2:
-            p[0] = ('synonym-list', (p[1]))
+            p[0] = ('synonym_list', (p[1]))
         else:
             p[0] = p[1] + (p[3],)
 
     def p_synonym_definition_mode(self, p):
-        """synonym_definition : identifier_list mode ASSIGN constant_expression"""
-        p[0] = ('synonym-definition-mode', p[1], p[2], 'expression')#p[4])
+        """synonym_definition : identifier_list mode ASSIGN constant_expression
+                              | identifier_list ASSIGN constant_expression"""
+        if len(p) == 4:
+            p[0] = ('synonym_definition', p[1], p[3])
+        else:
+            p[0] = ('synonym_definition', p[1], p[2], p[4])
 
-    def p_synonym_definition(self, p):
-        """synonym_definition : identifier_list ASSIGN constant_expression"""
-        p[0] = ('synonym-definition', p[1], 'expression')#p[3])
+    # def p_synonym_definition(self, p):
+    #     """synonym_definition : identifier_list ASSIGN constant_expression"""
+    #     p[0] = ('synonym_definition', p[1], 'expression')#p[3])
 
     def p_constant_expression(self, p):
         """constant_expression : expression"""
         p[0] = p[1]
 
-    #### Identifier
-
-    def p_identifier_list(self, p):
-        """identifier_list : identifier
-                           | identifier_list COMMA identifier"""
-        if len(p) == 2:
-            p[0] = ('identifier-list', (p[1]))
-        else:
-            p[0] = p[1] + (p[3],)
-
-    def p_identifier(self, p):
-        """identifier : ID"""
-        p[0] = ('identifier', p[1])
-
     ##### Mode
-
-    def p_newmode_statement(self, p):
-        """newmode_statement : TYPE newmode_list"""
 
     def p_newmode_list(self, p):
         """newmode_list : newmode_list COMMA mode_definition
                         | mode_definition"""
+        if len(p) == 2:
+            p[0] = ('newmode_list', (p[1]))
+        else:
+            p[0] = p[1] + (p[3],)
 
     def p_mode_definition(self, p):
-        """mode_definition : identifier_list EQUALS mode"""
+        """mode_definition : identifier_list ASSIGN mode"""
+        p[0] = ('mode_definition', p[1], p[3])
 
     def p_mode(self, p):
         """mode : mode_name
@@ -163,43 +159,47 @@ class LyaParser(object):
     def p_discrete_mode(self, p):
         """discrete_mode : integer_mode
                          | boolean_mode
-                         | character_mode"""
-        # | discrete_range_mode"""
-        p[0] = ('discrete-mode', p[1])
+                         | character_mode
+                         | discrete_range_mode"""
+        p[0] = ('discrete_mode', p[1])
 
     def p_integer_mode(self, p):
         """integer_mode : INT"""
-        p[0] = p[1]
+        p[0] = ('integer_mode', p[1])
 
     def p_boolean_mode(self, p):
         """boolean_mode : BOOL"""
-        p[0] = p[1]
+        p[0] = ('boolean_mode', p[1])
 
     def p_character_mode(self, p):
         """character_mode : CHAR"""
-        p[0] = p[1]
+        p[0] = ('character_mode', p[1])
 
-    # def p_discrete_range_mode(self, p):
-    #     """discrete_range_mode : discrete_mode_name  LPAREN literal_range RPAREN
-    #                            | discrete_mode LPAREN literal_range RPAREN"""
+    def p_discrete_range_mode(self, p):
+        """discrete_range_mode : discrete_mode_name  LPAREN literal_range RPAREN
+                               | discrete_mode LPAREN literal_range RPAREN"""
+        p[0] = ('discrete_range_mode', p[1], p[3])
 
     def p_mode_name(self, p):
         """mode_name : identifier"""
-        p[0] = ('mode-name', p[1])
+        p[0] = ('mode_name', p[1])
 
     def p_discrete_mode_name(self, p):
         """discrete_mode_name : identifier"""
-        p[0] = ('discrete-mode-name', p[1])
+        p[0] = ('discrete_mode_name', p[1])
 
-    # def p_literal_range(self, p):
-    #     """literal_range : lower_bound COLON upper_bound"""
-    #
-    # def p_lower_bound(self, p):
-    #     """lower_bound : expression"""
-    #
-    # def p_upper_bound(self, p):
-    #     """upper_bound : expression"""
-    #
+    def p_literal_range(self, p):
+        """literal_range : lower_bound COLON upper_bound"""
+        p[0] = ('literal_range', p[1], p[3])
+
+    def p_lower_bound(self, p):
+        """lower_bound : expression"""
+        p[0] = ('lower_bound', p[1])
+
+    def p_upper_bound(self, p):
+        """upper_bound : expression"""
+        p[0] = ('upper_bound', p[1])
+
     # def p_reference_mode(self, p):
     #     """reference_mode : REF mode"""
     #
@@ -231,9 +231,25 @@ class LyaParser(object):
     #     """element_mode : mode"""
 
 
+    #### Identifier
+
+    def p_identifier_list(self, p):
+        """identifier_list : identifier
+                           | identifier_list COMMA identifier"""
+        if len(p) == 2:
+            p[0] = ('identifier-list', (p[1]))
+        else:
+            p[0] = p[1] + (p[3],)
+
+    def p_identifier(self, p):
+        """identifier : ID"""
+        p[0] = ('identifier', p[1])
+
+    #### Expression
+
     def p_expression(self, p):
         """expression :          operand0"""  # | conditional_expression"""
-        p[0] = ("expression", p[1])
+        p[0] = ("expression", 'expression')#p[1])
 
     # def p_conditional_expression(self, p):
     #     """conditional_expression:  IF boolean_expression then_expression else_expression FI"""
@@ -393,8 +409,8 @@ class LyaParser(object):
         except:
             print("Syntax error")
 
-
 # ------------------------------------------------------------
+
 if __name__ == "__main__":
     import pprint
 
@@ -419,13 +435,17 @@ if __name__ == "__main__":
     # file = open(file_name)
     # lya_source = file.read()
 
-    lya_source_declaration = """
-    dcl var int;
-    dcl var10, var20, var30, var40 int;
-    dcl var100, var101 int, var200 int;
-    dcl var1 int = 5;
-    dcl var2, var3 int = 6;
-    dcl var4 int, var5, var6 int = 10;
+    lya_source_dcl = """
+    dcl dcl1 int;
+    dcl dcl2, dcl3, dcl4, dcl5 char;
+    dcl dcl6, dcl7 int, dcl8 bool;
+    dcl dcl9 int = 5;
+    dcl dcl10, dcl11 int = 6;
+    dcl dcl12 int, dcl13, dcl14 int = 10;
+    dcl dcl15 int (2:5);
+    dcl dcl16 char (0:10);
+    dcl dcl17 bool(10:11);
+    dcl dcl18 dcl17 (1:2);
     """
 
     lya_source_syn = """
@@ -435,24 +455,21 @@ if __name__ == "__main__":
     syn syn6, syn7 int = 3;
     syn syn8 = 10, syn9 = 12;
     syn syn10, syn11 int = 13, syn12 = 20;"""
-    # """
 
-    # dcl var2, varx char;
-    # dcl var3, var4 int = 10;"
-    # dcl car
-    # ""
-    #dcl var5 int = 3 + 5 * (10 - 20);"""
+    lya_source_type = """
+    type type1 = int;
+    type type2 = char;
+    type type3 = bool;
+    type type4 = type3;
+    type type7, type8 = int;
+    type type9, type10, type11 = char;
+    type type12 = bool, type13 = type9;
+    type type14 = int, type15, type16 = char, type17, type18, type19 = char;
+    """
 
     # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    print(lya_source_syn)
+    print(lya_source_dcl)
 
-    AST = lyaparser.parse(lya_source_syn)
+    AST = lyaparser.parse(lya_source_dcl)
     pprint.pprint(AST, indent=4)
-
-    # print(len(AST))
-    # print(AST)
-    # print(len(AST[0]))
-    # print(AST[0])
-    # print(len(AST[1]))
-    # print(AST[1])

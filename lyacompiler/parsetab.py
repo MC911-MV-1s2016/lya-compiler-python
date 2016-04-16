@@ -5,9 +5,9 @@ _tabversion = '3.8'
 
 _lr_method = 'LALR'
 
-_lr_signature = '51E59173AD24FD2B79A86C6FE07CCA64'
+_lr_signature = '24F31CD3F1D1BA91A2D818BA7A4F2159'
     
-_lr_action_items = {'DCL':([0,3,5,6,7,8,18,37,40,44,],[1,-6,-3,1,-5,-4,-2,-7,-9,-8,]),'ICONST':([43,47,50,51,55,58,59,63,74,75,76,77,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,],[61,61,61,61,61,-71,61,-70,-67,-65,61,-66,-52,-53,-56,-57,-47,61,-48,-51,-50,-55,-49,-54,61,-60,-61,-62,61,]),'GTR':([56,60,61,62,64,66,78,98,99,100,],[-58,80,-72,-69,-45,-63,-68,-64,-46,-59,]),'IN':([56,60,61,62,64,66,78,98,99,100,],[-58,82,-72,-69,-45,-63,-68,-64,-46,-59,]),'AND':([56,60,61,62,64,66,78,98,99,100,],[-58,89,-72,-69,-45,-63,-68,-64,-46,-59,]),'$end':([3,4,5,6,7,8,18,37,40,44,],[-6,0,-3,-1,-5,-4,-2,-7,-9,-8,]),'EQUALS':([56,60,61,62,64,66,78,98,99,100,],[-58,86,-72,-69,-45,-63,-68,-64,-46,-59,]),'ID':([1,2,9,10,13,14,19,22,29,38,39,41,45,49,],[14,14,14,14,-41,-43,14,14,14,14,14,14,14,-42,]),'REF':([10,13,14,19,22,39,49,],[22,-41,-43,22,22,22,-42,]),'GEQ':([56,60,61,62,64,66,78,98,99,100,],[-58,90,-72,-69,-45,-63,-68,-64,-46,-59,]),'PERC':([56,61,62,66,78,98,100,],[74,-72,-69,-63,-68,-64,74,]),'TIMES':([56,61,62,66,78,98,100,],[75,-72,-69,-63,-68,-64,75,]),'COMMA':([10,11,12,13,14,15,16,17,19,20,21,23,24,25,26,27,28,30,31,32,33,35,36,46,48,49,52,53,54,56,57,60,61,62,64,65,66,67,68,73,78,96,97,98,99,100,],[29,-11,38,-41,-43,29,41,-21,29,45,-16,-13,-23,-32,-31,-25,-30,-35,-24,-28,-26,-29,-27,-40,-12,-42,-10,-22,-20,-58,-18,-44,-72,-69,-45,-19,-63,-15,-14,-17,-68,-34,-33,-64,-46,-59,]),'OR':([56,60,61,62,64,66,78,98,99,100,],[-58,87,-72,-69,-45,-63,-68,-64,-46,-59,]),'RPAREN':([56,60,61,62,64,66,71,72,78,98,99,100,101,102,],[-58,-44,-72,-69,-45,-63,96,97,-68,-64,-46,-59,-37,-39,]),'SYN':([0,3,5,6,7,8,18,37,40,44,],[9,-6,-3,9,-5,-4,-2,-7,-9,-8,]),'MINUS':([43,47,50,51,55,56,61,62,64,66,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,98,99,100,],[63,63,63,63,63,-58,-72,-69,94,-63,-67,-65,63,-66,-68,-52,-53,-56,-57,-47,63,-48,-51,-50,-55,-49,-54,63,-60,-61,-62,63,-64,94,-59,]),'SEMICOL':([11,12,14,16,17,20,21,23,24,25,26,27,28,30,31,32,33,35,36,46,48,52,53,54,56,57,60,61,62,64,65,66,67,68,73,78,96,97,98,99,100,],[-11,37,-43,40,-21,44,-16,-13,-23,-32,-31,-25,-30,-35,-24,-28,-26,-29,-27,-40,-12,-10,-22,-20,-58,-18,-44,-72,-69,-45,-19,-63,-15,-14,-17,-68,-34,-33,-64,-46,-59,]),'TYPE':([0,3,5,6,7,8,18,37,40,44,],[2,-6,-3,2,-5,-4,-2,-7,-9,-8,]),'CHAR':([10,13,14,19,22,39,49,],[25,-41,-43,25,25,25,-42,]),'DIF':([56,60,61,62,64,66,78,98,99,100,],[-58,79,-72,-69,-45,-63,-68,-64,-46,-59,]),'LEQ':([56,60,61,62,64,66,78,98,99,100,],[-58,81,-72,-69,-45,-63,-68,-64,-46,-59,]),'LSS':([56,60,61,62,64,66,78,98,99,100,],[-58,88,-72,-69,-45,-63,-68,-64,-46,-59,]),'BOOL':([10,13,14,19,22,39,49,],[26,-41,-43,26,26,26,-42,]),'DIVIDE':([56,61,62,66,78,98,100,],[77,-72,-69,-63,-68,-64,77,]),'COLON':([56,60,61,62,64,66,69,70,78,98,99,100,],[-58,-44,-72,-69,-45,-63,95,-38,-68,-64,-46,-59,]),'ASSIGN':([13,14,15,19,23,24,25,26,27,28,30,31,32,33,35,36,42,46,49,96,97,],[-41,-43,39,43,47,-23,-32,-31,-25,-30,-35,-24,-28,-26,-29,-27,55,-40,-42,-34,-33,]),'INT':([10,13,14,19,22,39,49,],[28,-41,-43,28,28,28,-42,]),'LPAREN':([14,25,26,28,30,31,32,33,34,35,36,96,97,],[-43,-32,-31,-30,-36,50,-28,-26,51,-29,-27,-34,-33,]),'NOT':([43,47,50,51,55,74,75,76,77,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,],[58,58,58,58,58,-67,-65,58,-66,-52,-53,-56,-57,-47,58,-48,-51,-50,-55,-49,-54,58,-60,-61,-62,58,]),'PLUS':([56,61,62,64,66,78,98,99,100,],[-58,-72,-69,93,-63,-68,-64,93,-59,]),}
+_lr_action_items = {'ASSIGN':([10,12,13,16,23,24,25,26,28,30,31,33,35,36,37,39,40,41,42,50,63,66,113,115,118,122,123,],[-54,22,-52,47,-32,-24,-43,-33,-26,-28,-36,-42,-30,-31,-29,68,-25,-27,-23,73,-53,-41,-35,-44,-34,-51,-46,]),'BOOL':([10,12,13,20,34,47,63,65,116,117,],[-54,23,-52,23,23,23,-53,23,23,23,]),'PERC':([52,53,54,57,79,110,112,],[-81,75,-84,-75,-80,-76,75,]),'CHAR':([10,12,13,20,34,47,63,65,116,117,],[-54,26,-52,26,26,26,-53,26,26,26,]),'DCL':([0,2,4,6,7,9,21,44,45,49,],[5,-4,-3,-6,5,-5,-2,-8,-9,-7,]),'TIMES':([52,53,54,57,79,110,112,],[-81,78,-84,-75,-80,-76,78,]),'TYPE':([0,2,4,6,7,9,21,44,45,49,],[3,-4,-3,-6,3,-5,-2,-8,-9,-7,]),'COMMA':([10,11,12,13,14,15,16,17,18,19,20,23,24,25,26,28,30,31,33,35,36,37,40,41,42,50,52,53,54,55,57,58,59,60,63,66,69,70,71,72,74,79,102,103,104,106,108,109,110,111,112,113,115,118,119,120,121,122,123,],[-54,-16,27,-52,43,46,27,-21,48,-11,27,-32,-24,-43,-33,-26,-28,-36,-42,-30,-31,-29,-25,-27,-23,-13,-81,-70,-84,-19,-75,-18,-56,-57,-53,-41,-15,-20,-22,-10,-12,-80,-49,-50,-48,116,-17,-14,-76,-58,-71,-35,-44,-34,-40,-38,-47,-51,-46,]),'LSS':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,85,-57,-80,-76,-58,-71,]),'GTR':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,87,-57,-80,-76,-58,-71,]),'DIF':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,89,-57,-80,-76,-58,-71,]),'SEMICOL':([10,11,14,15,17,18,19,23,24,25,26,28,30,31,33,35,36,37,40,41,42,50,52,53,54,55,57,58,59,60,66,69,70,71,72,74,79,108,109,110,111,112,113,115,118,122,123,],[-54,-16,44,45,-21,49,-11,-32,-24,-43,-33,-26,-28,-36,-42,-30,-31,-29,-25,-27,-23,-13,-81,-70,-84,-19,-75,-18,-56,-57,-41,-15,-20,-22,-10,-12,-80,-17,-14,-76,-58,-71,-35,-44,-34,-51,-46,]),'LEQ':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,91,-57,-80,-76,-58,-71,]),'DIVIDE':([52,53,54,57,79,110,112,],[-81,76,-84,-75,-80,-76,76,]),'SYN':([0,2,4,6,7,9,21,44,45,49,],[1,-4,-3,-6,1,-5,-2,-8,-9,-7,]),'LPAREN':([10,23,24,26,30,31,35,36,37,38,41,102,105,113,118,],[-54,-32,62,-33,-28,-37,-30,-31,-29,67,-27,62,-37,-35,-34,]),'NOT':([22,62,65,67,68,73,75,76,77,78,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,114,116,],[51,51,51,51,51,51,-79,-78,51,-77,-63,-66,-69,51,-62,-67,-60,-65,-61,-64,-59,-68,51,-72,-74,-73,51,51,]),'COLON':([52,53,54,57,59,60,79,97,98,110,111,112,],[-81,-70,-84,-75,-56,-57,-80,-39,114,-76,-58,-71,]),'REF':([10,12,13,20,34,47,63,117,],[-54,34,-52,34,34,34,-53,34,]),'OR':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,84,-57,-80,-76,-58,-71,]),'ICONST':([22,51,56,61,62,64,65,67,68,73,75,76,77,78,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,114,116,],[54,-83,54,-82,54,100,54,54,54,54,-79,-78,54,-77,-63,-66,-69,54,-62,-67,-60,-65,-61,-64,-59,-68,54,-72,-74,-73,54,54,]),'IN':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,82,-57,-80,-76,-58,-71,]),'INT':([10,12,13,20,34,47,63,65,116,117,],[-54,36,-52,36,36,36,-53,36,36,36,]),'PLUS':([52,53,54,57,60,79,110,111,112,],[-81,-70,-84,-75,95,-80,-76,95,-71,]),'EQUALS':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,80,-57,-80,-76,-58,-71,]),'GEQ':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,81,-57,-80,-76,-58,-71,]),'LBRACK':([29,32,],[64,65,]),'RBRACK':([23,26,30,35,36,37,41,52,53,54,57,59,60,79,99,100,101,102,103,104,106,110,111,112,113,118,119,120,121,],[-32,-33,-28,-30,-31,-29,-27,-81,-70,-84,-75,-56,-57,-80,-45,-55,115,-49,-50,-48,117,-76,-58,-71,-35,-34,-40,-38,-47,]),'MINUS':([22,52,53,54,57,60,62,65,67,68,73,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,110,111,112,114,116,],[61,-81,-70,-84,-75,94,61,61,61,61,61,-79,-78,61,-77,-80,-63,-66,-69,61,-62,-67,-60,-65,-61,-64,-59,-68,61,-72,-74,-73,-76,94,-71,61,61,]),'RPAREN':([52,53,54,57,59,60,79,96,107,110,111,112,119,120,],[-81,-70,-84,-75,-56,-57,-80,113,118,-76,-58,-71,-40,-38,]),'ID':([1,3,5,10,12,13,20,27,34,43,46,47,48,63,65,116,117,],[10,10,10,-54,10,-52,10,10,10,10,10,10,10,-53,10,10,10,]),'CHARS':([10,12,13,20,34,47,63,117,],[-54,29,-52,29,29,29,-53,29,]),'AND':([52,53,54,57,59,60,79,110,111,112,],[-81,-70,-84,-75,88,-57,-80,-76,-58,-71,]),'ARRAY':([10,12,13,20,34,47,63,117,],[-54,32,-52,32,32,32,-53,32,]),'$end':([2,4,6,7,8,9,21,44,45,49,],[-4,-3,-6,-1,0,-5,-2,-8,-9,-7,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'statement':([0,6,],[5,18,]),'expression':([43,47,50,51,55,95,],[65,68,70,70,65,102,]),'mode_name':([10,19,22,39,],[24,24,24,24,]),'operator1':([60,],[84,]),'lower_bound':([50,51,],[69,69,]),'constant_expression':([43,55,],[57,73,]),'program':([0,],[4,]),'statement_list':([0,],[6,]),'synonym_statement':([0,6,],[7,7,]),'operand1':([43,47,50,51,55,84,95,],[64,64,64,64,64,99,64,]),'discrete_mode_name':([10,19,22,39,],[34,34,34,34,]),'operator2':([64,99,],[91,91,]),'integer_mode':([10,19,22,39,],[33,33,33,33,]),'identifier':([1,2,9,10,19,22,29,38,39,41,45,],[13,13,13,30,30,30,49,13,30,13,13,]),'identifier_list':([1,2,9,38,41,45,],[10,15,19,10,15,19,]),'membership_operator':([60,],[85,]),'mode':([10,19,22,39,],[23,42,46,53,]),'operand0':([43,47,50,51,55,95,],[60,60,60,60,60,60,]),'discrete_mode':([10,19,22,39,],[31,31,31,31,]),'synonym_definition':([9,45,],[21,67,]),'mode_definition':([2,41,],[17,54,]),'operand3':([43,47,50,51,55,76,84,91,95,],[66,66,66,66,66,98,66,66,66,]),'operand2':([43,47,50,51,55,84,91,95,],[56,56,56,56,56,56,100,56,]),'declaration':([1,38,],[11,52,]),'boolean_mode':([10,19,22,39,],[36,36,36,36,]),'initialization':([23,],[48,]),'monadic_operator':([43,47,50,51,55,76,84,91,95,],[59,59,59,59,59,59,59,59,59,]),'newmode_statement':([0,6,],[3,3,]),'relational_operator':([60,],[83,]),'arithmetic_multiplicative_operator':([56,100,],[76,76,]),'declaration_list':([1,],[12,]),'reference_mode':([10,19,22,39,],[27,27,27,27,]),'upper_bound':([95,],[101,]),'declaration_statement':([0,6,],[8,8,]),'arithmetic_additive_operator':([64,99,],[92,92,]),'character_mode':([10,19,22,39,],[32,32,32,32,]),'synonym_list':([9,],[20,]),'literal_range':([50,51,],[71,72,]),'operand4':([43,47,50,51,55,59,76,84,91,95,],[62,62,62,62,62,78,62,62,62,62,]),'newmode_list':([2,],[16,]),'discrete_range_mode':([10,19,22,39,],[35,35,35,35,]),}
+_lr_goto_items = {'operator2':([60,111,],[92,92,]),'discrete_range_mode':([12,20,34,47,65,116,117,],[35,35,35,35,35,35,35,]),'declaration_list':([5,],[18,]),'program':([0,],[8,]),'operator1':([59,],[83,]),'composite_mode':([12,20,34,47,117,],[28,28,28,28,28,]),'membership_operator':([59,],[86,]),'lower_bound':([62,65,67,116,],[98,98,98,98,]),'newmode_statement':([0,7,],[6,6,]),'string_length':([64,],[101,]),'identifier':([1,3,5,12,20,27,34,43,46,47,48,65,116,117,],[13,13,13,31,31,63,31,13,13,31,13,105,105,31,]),'identifier_list':([1,3,5,43,46,48,],[12,16,20,12,16,20,]),'operand2':([22,62,65,67,68,73,83,92,114,116,],[53,53,53,53,53,53,53,112,53,53,]),'declaration_statement':([0,7,],[2,2,]),'string_mode':([12,20,34,47,117,],[33,33,33,33,33,]),'statement':([0,7,],[4,21,]),'character_mode':([12,20,34,47,65,116,117,],[37,37,37,37,37,37,37,]),'operand1':([22,62,65,67,68,73,83,114,116,],[60,60,60,60,60,60,111,60,60,]),'relational_operator':([59,],[90,]),'discrete_mode_name':([12,20,34,47,65,116,117,],[38,38,38,38,38,38,38,]),'mode':([12,20,34,47,117,],[39,50,66,71,122,]),'initialization':([50,],[74,]),'operand3':([22,62,65,67,68,73,77,83,92,114,116,],[57,57,57,57,57,57,110,57,57,57,57,]),'index_mode_list':([65,],[106,]),'statement_list':([0,],[7,]),'expression':([22,62,65,67,68,73,114,116,],[55,97,97,97,55,109,119,97,]),'mode_name':([12,20,34,47,117,],[42,42,42,42,42,]),'newmode_list':([3,],[15,]),'discrete_mode':([12,20,34,47,65,116,117,],[24,24,24,24,102,102,24,]),'array_mode':([12,20,34,47,117,],[25,25,25,25,25,]),'constant_expression':([22,68,],[58,108,]),'literal_range':([62,65,67,116,],[96,103,107,103,]),'operand0':([22,62,65,67,68,73,114,116,],[59,59,59,59,59,59,59,59,]),'integer_mode':([12,20,34,47,65,116,117,],[41,41,41,41,41,41,41,]),'index_mode':([65,116,],[104,121,]),'upper_bound':([114,],[120,]),'integer_literal':([64,],[99,]),'boolean_mode':([12,20,34,47,65,116,117,],[30,30,30,30,30,30,30,]),'arithmetic_additive_operator':([60,111,],[93,93,]),'monadic_operator':([22,62,65,67,68,73,77,83,92,114,116,],[56,56,56,56,56,56,56,56,56,56,56,]),'arithmetic_multiplicative_operator':([53,112,],[77,77,]),'reference_mode':([12,20,34,47,117,],[40,40,40,40,40,]),'operand4':([22,56,62,65,67,68,73,77,83,92,114,116,],[52,79,52,52,52,52,52,52,52,52,52,52,]),'synonym_definition':([1,43,],[11,69,]),'synonym_list':([1,],[14,]),'mode_definition':([3,46,],[17,70,]),'synonym_statement':([0,7,],[9,9,]),'declaration':([5,48,],[19,72,]),'element_mode':([117,],[123,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -51,6 +51,7 @@ _lr_productions = [
   ('mode -> mode_name','mode',1,'p_mode','parser.py',153),
   ('mode -> discrete_mode','mode',1,'p_mode','parser.py',154),
   ('mode -> reference_mode','mode',1,'p_mode','parser.py',155),
+  ('mode -> composite_mode','mode',1,'p_mode','parser.py',156),
   ('discrete_mode -> integer_mode','discrete_mode',1,'p_discrete_mode','parser.py',160),
   ('discrete_mode -> boolean_mode','discrete_mode',1,'p_discrete_mode','parser.py',161),
   ('discrete_mode -> character_mode','discrete_mode',1,'p_discrete_mode','parser.py',162),
@@ -66,36 +67,47 @@ _lr_productions = [
   ('lower_bound -> expression','lower_bound',1,'p_lower_bound','parser.py',196),
   ('upper_bound -> expression','upper_bound',1,'p_upper_bound','parser.py',200),
   ('reference_mode -> REF mode','reference_mode',2,'p_reference_mode','parser.py',204),
-  ('identifier_list -> identifier','identifier_list',1,'p_identifier_list','parser.py',238),
-  ('identifier_list -> identifier_list COMMA identifier','identifier_list',3,'p_identifier_list','parser.py',239),
-  ('identifier -> ID','identifier',1,'p_identifier','parser.py',246),
-  ('expression -> operand0','expression',1,'p_expression','parser.py',252),
-  ('operand0 -> operand1','operand0',1,'p_operand0','parser.py',284),
-  ('operand0 -> operand0 operator1 operand1','operand0',3,'p_operand0_op1','parser.py',288),
-  ('operator1 -> relational_operator','operator1',1,'p_operator1','parser.py',292),
-  ('operator1 -> membership_operator','operator1',1,'p_operator1','parser.py',293),
-  ('relational_operator -> AND','relational_operator',1,'p_relational_operator','parser.py',297),
-  ('relational_operator -> OR','relational_operator',1,'p_relational_operator','parser.py',298),
-  ('relational_operator -> EQUALS','relational_operator',1,'p_relational_operator','parser.py',299),
-  ('relational_operator -> DIF','relational_operator',1,'p_relational_operator','parser.py',300),
-  ('relational_operator -> GTR','relational_operator',1,'p_relational_operator','parser.py',301),
-  ('relational_operator -> GEQ','relational_operator',1,'p_relational_operator','parser.py',302),
-  ('relational_operator -> LSS','relational_operator',1,'p_relational_operator','parser.py',303),
-  ('relational_operator -> LEQ','relational_operator',1,'p_relational_operator','parser.py',304),
-  ('membership_operator -> IN','membership_operator',1,'p_membership_operator','parser.py',308),
-  ('operand1 -> operand2','operand1',1,'p_operand1','parser.py',312),
-  ('operand1 -> operand1 operator2 operand2','operand1',3,'p_operand1_op2','parser.py',316),
-  ('operator2 -> arithmetic_additive_operator','operator2',1,'p_operator2','parser.py',320),
-  ('arithmetic_additive_operator -> PLUS','arithmetic_additive_operator',1,'p_arithmetic_additive_operator','parser.py',325),
-  ('arithmetic_additive_operator -> MINUS','arithmetic_additive_operator',1,'p_arithmetic_additive_operator','parser.py',326),
-  ('operand2 -> operand3','operand2',1,'p_operand2','parser.py',334),
-  ('operand2 -> operand2 arithmetic_multiplicative_operator operand3','operand2',3,'p_operand2_op3','parser.py',338),
-  ('arithmetic_multiplicative_operator -> TIMES','arithmetic_multiplicative_operator',1,'p_arithmetic_multiplicative_operator','parser.py',342),
-  ('arithmetic_multiplicative_operator -> DIVIDE','arithmetic_multiplicative_operator',1,'p_arithmetic_multiplicative_operator','parser.py',343),
-  ('arithmetic_multiplicative_operator -> PERC','arithmetic_multiplicative_operator',1,'p_arithmetic_multiplicative_operator','parser.py',344),
-  ('operand3 -> monadic_operator operand4','operand3',2,'p_operand3_monadic','parser.py',348),
-  ('operand3 -> operand4','operand3',1,'p_operand3','parser.py',352),
-  ('monadic_operator -> MINUS','monadic_operator',1,'p_monadic_operator','parser.py',357),
-  ('monadic_operator -> NOT','monadic_operator',1,'p_monadic_operator','parser.py',358),
-  ('operand4 -> ICONST','operand4',1,'p_operand4','parser.py',362),
+  ('composite_mode -> string_mode','composite_mode',1,'p_composite_mode_string','parser.py',208),
+  ('composite_mode -> array_mode','composite_mode',1,'p_composite_mode_string','parser.py',209),
+  ('string_mode -> CHARS LBRACK string_length RBRACK','string_mode',4,'p_string_mode','parser.py',213),
+  ('string_length -> integer_literal','string_length',1,'p_string_length','parser.py',217),
+  ('array_mode -> ARRAY LBRACK index_mode_list RBRACK element_mode','array_mode',5,'p_array_mode','parser.py',221),
+  ('index_mode_list -> index_mode_list COMMA index_mode','index_mode_list',3,'p_index_mode_list','parser.py',225),
+  ('index_mode_list -> index_mode','index_mode_list',1,'p_index_mode_list','parser.py',226),
+  ('index_mode -> discrete_mode','index_mode',1,'p_index_mode','parser.py',233),
+  ('index_mode -> literal_range','index_mode',1,'p_index_mode','parser.py',234),
+  ('element_mode -> mode','element_mode',1,'p_element_mode','parser.py',238),
+  ('identifier_list -> identifier','identifier_list',1,'p_identifier_list','parser.py',244),
+  ('identifier_list -> identifier_list COMMA identifier','identifier_list',3,'p_identifier_list','parser.py',245),
+  ('identifier -> ID','identifier',1,'p_identifier','parser.py',252),
+  ('integer_literal -> ICONST','integer_literal',1,'p_intger_literal','parser.py',258),
+  ('expression -> operand0','expression',1,'p_expression','parser.py',264),
+  ('operand0 -> operand1','operand0',1,'p_operand0','parser.py',296),
+  ('operand0 -> operand0 operator1 operand1','operand0',3,'p_operand0_op1','parser.py',300),
+  ('operator1 -> relational_operator','operator1',1,'p_operator1','parser.py',304),
+  ('operator1 -> membership_operator','operator1',1,'p_operator1','parser.py',305),
+  ('relational_operator -> AND','relational_operator',1,'p_relational_operator','parser.py',309),
+  ('relational_operator -> OR','relational_operator',1,'p_relational_operator','parser.py',310),
+  ('relational_operator -> EQUALS','relational_operator',1,'p_relational_operator','parser.py',311),
+  ('relational_operator -> DIF','relational_operator',1,'p_relational_operator','parser.py',312),
+  ('relational_operator -> GTR','relational_operator',1,'p_relational_operator','parser.py',313),
+  ('relational_operator -> GEQ','relational_operator',1,'p_relational_operator','parser.py',314),
+  ('relational_operator -> LSS','relational_operator',1,'p_relational_operator','parser.py',315),
+  ('relational_operator -> LEQ','relational_operator',1,'p_relational_operator','parser.py',316),
+  ('membership_operator -> IN','membership_operator',1,'p_membership_operator','parser.py',320),
+  ('operand1 -> operand2','operand1',1,'p_operand1','parser.py',324),
+  ('operand1 -> operand1 operator2 operand2','operand1',3,'p_operand1_op2','parser.py',328),
+  ('operator2 -> arithmetic_additive_operator','operator2',1,'p_operator2','parser.py',332),
+  ('arithmetic_additive_operator -> PLUS','arithmetic_additive_operator',1,'p_arithmetic_additive_operator','parser.py',337),
+  ('arithmetic_additive_operator -> MINUS','arithmetic_additive_operator',1,'p_arithmetic_additive_operator','parser.py',338),
+  ('operand2 -> operand3','operand2',1,'p_operand2','parser.py',346),
+  ('operand2 -> operand2 arithmetic_multiplicative_operator operand3','operand2',3,'p_operand2_op3','parser.py',350),
+  ('arithmetic_multiplicative_operator -> TIMES','arithmetic_multiplicative_operator',1,'p_arithmetic_multiplicative_operator','parser.py',354),
+  ('arithmetic_multiplicative_operator -> DIVIDE','arithmetic_multiplicative_operator',1,'p_arithmetic_multiplicative_operator','parser.py',355),
+  ('arithmetic_multiplicative_operator -> PERC','arithmetic_multiplicative_operator',1,'p_arithmetic_multiplicative_operator','parser.py',356),
+  ('operand3 -> monadic_operator operand4','operand3',2,'p_operand3_monadic','parser.py',360),
+  ('operand3 -> operand4','operand3',1,'p_operand3','parser.py',364),
+  ('monadic_operator -> MINUS','monadic_operator',1,'p_monadic_operator','parser.py',369),
+  ('monadic_operator -> NOT','monadic_operator',1,'p_monadic_operator','parser.py',370),
+  ('operand4 -> ICONST','operand4',1,'p_operand4','parser.py',374),
 ]

@@ -152,8 +152,8 @@ class LyaParser(object):
     def p_mode(self, p):
         """mode : mode_name
                 | discrete_mode
-                | reference_mode"""
-        # | composite_mode"""
+                | reference_mode
+                | composite_mode"""
         p[0] = ('mode', p[1])
 
     def p_discrete_mode(self, p):
@@ -204,33 +204,39 @@ class LyaParser(object):
         """reference_mode : REF mode"""
         p[0] = ('reference_mode', p[2])
 
-    # def p_composite_mode(self, p):
-    #     """composite_mode : string_mode
-    #                       | array_mode"""
-    #
-    # def p_string_mode(self, p):
-    #     """string_mode : CHARS LBRACK string_length RBRACK"""
-    #
-    # def p_string_length(self, p):
-    #     """string_length : integer_literal"""
-    #
-    # def p_array_mode(self, p):
-    #     """array_mode : ARRAY LBRACK index_mode_list RBRACK"""
-    #
-    # def p_index_mode_list_rec(self, p):
-    #     # the first line might need to be reversed depending on the parsing rules
-    #     """index_mode_list : intex_mode_list COMMA index_mode"""
-    #
-    # def p_index_mode_list(self, p):
-    #     """index_mode_list : index_mode"""
-    #
-    # def p_index_mode(self, p):
-    #     """index_mode : discrete_mode
-    #                  | literal_range"""
-    #
-    # def p_element_mode(self, p):
-    #     """element_mode : mode"""
+    def p_composite_mode_string(self, p):
+        """composite_mode : string_mode
+                          | array_mode"""
+        p[0] = ('composite_mode', p[1])
 
+    def p_string_mode(self, p):
+        """string_mode : CHARS LBRACK string_length RBRACK"""
+        p[0] = ('string_mode', p[3])
+
+    def p_string_length(self, p):
+        """string_length : integer_literal"""
+        p[0] = ('string_length', p[1])
+
+    def p_array_mode(self, p):
+        """array_mode : ARRAY LBRACK index_mode_list RBRACK element_mode"""
+        p[0] = ('array_mode', p[3], p[5])
+
+    def p_index_mode_list(self, p):
+        """index_mode_list : index_mode_list COMMA index_mode
+                           | index_mode"""
+        if len(p) == 2:
+            p[0] = ('index_mode_list', (p[1]))
+        else:
+            p[0] = p[1] + (p[3],)
+
+    def p_index_mode(self, p):
+        """index_mode : discrete_mode
+                      | literal_range"""
+        p[0] = ('index_mode', p[1])
+
+    def p_element_mode(self, p):
+        """element_mode : mode"""
+        p[0] = ('element_mode', p[1])
 
     #### Identifier
 
@@ -245,6 +251,12 @@ class LyaParser(object):
     def p_identifier(self, p):
         """identifier : ID"""
         p[0] = ('identifier', p[1])
+
+    #### Primitive Values
+
+    def p_intger_literal(self, p):
+        """integer_literal : ICONST"""
+        p[0] = ('integer_literal', p[1])
 
     #### Expression
 
@@ -471,9 +483,15 @@ if __name__ == "__main__":
     type type21 = ref ref type20;
     """
 
-    # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
+    lya_source_composite_mode = """
+    dcl cms1 chars [10];
+    dcl cma1 array [int] bool;
+    dcl cma2 array [bool, int] char;
+    """
 
-    source = lya_source_type
+   # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
+
+    source = lya_source_composite_mode
 
     print(source)
 

@@ -314,10 +314,10 @@ class LyaParser(object):
     # Primitive Values ----------------------------------------------
 
     def p_primitive_value(self, p):
-        """primitive_value : literal"""
-                          # | value_array_element
-                          # | value_array_slice
-                          # | parenthesized_expression"""
+        """primitive_value : literal
+                           | value_array_element
+                           | value_array_slice
+                           | parenthesized_expression"""
         p[0] = ("primitive_value", p[1])
 
     def p_literal(self, p):
@@ -349,7 +349,25 @@ class LyaParser(object):
         """character_string_literal : SCONST"""
         p[0] = ("character_string_literal", p[1])
 
+    # Array
+
+    def p_value_array_element(self, p):
+        """value_array_element : array_primitive_value LBRACK expression_list RBRACK"""
+        p[0] = ("value_array_element", p[1], p[3])
+
+    def p_value_array_slice(self, p):
+        """value_array_slice : array_primitive_value LBRACK lower_bound COLON upper_bound RBRACK"""
+        p[0] = ("value_array_slice", p[1], p[3], p[5])
+
+    def p_array_primitive_value(self, p):
+        """array_primitive_value : primitive_value"""
+        p[0] = ("array_primitive_value", p[1])
+
     # Expression
+
+    def p_parenthesized_expression(self, p):
+        """parenthesized_expression : LPAREN expression RPAREN"""
+        p[0] = ("parenthesized_expression", p[2])
 
     def p_expression_list(self, p):
         """expression_list : expression_list COMMA expression
@@ -365,11 +383,11 @@ class LyaParser(object):
         p[0] = ("expression", p[1])
 
     def p_conditional_expression(self, p):
-        """conditional_expression :  IF boolean_expression then_expression else_expression FI"""
+        """conditional_expression : IF boolean_expression then_expression else_expression FI"""
         p[0] = ("conditional_expression", p[2], p[3], p[4])
 
     def p_conditional_expression_elsif(self, p):
-        """conditional_expression :  IF boolean_expression then_expression elsif_expression else_expression FI"""
+        """conditional_expression : IF boolean_expression then_expression elsif_expression else_expression FI"""
         p[0] = ("conditional_expression", p[2], p[3], p[4], p[5])
 
     def p_integer_expression(self, p):
@@ -643,7 +661,6 @@ class LyaParser(object):
         """while_control :       WHILE boolean_expression"""
         p[0] = ("while_control", p[2])
 
-    # Simple actions
     # Actions ------------------------------------------------------------
 
     def p_call_action(self, p):

@@ -517,7 +517,7 @@ class LyaParser(object):
 
     def p_label_id(self, p):
         """label_id : identifier"""
-        p[0] = ('label_id', p[1])
+        p[0] = ('Label', p[1])
 
     def p_action(self, p):
         """action : bracketed_action
@@ -772,37 +772,37 @@ class LyaParser(object):
         """formal_parameter_list : formal_parameter_list COMMA formal_parameter
                                  | formal_parameter"""
         if len(p) == 2:
-            p[0] = ('formal_parameter_list', (p[1]))
+            p[0] = ((p[1]),)
         else:
             p[0] = p[1] + (p[3],)
 
     def p_formal_parameter(self, p):
         """formal_parameter : identifier_list parameter_spec"""
-        p[0] = ('formal_parameter', p[1], p[2])
+        p[0] = ('FormalParameter', p[1],  p[2])
 
     def p_parameter_spec(self, p):
         """parameter_spec : mode parameter_attribute
                           | mode"""
         if len(p) == 2:
-            p[0] = ('parameter_spec', p[1])
+            p[0] = p[1]
         else:
-            p[0] = ('parameter_spec', p[1], p[2])
+            p[0] = (p[1], p[2])
 
     def p_parameter_attribute(self, p):
         """parameter_attribute : LOC"""
-        p[0] = ('parameter_attribute', p[1])
+        p[0] = ('ParameterAttribute', p[1])
 
     def p_result_spec_attr(self, p):
         """result_spec : RETURNS LPAREN mode result_attribute RPAREN"""
-        p[0] = ("returns_mode", p[3], p[4])
+        p[0] = ('Returns', p[3] + p[4])
 
     def p_result_spec(self, p):
         """result_spec : RETURNS LPAREN mode RPAREN"""
-        p[0] = ("returns_spec", p[3])
+        p[0] = ('Returns', p[3])
 
     def p_result_attribute(self, p):
         """result_attribute : LOC"""
-        p[0] = ("result_attribute", p[1])
+        p[0] = ("ResultAttribute", p[1])
 
     # Empty
 
@@ -937,8 +937,8 @@ if __name__ == "__main__":
     """
 
     lya_source_procedure9 = """
-    power: proc (n int loc, r int) returns (int loc);
-        dcl c int = 1;
+    power: proc (n int loc, r, z int) returns (int loc);
+        dcl c, d int = 1;
         type t = bool;
     end;
     """
@@ -1069,7 +1069,7 @@ if __name__ == "__main__":
                     do for counter = 3 by 5 down to 8; od;
                     """
 
-    source = lya_source_procedure3
+    source = lya_source_procedure9
 
     # TODO: Test Location
     # TODO: Test Primitive

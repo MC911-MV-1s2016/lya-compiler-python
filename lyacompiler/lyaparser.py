@@ -71,14 +71,17 @@ class LyaParser(object):
 
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
-        p[0] = ('DeclarationStatement (at line {0})'.format(p.lineno(1)), p[2])
+        #p[0] = ('DeclarationStatement (at line {0})'.format(p.lineno(1)), p[2])
+        p[0] = ('DeclarationStatement', p[2])
 
     def p_synonym_statement(self, p):
         """synonym_statement : SYN synonym_list SEMICOL"""
-        p[0] = ('SynonymStatement (at line {0})'.format(p.lineno(1)), p[2])
+        # p[0] = ('SynonymStatement (at line {0})'.format(p.lineno(1)), p[2])
+        p[0] = ('SynonymStatement', p[2])
 
     def p_newmode_statement(self, p):
         """newmode_statement : TYPE newmode_list SEMICOL"""
+        # p[0] = ('NewmodeStatement (at line {0})'.format(p.lineno(1)), p[2])
         p[0] = ('NewmodeStatement', p[2])
 
     def p_procedure_statement(self, p):
@@ -143,13 +146,13 @@ class LyaParser(object):
         """newmode_list : newmode_list COMMA mode_definition
                         | mode_definition"""
         if len(p) == 2:
-            p[0] = ('newmode_list', (p[1]))
+            p[0] = ((p[1]),)
         else:
             p[0] = p[1] + (p[3],)
 
     def p_mode_definition(self, p):
         """mode_definition : identifier_list ASSIGN mode"""
-        p[0] = ('mode_definition', p[1], p[3])
+        p[0] = ('ModeDefinition', p[1], p[3])
 
     def p_mode(self, p):
         """mode : mode_name
@@ -1062,7 +1065,7 @@ if __name__ == "__main__":
                     do for counter = 3 by 5 down to 8; od;
                     """
 
-    source = lya_source_syn
+    source = lya_source_type
 
     # TODO: Test Location
     # TODO: Test Primitive
@@ -1072,4 +1075,4 @@ if __name__ == "__main__":
     print(source)
 
     AST = lyaparser.parse(source)
-    pprint.pprint(AST, indent=3)
+    pprint.pprint(AST, indent=2)

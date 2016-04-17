@@ -39,11 +39,19 @@ class LyaParser(object):
     # Private
 
     # Precedence
-    # precedence = (
-    #     ('left', 'PLUS', 'MINUS'),
-    #     ('left', 'TIMES', 'DIVIDE'),
-    #     ('right', 'UMINUS'),
-    # )
+    precedence = (
+        ('left', 'ASSIGN')
+        # ('left', 'LOR'),
+        # ('left', 'LAND'),
+        ('left', 'OR'),
+        # ('left', 'XOR'),
+        ('left', 'AND'),
+        ('left', 'EQUALS', 'DIF'),
+        ('left', 'GTR', 'GEQ', 'LSS', 'LEQ'),
+        ('left', 'PLUS', 'MINUS'),
+        ('left', 'TIMES', 'DIVIDE', 'PERC')
+        ('right', 'UMINUS'),  # Unary minus operator
+    )
 
     # Grammar productions
 
@@ -368,19 +376,18 @@ class LyaParser(object):
                                                 | PERC"""
         p[0] = ("arithmetic_multiplicative_operator", p[1])
 
+    def p_operand3_uminus(self, p):
+        """operand3 : MINUS operand4 %prec UMINUS"""
+        p[0] = ("operand3", -p[2])
+
     def p_operand3_monadic(self, p):
-        """operand3 :            monadic_operator operand4"""
+        """operand3 : NOT operand4"""
         p[0] = ("operand3", p[1], p[2])
 
     def p_operand3(self, p):
         """operand3 :            operand4"""
                     # |           integer_literal"""
         p[0] = ("operand3", p[1])
-
-    def p_monadic_operator(self, p):
-        """monadic_operator :    MINUS
-                            | NOT"""
-        p[0] = ("monadic_operator", p[1])
 
     def p_operand4(self, p):
         """operand4 : ICONST"""

@@ -180,27 +180,27 @@ class LyaParser(object):
     def p_discrete_range_mode(self, p):
         """discrete_range_mode : discrete_mode_name  LPAREN literal_range RPAREN
                                | discrete_mode LPAREN literal_range RPAREN"""
-        p[0] = ('discrete_range_mode', p[1], p[3])
+        p[0] = ('DiscreteRangeMode', p[1], p[3])
 
     def p_mode_name(self, p):
         """mode_name : identifier"""
-        p[0] = ('mode_name', p[1])
+        p[0] = p[1]
 
     def p_discrete_mode_name(self, p):
         """discrete_mode_name : identifier"""
-        p[0] = ('discrete_mode_name', p[1])
+        p[0] = p[1]
 
     def p_literal_range(self, p):
         """literal_range : lower_bound COLON upper_bound"""
-        p[0] = ('literal_range', p[1], p[3])
+        p[0] = ('LiteralRange', (p[1], p[3]))
 
     def p_lower_bound(self, p):
         """lower_bound : expression"""
-        p[0] = ('lower_bound', p[1])
+        p[0] = p[1]
 
     def p_upper_bound(self, p):
         """upper_bound : expression"""
-        p[0] = ('upper_bound', p[1])
+        p[0] = p[1]
 
     def p_reference_mode(self, p):
         """reference_mode : REF mode"""
@@ -252,7 +252,7 @@ class LyaParser(object):
 
     def p_identifier(self, p):
         """identifier : ID"""
-        p[0] = ('identifier', p[1])
+        p[0] = ('Identifier', p[1])
 
     # Location ------------------------------------------------------
 

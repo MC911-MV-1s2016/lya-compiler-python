@@ -669,51 +669,51 @@ class LyaParser(object):
     def p_call_action(self, p):
         """call_action : procedure_call
                        | builtin_call"""
-        p[0] = ("call_action", p[1])
+        p[0] = p[1]
 
     def p_procedure_call_parameter(self, p):
         """procedure_call : procedure_name LPAREN parameter_list RPAREN"""
-        p[0] = ("procedure_call", p[1], p[3])
+        p[0] = ("ProcCall", p[1], p[3])
 
     def p_procedure_call(self, p):
         """procedure_call : procedure_name LPAREN RPAREN"""
-        p[0] = ("procedure_call", p[1])
+        p[0] = ("ProcCall", p[1], None)
 
     def p_parameter_list(self, p):
         """parameter_list : parameter_list COMMA parameter
                           | parameter"""
         if len(p) == 2:
-            p[0] = ('parameter-list', (p[1]))
+            p[0] = (p[1],)
         else:
             p[0] = p[1] + (p[3],)
 
     def p_parameter(self, p):
         """parameter : expression"""
-        p[0] = ("parameter", p[1])
+        p[0] = ("Parameter", p[1])
 
     def p_procedure_name(self, p):
         """procedure_name : identifier"""
-        p[0] = ("procedure_name", p[1])
+        p[0] = p[1]
 
     def p_exit_action(self, p):
         """exit_action : EXIT label_id"""
-        p[0] = ("exit_action", p[2])
+        p[0] = ("Exit", p[2])
 
     def p_return_action_result(self, p):
         """return_action : RETURN result"""
-        p[0] = ("return_action", p[2])
+        p[0] = ("Return", p[2])
 
     def p_return_action(self, p):
         """return_action : RETURN"""
-        p[0] = ("return_action",)
+        p[0] = ("Return", None)
 
     def p_result_action(self, p):
         """result_action : RESULT result"""
-        p[0] = ("result_action", p[2])
+        p[0] = ("Result", p[2])
 
     def p_result(self, p):
         """result : expression"""
-        p[0] = ("result", p[1])
+        p[0] = p[1]
 
     def p_builtin_call_parameter(self, p):
         """builtin_call : builtin_name LPAREN parameter_list RPAREN"""

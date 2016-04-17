@@ -40,7 +40,7 @@ class LyaParser(object):
 
     # Precedence
     precedence = (
-        ('left', 'ASSIGN')
+        ('left', 'ASSIGN'),
         # ('left', 'LOR'),
         # ('left', 'LAND'),
         ('left', 'OR'),
@@ -49,7 +49,7 @@ class LyaParser(object):
         ('left', 'EQUALS', 'DIF'),
         ('left', 'GTR', 'GEQ', 'LSS', 'LEQ'),
         ('left', 'PLUS', 'MINUS'),
-        ('left', 'TIMES', 'DIVIDE', 'PERC')
+        ('left', 'TIMES', 'DIVIDE', 'PERC'),
         ('right', 'UMINUS'),  # Unary minus operator
     )
 

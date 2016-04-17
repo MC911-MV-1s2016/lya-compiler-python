@@ -39,11 +39,19 @@ class LyaParser(object):
     # Private
 
     # Precedence
-    # precedence = (
-    #     ('left', 'PLUS', 'MINUS'),
-    #     ('left', 'TIMES', 'DIVIDE'),
-    #     ('right', 'UMINUS'),
-    # )
+    precedence = (
+        ('left', 'ASSIGN'),
+        # ('left', 'LOR'),
+        # ('left', 'LAND'),
+        ('left', 'OR'),
+        # ('left', 'XOR'),
+        ('left', 'AND'),
+        ('left', 'EQUALS', 'DIF'),
+        ('left', 'GTR', 'GEQ', 'LSS', 'LEQ'),
+        ('left', 'PLUS', 'MINUS'),
+        ('left', 'TIMES', 'DIVIDE', 'PERC'),
+        ('right', 'UMINUS'),  # Unary minus operator
+    )
 
     # Grammar productions
 
@@ -481,18 +489,17 @@ class LyaParser(object):
                                               | PERC"""
         p[0] = p[1]
 
+    def p_operand3_uminus(self, p):
+        """operand3 : MINUS operand4 %prec UMINUS"""
+        p[0] = -p[2]
+
     def p_operand3_monadic(self, p):
-        """operand3 : monadic_operator operand4"""
+        """operand3 : NOT operand4"""
         p[0] = (p[1], p[2])
 
     def p_operand3(self, p):
         """operand3 : operand4
                     | integer_literal"""
-        p[0] = p[1]
-
-    def p_monadic_operator(self, p):
-        """monadic_operator : MINUS
-                            | NOT"""
         p[0] = p[1]
 
     def p_operand4(self, p):
@@ -834,7 +841,7 @@ if __name__ == "__main__":
                     "palindrome.lya",
                     "bubble_sort.lya",
                     "armstrong_number.lya",
-                    "gen_prime.lya",
+                    "gen_primes.lya",
                     "int_stack.lya"
                     ]
 

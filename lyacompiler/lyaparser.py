@@ -517,7 +517,7 @@ class LyaParser(object):
 
     def p_label_id(self, p):
         """label_id : identifier"""
-        p[0] = ('label_id', p[1])
+        p[0] = p[1]
 
     def p_action(self, p):
         """action : bracketed_action
@@ -536,7 +536,7 @@ class LyaParser(object):
     def p_assignment_action(self, p):
         """assignment_action : location assigning_operator expression"""
         # names[p[1]]=p[3]
-        p[0] = ("assignment_action", p[1], p[2], p[3])
+        p[0] = ("Assignment", p[1], p[2], p[3])
 
     def p_assigning_operator(self, p):
         """assigning_operator : ASSIGN
@@ -546,7 +546,7 @@ class LyaParser(object):
                               | DIVIDEASSIGN
                               | PERCASSIGN
                               | CONCATASSIGN"""
-        p[0] = ("assigning_operator", p[1])
+        p[0] = p[1]
 
     # if-then-else ------------------------------------------------------
 
@@ -1070,7 +1070,7 @@ if __name__ == "__main__":
                     do for counter = 3 by 5 down to 8; od;
                     """
 
-    source = lya_source_procedure3
+    source = lya_source_do
 
     # TODO: Test Location
     # TODO: Test Primitive

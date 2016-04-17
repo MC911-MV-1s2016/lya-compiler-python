@@ -86,6 +86,7 @@ class LyaParser(object):
 
     def p_procedure_statement(self, p):
         """procedure_statement : label_id COLON procedure_definition SEMICOL"""
+        # p[0] = ('ProcedureStatement (at line {0})'.format(p.lineno(2)), p[2])
         p[0] = ('ProcedureStatement', p[1], p[3])
 
     def p_action_statement_label(self, p):
@@ -216,32 +217,32 @@ class LyaParser(object):
 
     def p_string_mode(self, p):
         """string_mode : CHARS LBRACK string_length RBRACK"""
-        p[0] = ('string_mode', p[3])
+        p[0] = ('StringMode', p[3])
 
     def p_string_length(self, p):
         """string_length : integer_literal"""
-        p[0] = ('string_length', p[1])
+        p[0] = ('Length', p[1])
 
     def p_array_mode(self, p):
         """array_mode : ARRAY LBRACK index_mode_list RBRACK element_mode"""
-        p[0] = ('array_mode', p[3], p[5])
+        p[0] = ('ArrayMode', p[3], p[5])
 
     def p_index_mode_list(self, p):
         """index_mode_list : index_mode_list COMMA index_mode
                            | index_mode"""
         if len(p) == 2:
-            p[0] = ('index_mode_list', (p[1]))
+            p[0] = ((p[1]),)
         else:
             p[0] = p[1] + (p[3],)
 
     def p_index_mode(self, p):
         """index_mode : discrete_mode
                       | literal_range"""
-        p[0] = ('index_mode', p[1])
+        p[0] = ('IndexMode', p[1])
 
     def p_element_mode(self, p):
         """element_mode : mode"""
-        p[0] = ('element_mode', p[1])
+        p[0] = ('ElementMode', p[1])
 
     # Identifier ----------------------------------------------------
 
@@ -737,35 +738,35 @@ class LyaParser(object):
 
     def p_procedure_definition_prs(self, p):
         """procedure_definition : PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list END"""
-        p[0] = ('procedure_definition', p[3], p[5], ('statement_list',) + p[7])
+        p[0] = ('ProcedureDefinition', p[3], p[5], p[7])
 
     def p_procedure_definition_pr(self, p):
         """procedure_definition : PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL END"""
-        p[0] = ('procedure_definition', p[3], p[5])
+        p[0] = ('ProcedureDefinition', p[3], p[5])
 
     def p_procedure_definition_ps(self, p):
         """procedure_definition : PROC LPAREN formal_parameter_list RPAREN SEMICOL statement_list END"""
-        p[0] = ('procedure_definition', p[3], ('statement_list',) + p[6])
+        p[0] = ('ProcedureDefinition', p[3], p[6])
 
     def p_procedure_definition_rs(self, p):
         """procedure_definition : PROC LPAREN RPAREN result_spec SEMICOL statement_list END"""
-        p[0] = ('procedure_definition', p[4], ('statement_list',) + p[6])
+        p[0] = ('ProcedureDefinition', p[4], p[6])
 
     def p_procedure_definition_p(self, p):
         """procedure_definition : PROC LPAREN formal_parameter_list RPAREN SEMICOL END"""
-        p[0] = ('procedure_definition', p[3])
+        p[0] = ('ProcedureDefinition', p[3])
 
     def p_procedure_definition_r(self, p):
         """procedure_definition : PROC LPAREN RPAREN result_spec SEMICOL END"""
-        p[0] = ('procedure_definition', p[4])
+        p[0] = ('ProcedureDefinition', p[4])
 
     def p_procedure_definition_s(self, p):
         """procedure_definition : PROC LPAREN RPAREN SEMICOL statement_list END"""
-        p[0] = ('procedure_definition', ('statement_list',) + p[5])
+        p[0] = ('ProcedureDefinition', p[5])
 
     def p_procedure_definition(self, p):
         """procedure_definition : PROC LPAREN RPAREN SEMICOL END"""
-        p[0] = ('procedure_definition',)
+        p[0] = ('ProcedureDefinition',)
 
     def p_formal_parameter_list(self, p):
         """formal_parameter_list : formal_parameter_list COMMA formal_parameter
@@ -877,6 +878,9 @@ if __name__ == "__main__":
     type type14 = int, type15, type16 = char, type17, type18, type19 = char;
     type type20 = ref int;
     type type21 = ref ref type20;
+    type type22 = chars[20];
+    type type23 = array [int] char;
+    type type24 = array[1:2] bool;
     """
 
     lya_source_composite_mode = """
@@ -1065,7 +1069,7 @@ if __name__ == "__main__":
                     do for counter = 3 by 5 down to 8; od;
                     """
 
-    source = lya_source_type
+    source = lya_source_procedure3
 
     # TODO: Test Location
     # TODO: Test Primitive

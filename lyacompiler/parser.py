@@ -516,8 +516,8 @@ class LyaParser(object):
         p[0] = ("action", p[1])
 
     def p_bracketed_action(self, p):
-        """bracketed_action : if_action"""
-                            # | do_action"""
+        """bracketed_action : if_action
+                             | do_action"""
         p[0] = ("bracketed_action", p[1])
 
     def p_assignment_action(self, p):
@@ -568,6 +568,88 @@ class LyaParser(object):
     def p_else_clause_if(self, p):
         """else_clause : ELSIF boolean_expression then_clause"""
         p[0] = ("else_clause", p[2], p[3])
+
+    def p_do_action_control_action(self, p):
+        """do_action :           DO control_part SEMICOL action_statement_list OD"""
+        p[0] = ("do_action", p[2], p[4])
+
+    def p_do_action_control(self, p):
+        """do_action :           DO control_part SEMICOL OD"""
+        p[0] = ("do_action", p[2])
+
+    def p_do_action(self, p):
+        """do_action :           DO action_statement_list OD"""
+        p[0] = ("do_action", p[2])
+
+    def p_do_action_zero(self, p):
+        """do_action :           DO OD"""
+        p[0] = ("do_action", None)
+
+    def p_control_part_forwhile(self, p):
+        """control_part :        for_control while_control"""
+        p[0] = ("control_part", p[1], p[2])
+
+    def p_control_part(self, p):
+        """control_part :        while_control
+                    |           for_control"""
+        p[0] = ("control_part", p[1])
+
+    def p_for_control(self, p):
+        """for_control :         FOR iteration"""
+        p[0] = ("for_control", p[2])
+
+    def p_iteration(self, p):
+        """iteration :          range_enumeration
+                    |          step_enumeration"""
+        p[0] = ("iteration", p[1])
+
+    def p_step_enumeration_stepvalue_down(self, p):
+        """step_enumeration :    loop_counter ASSIGN start_value step_value DOWN end_value"""
+        p[0] = ("step_enumeration_stepvalue", p[1], p[3], p[4], p[6])
+
+    def p_step_enumeration_stepvalue(self, p):
+        """step_enumeration :    loop_counter ASSIGN start_value step_value end_value"""
+        p[0] = ("step_enumeration_stepvalue", p[1], p[3], p[4], p[5])
+
+    def p_step_enumeration_down(self, p):
+        """step_enumeration :    loop_counter ASSIGN start_value DOWN end_value"""
+        p[0] = ("step_enumeration", p[1], p[3], p[5])
+
+    def p_step_enumeration(self, p):
+        """step_enumeration :    loop_counter ASSIGN start_value end_value"""
+        p[0] = ("step_enumeration", p[1], p[3], p[4])
+
+    def p_loop_counter(self, p):
+        """loop_counter :        identifier"""
+        p[0] = ("loop_counter", p[1])
+
+    def p_start_value(self, p):
+        """start_value :         discrete_expression"""
+        p[0] = ("start_value", p[1])
+
+    def p_step_value(self, p):
+        """step_value :          BY integer_expression"""
+        p[0] = ("step_value", p[2])
+
+    def p_end_value(self, p):
+        """end_value :           TO discrete_expression"""
+        p[0] = ("end_value", p[2])
+
+    def p_discrete_expression(self, p):
+        """discrete_expression :     expression"""
+        p[0] = ("discrete_expression", p[1])
+
+    def p_range_enumeration_down(self, p):
+        """range_enumeration :       loop_counter DOWN IN discrete_mode_name"""
+        p[0] = ("range_enumeration", p[1], p[4])
+
+    def p_range_enumeration(self, p):
+        """range_enumeration :       loop_counter IN discrete_mode_name"""
+        p[0] = ("range_enumeration", p[1], p[3])
+
+    def p_while_control(self, p):
+        """while_control :       WHILE boolean_expression"""
+        p[0] = ("while_control", p[2])
 
     # Simple actions
 
@@ -859,13 +941,28 @@ if __name__ == "__main__":
     ac5 %= 20;
     ac6 &= 2;
     """
-
-    lya_source = """dcl var1 int=3+5-7*7/9%3;
+    lya_source_expression = """dcl var1 int=3+5-7*7/9%3;
                         dcl var2 int = 2 in 3;
                         dcl var3 bool = 5 && 3 || 1 == 2 & 2;
-                        dcl var4 bool = if 2 then 3 else 5 fi;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
+                        dcl var4 bool = if 2 then 3 else 5 fi;
+                        dcl var2 int = var1 + 3;"""
 
-    source = lya_source
+    lya_source_do = """dcl var int = 3;
+                    do od;
+                    do var = 2; od;
+                    do while 1; od;
+                    do while 3; var = 32; od;
+                    do for counter in mode_name; od;
+                    do for counter in mode_name; var3 = 12; od;
+                    do for counter down in mode_name; od;
+                    do for counter in mode_name while 3; var = 32; od;
+                    do for counter = 3 to 8; od;
+                    do for counter = 3 down to 8; od;
+                    do for counter = 3 by 5 to 8; od;
+                    do for counter = 3 by 5 down to 8; od;
+                    """
+
+    source = lya_source_do
 
     # TODO: Test Location
     # TODO: Test Primitive

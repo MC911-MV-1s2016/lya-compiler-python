@@ -71,11 +71,11 @@ class LyaParser(object):
 
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
-        p[0] = ('DeclarationStatement', p[2][1:])
+        p[0] = ('DeclarationStatement (at line {0})'.format(p.lineno(1)), p[2])
 
     def p_synonym_statement(self, p):
         """synonym_statement : SYN synonym_list SEMICOL"""
-        p[0] = ('SynonymStatement', p[2])
+        p[0] = ('SynonymStatement (at line {0})'.format(p.lineno(1)), p[2])
 
     def p_newmode_statement(self, p):
         """newmode_statement : TYPE newmode_list SEMICOL"""
@@ -99,7 +99,7 @@ class LyaParser(object):
         """declaration_list : declaration_list COMMA declaration
                             | declaration"""
         if len(p) == 2:
-            p[0] = ('declaration_list', (p[1]))
+            p[0] = ((p[1]),)
         else:
             p[0] = p[1] + (p[3],)
 
@@ -121,7 +121,7 @@ class LyaParser(object):
         """synonym_list : synonym_list COMMA synonym_definition
                         | synonym_definition"""
         if len(p) == 2:
-            p[0] = ('synonym_list', (p[1]))
+            p[0] = ((p[1]),)
         else:
             p[0] = p[1] + (p[3],)
 
@@ -129,9 +129,9 @@ class LyaParser(object):
         """synonym_definition : identifier_list mode ASSIGN constant_expression
                               | identifier_list ASSIGN constant_expression"""
         if len(p) == 4:
-            p[0] = ('synonym_definition', p[1], p[3])
+            p[0] = ('SynonymDefinition', p[1], p[3])
         else:
-            p[0] = ('synonym_definition', p[1], p[2], p[4])
+            p[0] = ('SynonymDefinition', p[1], p[2], p[4])
 
     def p_constant_expression(self, p):
         """constant_expression : expression"""
@@ -1062,7 +1062,7 @@ if __name__ == "__main__":
                     do for counter = 3 by 5 down to 8; od;
                     """
 
-    source = lya_source_dcl
+    source = lya_source_syn
 
     # TODO: Test Location
     # TODO: Test Primitive

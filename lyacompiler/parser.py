@@ -1066,6 +1066,10 @@ if __name__ == "__main__":
                     do for counter = 3 by 5 down to 8; od;
                     """
 
+    lya_source_location = """
+
+    """
+
     source = lya_source_do
 
     # TODO: Test Location

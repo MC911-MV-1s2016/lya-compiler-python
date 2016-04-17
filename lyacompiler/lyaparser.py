@@ -268,51 +268,51 @@ class LyaParser(object):
                     | array_element
                     | array_slice
                     | call_action"""
-        p[0] = ('location', p[1])
+        p[0] = ('Location', p[1])
 
     def p_location_name(self, p):
         """location_name : identifier"""
-        p[0] = ('location_name', p[1])
+        p[0] = p[1]
 
     def p_dereferenced_reference(self, p):
         """dereferenced_reference : location ARROW"""
-        p[0] = ("dereferenced_reference", p[1])
+        p[0] = (p[1], p[2])
 
     def p_string_element(self, p):
         """string_element : string_location LBRACK start_element RBRACK"""
-        p[0] = ("string_element", p[1], p[3])
+        p[0] = ("StringElement", p[1], p[3])
 
     def p_start_element(self, p):
         """start_element : integer_expression"""
-        p[0] = ("start_element", p[1])
+        p[0] = ("StartElement", p[1])
 
     def p_string_slice(self, p):
         """string_slice : string_location LBRACK left_element COLON right_element RBRACK"""
-        p[0] = ("string_slice", p[1], p[3], p[5])
+        p[0] = ("StringSlice", p[1], (p[3], p[5]))
 
     def p_string_location(self, p):
         """string_location : location"""
-        p[0] = ("string_location", p[1])
+        p[0] = p[1]
 
     def p_left_element(self, p):
         """left_element : integer_expression"""
-        p[0] = ("left_element", p[1])
+        p[0] = p[1]
 
     def p_right_element(self, p):
         """right_element : integer_expression"""
-        p[0] = ("right_element", p[1])
+        p[0] = p[1]
 
     def p_array_element(self, p):
         """array_element : array_location LBRACK expression_list RBRACK"""
-        p[0] = ("array_element", p[1], p[3])
+        p[0] = ("ArrayElement", p[1], p[3])
 
     def p_array_slice(self, p):
         """array_slice : array_location LBRACK lower_bound COLON upper_bound RBRACK"""
-        p[0] = ("array_slice", p[1], p[3], p[5])
+        p[0] = ("ArraySlice", p[1], (p[3], p[5]))
 
     def p_array_location(self, p):
         """array_location : location"""
-        p[0] = ("array_location", p[1])
+        p[0] = p[1]
 
     # Primitive Values ----------------------------------------------
 
@@ -356,27 +356,27 @@ class LyaParser(object):
 
     def p_value_array_element(self, p):
         """value_array_element : array_primitive_value LBRACK expression_list RBRACK"""
-        p[0] = ("value_array_element", p[1], p[3])
+        p[0] = ("ValueArrayElement", p[1], p[3])
 
     def p_value_array_slice(self, p):
         """value_array_slice : array_primitive_value LBRACK lower_bound COLON upper_bound RBRACK"""
-        p[0] = ("value_array_slice", p[1], p[3], p[5])
+        p[0] = ("ValueArraySlice", p[1], (p[3], p[5]))
 
     def p_array_primitive_value(self, p):
         """array_primitive_value : primitive_value"""
-        p[0] = ("array_primitive_value", p[1])
+        p[0] = p[1]
 
     # Expression
 
     def p_parenthesized_expression(self, p):
         """parenthesized_expression : LPAREN expression RPAREN"""
-        p[0] = ("parenthesized_expression", p[2])
+        p[0] = ("ParenthesizedExpression", p[2])
 
     def p_expression_list(self, p):
         """expression_list : expression_list COMMA expression
                            | expression"""
         if len(p) == 2:
-            p[0] = ('expression_list', (p[1]))
+            p[0] = ((p[1]),)
         else:
             p[0] = p[1] + (p[3],)
 
@@ -387,19 +387,19 @@ class LyaParser(object):
 
     def p_conditional_expression(self, p):
         """conditional_expression : IF boolean_expression then_expression else_expression FI"""
-        p[0] = ("conditional_expression", p[2], p[3], p[4])
+        p[0] = ("ConditionalExpression", p[2], p[3], p[4])
 
     def p_conditional_expression_elsif(self, p):
         """conditional_expression : IF boolean_expression then_expression elsif_expression else_expression FI"""
-        p[0] = ("conditional_expression", p[2], p[3], p[4], p[5])
+        p[0] = ("ConditionalExpression", p[2], p[3], p[4], p[5])
 
     def p_integer_expression(self, p):
         """integer_expression : expression"""
-        p[0] = ('integrer_expression', p[1])
+        p[0] = ('IntegerExpression', p[1])
 
     def p_boolean_expression(self, p):
         """boolean_expression : expression"""
-        p[0] = ('BoolExpr', p[1])
+        p[0] = ('BooleanExpression', p[1])
 
     def p_then_expression(self, p):
         """then_expression :     THEN expression"""
@@ -407,15 +407,15 @@ class LyaParser(object):
 
     def p_else_expression(self, p):
         """else_expression :     ELSE expression"""
-        p[0] = ("else_expression", p[2])
+        p[0] = ("ElseExpression", p[2])
 
     def p_elsif_expression_elsif(self, p):
         """elsif_expression :    elsif_expression ELSIF boolean_expression then_expression"""
-        p[0] = ("elsif_expression", p[1], p[3], p[4])
+        p[0] = ("ElsifExpression", p[1], p[3], p[4])
 
     def p_elsif_expression(self, p):
         """elsif_expression :    ELSIF boolean_expression then_expression"""
-        p[0] = ("elsif_expression", p[2], p[3])
+        p[0] = ("ElsifExpression", p[2], p[3])
 
     def p_operand0(self, p):
         """operand0 : operand1"""
@@ -840,11 +840,6 @@ if __name__ == "__main__":
 
     lyaparser = LyaParser()
 
-    # file_name = lya_examples[1]
-    # file_path = "./lyaexamples/" + file_name
-    # file = open(file_name)
-    # lya_source = file.read()
-
     lya_source_dcl = """
     dcl dcl1 int;
     dcl dcl2, dcl3, dcl4, dcl5 char;
@@ -1070,14 +1065,25 @@ if __name__ == "__main__":
                     do for counter = 3 by 5 down to 8; od;
                     """
 
-    source = lya_source_dcl
+    file_name = lya_examples[9]
+    file_path = "./lyaexamples/" + file_name
+    file = open(file_path)
+    lya_source = file.read()
+
+    source = lya_source
 
     # TODO: Test Location
     # TODO: Test Primitive
 
     # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
-    print(source)
+    # print(source)
+
+#     lyaparser.lex.test("""if n == sum then
+#   print(n, " is an Armstrong number.\n");
+# else
+#   print(n, " is not an Armstrong number.\n");
+# fi;""")
 
     AST = lyaparser.parse(source)
     pprint.pprint(AST, indent=2)

@@ -882,6 +882,9 @@ if __name__ == "__main__":
     type type14 = int, type15, type16 = char, type17, type18, type19 = char;
     type type20 = ref int;
     type type21 = ref ref type20;
+    type type22 = chars[20];
+    type type23 = array[char];
+    type type24 = array[1:2];
     """
 
     lya_source_composite_mode = """
@@ -1069,6 +1072,10 @@ if __name__ == "__main__":
                     do for counter = 3 by 5 to 8; od;
                     do for counter = 3 by 5 down to 8; od;
                     """
+
+    lya_source_location = """
+
+    """
 
     source = lya_source_do
 

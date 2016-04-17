@@ -150,7 +150,8 @@ class LyaLexer(object):
 
     # String literal
     character_string = ascii_character + r'*'
-    sconst = double_quo + character_string + r'[^"]' + double_quo
+    # sconst = double_quo + character_string + r'[^"]' + double_quo
+    sconst = r'"((?!\/)|[^"])*"'
 
     unterminated_string = double_quo + character_string #+ reg_or + character_string + double_quo
 

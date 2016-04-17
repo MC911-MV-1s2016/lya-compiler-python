@@ -491,7 +491,7 @@ class LyaParser(object):
 
     def p_operand3_uminus(self, p):
         """operand3 : MINUS operand4 %prec UMINUS"""
-        p[0] = -p[2]
+        p[0] = (p[1], p[2])
 
     def p_operand3_monadic(self, p):
         """operand3 : NOT operand4"""

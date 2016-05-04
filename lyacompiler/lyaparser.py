@@ -12,9 +12,11 @@
 
 from ply import yacc
 
+# from lyalexer import LyaLexer
+# from lyacompiler.lya_ast import *
+
 from lyalexer import LyaLexer
 from lya_ast import *
-
 
 class LyaParser(object):
     def __init__(self):
@@ -120,9 +122,9 @@ class LyaParser(object):
         """declaration : identifier_list mode initialization
                        | identifier_list mode"""
         if len(p) == 3:
-            p[0] = ('Declaration', p[1], p[2])
+            p[0] = Declaration(p[1], p[2], None)
         else:
-            p[0] = ('Declaration', (p[1], p[2], p[3]))
+            p[0] = Declaration(p[1], p[2], p[3])
 
     def p_initialization(self, p):
         """initialization : ASSIGN expression"""
@@ -142,9 +144,9 @@ class LyaParser(object):
         """synonym_definition : identifier_list mode ASSIGN constant_expression
                               | identifier_list ASSIGN constant_expression"""
         if len(p) == 4:
-            p[0] = ('SynonymDefinition', p[1], p[3])
+            p[0] = SynonymDefinition(p[1], None, p[3])
         else:
-            p[0] = ('SynonymDefinition', p[1], p[2], p[4])
+            p[0] = SynonymDefinition(p[1], p[2], p[4])
 
     def p_constant_expression(self, p):
         """constant_expression : expression"""
@@ -162,21 +164,21 @@ class LyaParser(object):
 
     def p_mode_definition(self, p):
         """mode_definition : identifier_list ASSIGN mode"""
-        p[0] = ('ModeDefinition', p[1], p[3])
+        p[0] = ModeDefinition(p[1], p[3])
 
     def p_mode(self, p):
         """mode : mode_name
                 | discrete_mode
                 | reference_mode
                 | composite_mode"""
-        p[0] = ('Mode', p[1])
+        p[0] = Mode(p[1])
 
     def p_discrete_mode(self, p):
         """discrete_mode : integer_mode
                          | boolean_mode
                          | character_mode
                          | discrete_range_mode"""
-        p[0] = ('DiscreteMode', p[1])
+        p[0] = DiscreteMode(p[1])
 
     def p_integer_mode(self, p):
         """integer_mode : INT"""
@@ -193,7 +195,7 @@ class LyaParser(object):
     def p_discrete_range_mode(self, p):
         """discrete_range_mode : identifier  LPAREN literal_range RPAREN
                                | discrete_mode LPAREN literal_range RPAREN"""
-        p[0] = ('DiscreteRangeMode', p[1], p[3])
+        p[0] = DiscreteRangeMode(p[1], p[3])
 
     def p_mode_name(self, p):
         """mode_name : identifier"""
@@ -205,7 +207,7 @@ class LyaParser(object):
 
     def p_literal_range(self, p):
         """literal_range : lower_bound COLON upper_bound"""
-        p[0] = ('LiteralRange', (p[1], p[3]))
+        p[0] = LiteralRange(p[1], p[3])
 
     def p_lower_bound(self, p):
         """lower_bound : expression"""
@@ -217,24 +219,24 @@ class LyaParser(object):
 
     def p_reference_mode(self, p):
         """reference_mode : REF mode"""
-        p[0] = ('ReferenceMode', p[2])
+        p[0] = ReferenceMode(p[2])
 
     def p_composite_mode_string(self, p):
         """composite_mode : string_mode
                           | array_mode"""
-        p[0] = ('CompositeMode', p[1])
+        p[0] = CompositeMode(p[1])
 
     def p_string_mode(self, p):
         """string_mode : CHARS LBRACK string_length RBRACK"""
-        p[0] = ('StringMode', p[3])
+        p[0] = StringMode(p[3])
 
     def p_string_length(self, p):
         """string_length : integer_literal"""
-        p[0] = ('Length', p[1])
+        p[0] = StringLength(p[1])
 
     def p_array_mode(self, p):
         """array_mode : ARRAY LBRACK index_mode_list RBRACK element_mode"""
-        p[0] = ('ArrayMode', p[3], p[5])
+        p[0] = ArrayMode(p[3], p[5])
 
     def p_index_mode_list(self, p):
         """index_mode_list : index_mode_list COMMA index_mode
@@ -247,11 +249,11 @@ class LyaParser(object):
     def p_index_mode(self, p):
         """index_mode : discrete_mode
                       | literal_range"""
-        p[0] = ('IndexMode', p[1])
+        p[0] = IndexMode(p[1])
 
     def p_element_mode(self, p):
         """element_mode : mode"""
-        p[0] = ('ElementMode', p[1])
+        p[0] = ElementMode(p[1])
 
     # Identifier ----------------------------------------------------
 
@@ -1079,7 +1081,8 @@ if __name__ == "__main__":
     lya_source = file.read()
 
     # source = lya_source
-    source = "dcl var int = 3;"
+    source = """     dcl dcl19 int (0:1) (1:2);
+    """
     # TODO: Test Location
     # TODO: Test Primitive
 

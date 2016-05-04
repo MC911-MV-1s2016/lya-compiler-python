@@ -61,5 +61,64 @@ class ActionStatement(Statement):
     _fields = ['label', 'action']
 
 
+class Declaration(ASTNode):
+    _fields = ['ids', 'mode', 'init']
+
+
+class SynonymDefinition(ASTNode):
+    _fields = ['ids', 'mode', 'expr']
+
+
+class ModeDefinition(ASTNode):
+    _fields = ['ids', 'mode']
+
+
+class Mode(ASTNode):
+    _fields = ['type']
+
+
+class DiscreteMode(Mode):
+    _fields = ['name']
+
+
+class DiscreteRangeMode(ASTNode):
+    _fields = ['var', 'lit_range']
+
+
+class LiteralRange(ASTNode):
+    _fields = ['lbound', 'ubound']
+
+
+class ReferenceMode(Mode):
+    _fields = ['mode']
+
+
+class CompositeMode(Mode):
+    _fields = ['mode']
+
+
+class StringMode(CompositeMode):
+    _fields = ['strlen']
+
+
+class StringLength(ASTNode):
+    _fields = ['len']
+
+
+class ArrayMode(CompositeMode):
+    _fields = ['idxs', 'mode']
+
+
+class IndexMode(ASTNode):
+    _fields = ['mode']
+
+
+class ElementMode(ASTNode):
+    _fields = ['mode']
+
+
+
+
+
 class Assignment(ASTNode):
     _fields = ['lvalue', 'op', 'rvalue']

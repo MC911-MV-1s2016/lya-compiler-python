@@ -13,6 +13,7 @@
 from ply import yacc
 
 from lyalexer import LyaLexer
+from lya_ast import *
 
 
 class LyaParser(object):
@@ -57,7 +58,7 @@ class LyaParser(object):
 
     def p_program(self, p):
         """program : statement_list"""
-        p[0] = ('Program',) + p[1]
+        p[0] = Program(p[1])
 
     # Statement ------------------------------------------------------
 
@@ -80,30 +81,30 @@ class LyaParser(object):
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
         #p[0] = ('DeclarationStatement (at line {0})'.format(p.lineno(1)), p[2])
-        p[0] = ('DeclarationStatement', p[2])
+        p[0] = DeclarationStatement(p[2])
 
     def p_synonym_statement(self, p):
         """synonym_statement : SYN synonym_list SEMICOL"""
         # p[0] = ('SynonymStatement (at line {0})'.format(p.lineno(1)), p[2])
-        p[0] = ('SynonymStatement', p[2])
+        p[0] = SynonymStatement(p[2])
 
     def p_newmode_statement(self, p):
         """newmode_statement : TYPE newmode_list SEMICOL"""
         # p[0] = ('NewmodeStatement (at line {0})'.format(p.lineno(1)), p[2])
-        p[0] = ('NewmodeStatement', p[2])
+        p[0] = NewModeStatement(p[2])
 
     def p_procedure_statement(self, p):
         """procedure_statement : label_id COLON procedure_definition SEMICOL"""
         # p[0] = ('ProcedureStatement (at line {0})'.format(p.lineno(2)), p[2])
-        p[0] = ('ProcedureStatement', p[1], p[3])
+        p[0] = ProcedureStatement(p[1], p[3])
 
     def p_action_statement_label(self, p):
         """action_statement : label_id COLON action SEMICOL"""
-        p[0] = ('ActionStatement', p[1], p[3])
+        p[0] = ActionStatement(p[1], p[3])
 
     def p_action_statement(self, p):
         """action_statement : action SEMICOL"""
-        p[0] = ('ActionStatement', p[1])
+        p[0] = ActionStatement(None, p[1])
 
     # Declaration --------------------------------------------------
 
@@ -1077,8 +1078,8 @@ if __name__ == "__main__":
     file = open(file_path)
     lya_source = file.read()
 
-    source = lya_source
-
+    # source = lya_source
+    source = "dcl var int = 3;"
     # TODO: Test Location
     # TODO: Test Primitive
 
@@ -1092,5 +1093,6 @@ if __name__ == "__main__":
 #   print(n, " is not an Armstrong number.\n");
 # fi;""")
 
-    AST = lyaparser.parse(source)
-    pprint.pprint(AST, indent=2)
+    ast = lyaparser.parse(source)
+    # pprint.pprint(AST, indent=2)
+    print(ast)

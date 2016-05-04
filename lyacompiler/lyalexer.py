@@ -117,9 +117,9 @@ class LyaLexer(object):
     tokens = [
 
         # SYMBOLS
-        'DBLSLASH', 'LPAREN', 'RPAREN', 'LCURL', 'RCURL', 'LBRACK', 'RBRACK', 'SEMICOL', 'ASSIGN',
-        'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'PERC', 'COMMA', 'COLON', 'SINGQUO',
-        'DBLQUO', 'CIRCUMF', 'AND', 'OR', 'EQUALS', 'DIF',
+        'LPAREN', 'RPAREN', 'LBRACK', 'RBRACK', 'SEMICOL', 'ASSIGN',
+        'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'PERC', 'COMMA', 'COLON',
+        'AND', 'OR', 'EQUALS', 'DIF',
         'GTR', 'GEQ', 'LSS', 'LEQ', 'CONCAT', 'NOT', 'ARROW',
 
         'ID', 'ICONST', 'CCONST', 'SCONST',
@@ -128,6 +128,7 @@ class LyaLexer(object):
 
     ] + list(reserved.values())
 
+    # 'RCURL', 'CIRCUMF', DBLQUO', 'DBLSLASH', 'SINGQUO', 'LCURL',
 
     # Token Regexes
 
@@ -173,11 +174,11 @@ class LyaLexer(object):
     t_ignore = ' \t'
 
     # Regular expression rules for simple tokens
-    t_DBLSLASH          = r'//'
+    #t_DBLSLASH          = r'//'
     t_LPAREN            = r'\('
     t_RPAREN            = r'\)'
-    t_LCURL             = r'\{'
-    t_RCURL             = r'}'
+    # t_LCURL             = r'\{'
+    # t_RCURL             = r'}'
     t_LBRACK            = r'\['
     t_RBRACK            = r'\]'
     t_SEMICOL           = r';'
@@ -189,9 +190,9 @@ class LyaLexer(object):
     t_ASSIGN            = r'='
     t_COMMA             = r','
     t_COLON             = r':'
-    t_SINGQUO           = r'\''
-    t_DBLQUO            = r'"'
-    t_CIRCUMF           = r'\^'
+    # t_SINGQUO           = r'\''
+    # t_DBLQUO            = r'"'
+    # t_CIRCUMF           = r'\^'
     t_AND               = r'&&'
     t_OR                = r'\|\|'
     t_EQUALS            = r'=='

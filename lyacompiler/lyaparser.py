@@ -190,17 +190,17 @@ class LyaParser(object):
         p[0] = p[1]
 
     def p_discrete_range_mode(self, p):
-        """discrete_range_mode : discrete_mode_name  LPAREN literal_range RPAREN
+        """discrete_range_mode : identifier  LPAREN literal_range RPAREN
                                | discrete_mode LPAREN literal_range RPAREN"""
         p[0] = ('DiscreteRangeMode', p[1], p[3])
 
     def p_mode_name(self, p):
         """mode_name : identifier"""
         p[0] = p[1]
-
-    def p_discrete_mode_name(self, p):
-        """discrete_mode_name : identifier"""
-        p[0] = p[1]
+    #
+    # def p_discrete_mode_name(self, p):
+    #     """discrete_mode_name : identifier"""
+    #     p[0] = p[1]
 
     def p_literal_range(self, p):
         """literal_range : lower_bound COLON upper_bound"""
@@ -287,7 +287,7 @@ class LyaParser(object):
         p[0] = (p[1], p[2])
 
     def p_string_element(self, p):
-        """string_element : string_location LBRACK start_element RBRACK"""
+        """string_element : identifier LBRACK start_element RBRACK"""
         p[0] = ("StringElement", p[1], p[3])
 
     def p_start_element(self, p):
@@ -295,12 +295,12 @@ class LyaParser(object):
         p[0] = ("StartElement", p[1])
 
     def p_string_slice(self, p):
-        """string_slice : string_location LBRACK left_element COLON right_element RBRACK"""
+        """string_slice : identifier LBRACK left_element COLON right_element RBRACK"""
         p[0] = ("StringSlice", p[1], (p[3], p[5]))
 
-    def p_string_location(self, p):
-        """string_location : location"""
-        p[0] = p[1]
+    # def p_string_location(self, p):
+    #     """string_location : identifier"""
+    #     p[0] = p[1]
 
     def p_left_element(self, p):
         """left_element : integer_expression"""
@@ -498,8 +498,8 @@ class LyaParser(object):
         p[0] = (p[1], p[2])
 
     def p_operand3(self, p):
-        """operand3 : operand4
-                    | integer_literal"""
+        """operand3 : operand4"""
+                    # "| integer_literal"""
         p[0] = p[1]
 
     def p_operand4(self, p):
@@ -660,11 +660,11 @@ class LyaParser(object):
         p[0] = p[1]
 
     def p_range_enumeration_down(self, p):
-        """range_enumeration :       loop_counter DOWN IN discrete_mode_name"""
+        """range_enumeration :       loop_counter DOWN IN discrete_mode"""
         p[0] = ("RangeEnumeration", p[1], p[4])
 
     def p_range_enumeration(self, p):
-        """range_enumeration :       loop_counter IN discrete_mode_name"""
+        """range_enumeration :       loop_counter IN discrete_mode"""
         p[0] = ("RangeEnumeration", p[1], p[3])
 
     def p_while_control(self, p):
@@ -1073,7 +1073,7 @@ if __name__ == "__main__":
                     """
 
     file_name = lya_examples[9]
-    file_path = "./lyaexamples/" + file_name
+    file_path = "./lyaexamples/test.lya"# + file_name
     file = open(file_path)
     lya_source = file.read()
 

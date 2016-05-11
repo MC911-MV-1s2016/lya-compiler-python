@@ -21,6 +21,7 @@ class ASTNode(object):
     """
 
     _fields = []
+    _indent = 2
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
@@ -32,9 +33,27 @@ class ASTNode(object):
         for name, value in kwargs.items():
             setattr(self, name, value)
 
+    def __str__(self):
+        debug_data = self.debug_data()
+        if debug_data is None:
+            return self.name
+        return "{0}: {1}".format(self.name, debug_data)
+
+    @property
+    def name(self):
+        return self.__class__.__name__
+
+    def debug_data(self):
+        return None
+
 
 class Program(ASTNode):
-    _fields = ['stmts']
+    _fields = ['statements']
+
+    def debug_data(self):
+        return "Debug data test"
+
+# Statement
 
 
 class Statement(ASTNode):
@@ -42,11 +61,11 @@ class Statement(ASTNode):
 
 
 class DeclarationStatement(Statement):
-    _fields = ['dcls']
+    _fields = ['declarations']
 
 
 class SynonymStatement(Statement):
-    _fields = ['syns']
+    _fields = ['synonyms']
 
 
 class NewModeStatement(Statement):
@@ -117,8 +136,5 @@ class ElementMode(ASTNode):
     _fields = ['mode']
 
 
-
-
-
 class Assignment(ASTNode):
-    _fields = ['lvalue', 'op', 'rvalue']
+    _fields = ['l_value', 'op', 'r_value']

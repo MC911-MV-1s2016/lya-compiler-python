@@ -68,9 +68,9 @@ class LyaParser(object):
         """statement_list : statement_list statement
                           | statement"""
         if len(p) == 2:
-            p[0] = (p[1],)
+            p[0] = [p[1]]
         else:
-            p[0] = p[1] + (p[2],)
+            p[0] = p[1] + [p[2]]
 
     def p_statement(self, p):
         """statement : declaration_statement
@@ -114,9 +114,9 @@ class LyaParser(object):
         """declaration_list : declaration_list COMMA declaration
                             | declaration"""
         if len(p) == 2:
-            p[0] = ((p[1]),)
+            p[0] = [p[1]]
         else:
-            p[0] = p[1] + (p[3],)
+            p[0] = p[1] + [p[3]]
 
     def p_declaration(self, p):
         """declaration : identifier_list mode initialization
@@ -1081,8 +1081,13 @@ if __name__ == "__main__":
     lya_source = file.read()
 
     # source = lya_source
-    source = """     dcl dcl19 int (0:1) (1:2);
-    """
+    source = """dcl m int = 2, n int = 3;
+p: proc (x int);
+  dcl s int;
+  s = m * x;
+end;
+p(n);"""
+
     # TODO: Test Location
     # TODO: Test Primitive
 
@@ -1097,5 +1102,7 @@ if __name__ == "__main__":
 # fi;""")
 
     ast = lyaparser.parse(source)
-    # pprint.pprint(AST, indent=2)
-    print(ast)
+
+    from lyavisitor import Visitor
+    v = Visitor(indent=3)
+    v.visit(ast)

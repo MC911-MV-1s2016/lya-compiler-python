@@ -12,7 +12,7 @@
 
 from ply import yacc
 
-# from lyalexer import LyaLexer
+# from lyacompiler.lyalexer import LyaLexer
 # from lyacompiler.lya_ast import *
 
 from lyalexer import LyaLexer
@@ -1103,6 +1103,7 @@ p(n);"""
 
     ast = lyaparser.parse(source)
 
+    # from lyacompiler.lyavisitor import Visitor
     from lyavisitor import Visitor
     v = Visitor(indent=3)
     v.visit(ast)

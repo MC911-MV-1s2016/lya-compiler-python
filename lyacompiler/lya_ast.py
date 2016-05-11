@@ -97,7 +97,10 @@ class Mode(ASTNode):
 
 
 class DiscreteMode(Mode):
-    _fields = ['name']
+    _fields = ['type']
+
+    def debug_data(self):
+        return "Type {0}".format(self.type)
 
 
 class DiscreteRangeMode(ASTNode):

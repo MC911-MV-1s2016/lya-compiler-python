@@ -10,8 +10,8 @@
 #
 # ------------------------------------------------------------
 
-# from lya_ast import ASTNode
-from lyacompiler.lya_ast import ASTNode
+from lya_ast import ASTNode
+# from lyacompiler.lya_ast import ASTNode
 
 
 class ASTNodeVisitor(object):
@@ -34,20 +34,13 @@ class ASTNodeVisitor(object):
     tree = parse(txt)
     VisitOps().visit(tree)
     """
+    def __init__(self, indent=None):
+        self._debug_indent = indent
+        self._debug_format_cache = dict()
 
-    def visit(self, node):
-        """
-        Execute a method of the form visit_NodeName(node) where
-        NodeName is the name of the class of a particular node.
-        """
-        if node:
-            method = 'visit_' + node.__class__.__name__
-            visitor = getattr(self, method, self.generic_visit)
-            return visitor(node)
-        else:
-            return None
+    # Private
 
-    def generic_visit(self, node):
+    def _generic_visit(self, node, depth=0):
         """
         Method executed if no applicable visit_ method can be found.
         This examines the node to see if it has _fields, is a list,
@@ -58,6 +51,37 @@ class ASTNodeVisitor(object):
             if isinstance(value, list):
                 for item in value:
                     if isinstance(item, ASTNode):
-                        self.visit(item)
+                        self.visit(item, depth)
             elif isinstance(value, ASTNode):
-                self.visit(value)
+                self.visit(value, depth)
+
+    def _format_node_debug(self, node, depth=0):
+        indent = self._debug_format_cache.get(depth)
+        if indent is None:
+            indent = ""
+            for d in range(depth):
+                indent += ((" " * self._debug_indent) + "|")
+            indent += "- "
+            self._debug_format_cache[depth] = indent
+        return "{0}{1}".format(indent, str(node))
+
+    # Public
+
+    def visit(self, node, depth=-1):
+        """
+        Execute a method of the form visit_NodeName(node) where
+        NodeName is the name of the class of a particular node.
+        """
+        if node:
+            depth += 1
+            self.debug_node(node, depth)
+            method = 'visit_' + node.__class__.__name__
+            visitor = getattr(self, method, self._generic_visit)
+            return visitor(node, depth)
+        else:
+            return None
+
+    def debug_node(self, node, depth):
+        if self._debug_indent is None:
+            return
+        print(self._format_node_debug(node, depth))

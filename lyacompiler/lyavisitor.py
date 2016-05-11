@@ -10,8 +10,11 @@
 #
 # ------------------------------------------------------------
 
-# from lyacompiler.astnodevisitor import ASTNodeVisitor
-from astnodevisitor import ASTNodeVisitor
+from lyacompiler.astnodevisitor import ASTNodeVisitor
+from lyacompiler.lyaenvironment import Environment
+
+# from astnodevisitor import ASTNodeVisitor
+# from lyaenvironment import Environmet
 
 
 class Visitor(ASTNodeVisitor):
@@ -22,16 +25,9 @@ class Visitor(ASTNodeVisitor):
     Note: You will need to adjust the names of the AST nodes if you
     picked different names.
     """
-    pass
-    # def __init__(self):
-    #     # self.environment = Environment()
-    #     # self.typemap = {
-    #     #     "int": IntType,
-    #     #     "char": CharType,
-    #     #     "string": StringType,
-    #     #     "bool": BoolType
-    #     # }
-    #     pass
+    def __init__(self):
+        self.environment = Environment()
+        self.typemap = dict().update(self.environment.root)
 
     # def error(self, a, b):
     #     pass
@@ -59,17 +55,19 @@ class Visitor(ASTNodeVisitor):
     #                   "Binary operator {} not supported on {} of expression".format(op, errside))
     #     return left.check_type
 
-    # def visit_Program(self, node, level):
-    #     # self.environment.push(node)
-    #     # node.environment = self.environment
-    #     # node.symtab = self.environment.peek()
-    #     # Visit all of the statements
-    #     for statement in node.statements:
-    #         self.visit(statement. level + 1)
-    #
+    def visit_Program(self, node, depth):
+        self.environment.push(node)
+        node.environment = self.environment
+        node.symtab = self.environment.peek()
+        # Visit all of the statements
+        for statement in node.statements:
+            self.visit(statement, depth)
+
     # def visit_DeclarationStatement(self, node, level):
     #     node.print(level)
-    #
+
+    # def visit_Declaration(self, node, depth):
+
     # def visit_SynonymStatement(self, node, level):
     #     # Visit all of the synonyms
         # for syn in node.syns:

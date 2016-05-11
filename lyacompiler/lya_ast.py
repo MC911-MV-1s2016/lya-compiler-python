@@ -44,6 +44,7 @@ class ASTNode(object):
 
         if lineno is not None:
             s += " (at line {0})".format(lineno)
+
         return s
 
     @property

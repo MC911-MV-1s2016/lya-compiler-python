@@ -1101,7 +1101,8 @@ if __name__ == "__main__":
 # fi;""")
 
     ast = lyaparser.parse(lya_source_syn)
+    from lyacompiler.lyavisitor import  import Visistor
+    # from lyavisitor import Visitor
 
-    from lyavisitor import Visitor
-    v = Visitor(indent=3)
+    v = Visitor(indent=2)
     v.visit(ast)

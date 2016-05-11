@@ -35,9 +35,16 @@ class ASTNode(object):
 
     def __str__(self):
         debug_data = self.debug_data()
-        if debug_data is None:
-            return self.name
-        return "{0}: {1}".format(self.name, debug_data)
+        s = self.name
+
+        if debug_data is not None:
+            s = "{0}: {1}".format(self.name, debug_data)
+
+        lineno = getattr(self, "lineno", None)
+
+        if lineno is not None:
+            s += " (at line {0})".format(lineno)
+        return s
 
     @property
     def name(self):
@@ -128,7 +135,7 @@ class StringLength(ASTNode):
 
 
 class ArrayMode(CompositeMode):
-    _fields = ['idxs', 'mode']
+    _fields = ['ids', 'mode']
 
 
 class IndexMode(ASTNode):
@@ -139,5 +146,99 @@ class ElementMode(ASTNode):
     _fields = ['mode']
 
 
+class Identifier(ASTNode):
+    _fields = ['ids']
+
+
+class Location(ASTNode):
+    _fields = ['type']
+
+
+class DereferencedReference(ASTNode):
+    _fields = ['loc']
+
+
+class StringElement(ASTNode):
+    _fields = ['ids', 'st_element']
+
+
+class StartElement(ASTNode):
+    _fields = ['expr']
+
+
+class StringSlice(ASTNode):
+    _fields = ['ids', 'l_elem', 'r_elem']
+
+
+class ArrayElement(ASTNode):
+    _fields = ['loc', 'expr']
+
+
+class ArraySlice(ASTNode):
+    _fields = ['loc', 'l_bound', 'u_bound']
+
+
+class Constant(ASTNode):
+    _fields = ['value']
+
+
+class IntegerConstant(Constant):
+    pass
+
+
+class BooleanConstant(Constant):
+    pass
+
+
+class CharacterConstant(Constant):
+    pass
+
+
+class EmptyConstant(Constant):
+    pass
+
+
+class StringConstant(Constant):
+    pass
+
+
+class ValueArrayElement(ASTNode):
+    _fields = ['value', 'expr']
+
+
+class ValueArraySlice(ASTNode):
+    _fields = ['value', 'l_bound', 'u_bound']
+
+
+
 class Assignment(ASTNode):
     _fields = ['l_value', 'op', 'r_value']
+
+
+class Expression(ASTNode):
+    _fields = ['value']
+
+
+class IntegerExpression(Expression):
+    pass
+
+
+class BooleanExpression(Expression):
+    pass
+
+
+class ThenExpression(Expression):
+    pass
+
+
+class ElseExpression(Expression):
+    pass
+
+
+class ElsifExpression(Expression):
+    _fields = ['elsif_expr', 'bool_expr', 'then_expr']
+
+
+
+class ConditionalExpression(ASTNode):
+    _fields = ['bool_expr', 'then_expr', 'elsif_expr', 'else_expr']

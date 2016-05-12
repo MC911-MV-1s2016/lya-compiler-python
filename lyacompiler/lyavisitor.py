@@ -10,12 +10,11 @@
 #
 # ------------------------------------------------------------
 
-from lyacompiler.astnodevisitor import ASTNodeVisitor
-from lyacompiler.lyaenvironment import Environment
+# from lyacompiler.astnodevisitor import ASTNodeVisitor
+# from lyacompiler.lyaenvironment import Environment
 
-# from astnodevisitor import ASTNodeVisitor
-# from lyaenvironment import Environmet
-
+from astnodevisitor import ASTNodeVisitor
+from lyaenvironment import Environment
 
 class Visitor(ASTNodeVisitor):
     """
@@ -25,9 +24,25 @@ class Visitor(ASTNodeVisitor):
     Note: You will need to adjust the names of the AST nodes if you
     picked different names.
     """
-    def __init__(self):
+    def __init__(self, indent=None):
+        super().__init__(indent)
         self.environment = Environment()
-        self.typemap = dict().update(self.environment.root)
+
+    # Private
+
+    # TODO: RawType Mode
+    # TODO: TypeChecker Class
+    def _raw_type_id(self, id):
+        name = "int"
+        t = self.environment.raw_type(name)
+        if t is None:
+            # TODO: Define and raise Undefined/Unrecognized Type Exception (name)
+            # TODO: Error function
+            raise TypeError
+        return t
+
+    def _declare_type(self, name, type):
+        pass
 
     # def error(self, a, b):
     #     pass
@@ -55,18 +70,33 @@ class Visitor(ASTNodeVisitor):
     #                   "Binary operator {} not supported on {} of expression".format(op, errside))
     #     return left.check_type
 
-    def visit_Program(self, node, depth):
+    # def visit_Program(self, node, depth):
+    #     self.environment.push(node)
+    #     node.environment = self.environment
+    #     node.symtab = self.environment.peek()
+    #     # Visit all of the statements
+    #     for statement in node.statements:
+    #         self.visit(statement, depth)
+
+    def decorate_Program(self, node):
         self.environment.push(node)
         node.environment = self.environment
         node.symtab = self.environment.peek()
-        # Visit all of the statements
-        for statement in node.statements:
-            self.visit(statement, depth)
 
-    # def visit_DeclarationStatement(self, node, level):
-    #     node.print(level)
+    # def decorate_DeclarationStatement(self, node):
+    #     node.environment.add_local(node.i)
+    #     pass
 
-    # def visit_Declaration(self, node, depth):
+    # def decorate_Identifier(self, node):
+    #     node.displacement = 1
+
+    def decorate_Declaration(self, node):
+        for id in node.ids:
+            # TODO: Check init type == mode.raw_type
+            id.scope = self.environment.scope_level()
+            id.declaration = node
+            id.displacement = len(self.environment.peek())
+            self.environment.add_local(id.name, id)
 
     # def visit_SynonymStatement(self, node, level):
     #     # Visit all of the synonyms

@@ -40,6 +40,9 @@ class ASTNodeVisitor(object):
 
     # Private
 
+    def _generic_decorate(self, node):
+        pass
+
     def _generic_visit(self, node, depth=0):
         """
         Method executed if no applicable visit_ method can be found.
@@ -74,9 +77,19 @@ class ASTNodeVisitor(object):
         """
         if node:
             depth += 1
+
+            # Decorating node.
+            decorate_method = 'decorate_' + node.class_name
+            decorator = getattr(self, decorate_method, self._generic_decorate)
+            decorator(node)
+
+            # Debugging node.
             self.debug_node(node, depth)
-            method = 'visit_' + node.__class__.__name__
-            visitor = getattr(self, method, self._generic_visit)
+
+            # Visiting node.
+            visit_method = 'visit_' + node.class_name
+            visitor = getattr(self, visit_method, self._generic_visit)
+
             return visitor(node, depth)
         else:
             return None

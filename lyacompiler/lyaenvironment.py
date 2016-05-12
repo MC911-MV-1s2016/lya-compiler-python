@@ -10,11 +10,11 @@
 #
 # ------------------------------------------------------------
 
-from lyacompiler.symboltable import SymbolTable
-from lyacompiler.lyabuiltins import IntType, CharType, StringType, BoolType
+# from lyacompiler.symboltable import SymbolTable
+# from lyacompiler.lyabuiltins import IntType, CharType, StringType, BoolType, ArrayType
 
-# from symboltable import SymbolTable
-# from lyabuiltins import IntType, CharType, StringType, BoolType
+from symboltable import SymbolTable
+from lyabuiltins import IntType, CharType, StringType, BoolType, ArrayType
 
 
 class Environment(object):
@@ -26,8 +26,16 @@ class Environment(object):
             "int": IntType,
             "char": CharType,
             "string": StringType,
-            "bool": BoolType
+            "bool": BoolType,
+            "array": ArrayType
         })
+
+    # TODO: Allow new type declarations. Add to root or create new var
+
+    def raw_type(self, name):
+        # TODO: Lookup on new types as well.
+        t = self.root.get(name, None)
+        return t
 
     def push(self, enclosure):
         self.stack.append(SymbolTable(decl=enclosure))
@@ -39,7 +47,7 @@ class Environment(object):
         return self.stack[-1]
 
     def scope_level(self):
-        return len(self.stack)
+        return len(self.stack) - 2
 
     def add_local(self, name, value):
         self.peek().add(name, value)

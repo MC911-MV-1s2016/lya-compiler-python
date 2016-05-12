@@ -36,6 +36,9 @@ string_binops = ('+', '==', '!=')
 string_unops = tuple()
 StringType = ExprType("string", "", string_binops, string_unops)
 
+array_binops = ()
+array_unops = ()
+ArrayType = ExprType("array", list(), array_binops, array_unops)
 
 # Functions
 

@@ -21,7 +21,7 @@ class ASTNode(object):
     """
 
     _fields = []
-    _indent = 2
+    _debug_fields = ['name', 'scope', 'offset', 'displacement']
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
@@ -35,30 +35,45 @@ class ASTNode(object):
 
     def __str__(self):
         debug_data = self.debug_data()
-        s = self.name
+
+        s = self.class_name
 
         if debug_data is not None:
-            s = "{0}: {1}".format(self.name, debug_data)
+            s = "{0}: {1}".format(self.class_name, debug_data)
 
         lineno = getattr(self, "lineno", None)
 
         if lineno is not None:
-            s += " (at line {0})".format(lineno)
+            s += " (at line :{0})".format(lineno)
+
         return s
 
     @property
-    def name(self):
+    def class_name(self):
         return self.__class__.__name__
 
     def debug_data(self):
-        return None
+        d = None
+
+        for field in self._debug_fields:
+            value = getattr(self, field, None)
+            if value is not None:
+                if d is None:
+                    d = "{0}={1}".format(field, value)
+                else:
+                    d = "{0}, {1}={2}".format(d, field, value)
+
+        if d == '':
+            d = None
+
+        return d
 
 
 class Program(ASTNode):
     _fields = ['statements']
 
     def debug_data(self):
-        return "Debug data test"
+        return "testing debug data string"
 
 # Statement
 
@@ -104,10 +119,7 @@ class Mode(ASTNode):
 
 
 class DiscreteMode(Mode):
-    _fields = ['type']
-
-    def debug_data(self):
-        return "Type {0}".format(self.type)
+    _fields = ['name']
 
 
 class DiscreteRangeMode(ASTNode):
@@ -147,7 +159,7 @@ class ElementMode(ASTNode):
 
 
 class Identifier(ASTNode):
-    _fields = ['ids']
+    _fields = ['name']
 
 
 class Location(ASTNode):

@@ -6,7 +6,7 @@
 # RA093175 - Victor Fernando Pompeo Barbosa
 #
 # symboltable.py
-# Symbel Table.
+# Symbol Table.
 #
 # ------------------------------------------------------------
 

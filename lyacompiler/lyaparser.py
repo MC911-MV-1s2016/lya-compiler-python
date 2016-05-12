@@ -12,11 +12,11 @@
 
 from ply import yacc
 
-from lyalexer import LyaLexer
-from lyacompiler.lya_ast import *
+# from lyacompiler.lyalexer import LyaLexer
+# from lyacompiler.lya_ast import *
 
-# from lyalexer import LyaLexer
-# from lya_ast import *
+from lyalexer import LyaLexer
+from lya_ast import *
 
 class LyaParser(object):
     def __init__(self):
@@ -1081,11 +1081,12 @@ if __name__ == "__main__":
     lya_source = file.read()
 
     # source = lya_source
-    source = """
-    dcl cms1 chars [10];
-    dcl cma1 array [int] bool;
-    dcl cma2 array [bool, int] char;
-    """
+    source = """dcl m int = 2, n int = 3;
+p: proc (x int);
+  dcl s int;
+  s = m * x;
+end;
+p(n);"""
 
     # TODO: Test Location
     # TODO: Test Primitive
@@ -1100,8 +1101,9 @@ if __name__ == "__main__":
 #   print(n, " is not an Armstrong number.\n");
 # fi;""")
 
-    ast = lyaparser.parse(lya_source_syn)
-
+    ast = lyaparser.parse(source)
+    # from lyacompiler.lyavisitor import Visistor
     from lyavisitor import Visitor
-    v = Visitor(indent=3)
+
+    v = Visitor(indent=2)
     v.visit(ast)

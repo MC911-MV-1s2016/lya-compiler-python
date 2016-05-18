@@ -231,6 +231,10 @@ class Expression(ASTNode):
     _fields = ['value']
 
 
+class ConditionalExpression(Expression):
+    _fields = ['bool_expr', 'then_expr', 'elsif_expr', 'else_expr']
+
+
 class IntegerExpression(Expression):
     pass
 
@@ -252,7 +256,7 @@ class ElsifExpression(Expression):
 
 
 class BinOp(ASTNode):
-    _fields = ['left', 'op', 'right']
+    _fields = ['l_value', 'op', 'r_value']
 
 
 class UnOp(ASTNode):
@@ -263,5 +267,53 @@ class ReferencedLocation(ASTNode):
     _fields = ['loc']
 
 
-class ConditionalExpression(ASTNode):
-    _fields = ['bool_expr', 'then_expr', 'elsif_expr', 'else_expr']
+class Action(ASTNode):
+    _fields = ['type']
+
+
+class BracketedAction(Action):
+    pass
+
+
+class AssignmentAction(Action):
+    _fields = ['loc', 'op', 'expr']
+
+
+class IfAction(Action):
+    _fields = ['bool_expr', 'then_clause', 'else_clause']
+
+
+class ThenClause(ASTNode):
+    _fields = ['stmt']
+
+
+class ElseClause(ASTNode):
+    _fields = ['stmt']
+
+
+class ElsifClause(ASTNode):
+    _fields = ['bool_expr', 'then_clause', 'else_clause']
+
+
+class DoAction(Action):
+    _fields = ['ctrl', 'stmt']
+
+
+class DoControl(ASTNode):
+    _fields = ['for_ctrl', 'while_ctrl']
+
+
+class ForControl(ASTNode):
+    _fields = ['enum']
+
+
+class StepEnumeration(ASTNode):
+    _fields = ['counter', 'start_val', 'step_val', 'down', 'end_val']
+
+
+class RangeEnumeration(ASTNode):
+    _fields = ['counter', 'down', 'mode']
+
+
+class WhileControl(ASTNode):
+    _fields = ['expr']

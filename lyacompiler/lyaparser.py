@@ -527,7 +527,7 @@ class LyaParser(object):
 
     def p_label_id(self, p):
         """label_id : identifier"""
-        p[0] = ('Label', p[1])
+        p[0] = Identifier(p[1])
 
     def p_action(self, p):
         """action : bracketed_action
@@ -536,17 +536,17 @@ class LyaParser(object):
                   | exit_action
                   | return_action
                   | result_action"""
-        p[0] = ("Action", p[1])
+        p[0] = Action(p[1])
 
     def p_bracketed_action(self, p):
         """bracketed_action : if_action
                              | do_action"""
-        p[0] = ("BracketedAction", p[1])
+        p[0] = BracketedAction(p[1])
 
     def p_assignment_action(self, p):
         """assignment_action : location assigning_operator expression"""
         # names[p[1]]=p[3]
-        p[0] = ("Assignment", p[1], p[2], p[3])
+        p[0] = Assignment(p[1], p[2], p[3])
 
     def p_assigning_operator(self, p):
         """assigning_operator : ASSIGN
@@ -562,64 +562,67 @@ class LyaParser(object):
 
     def p_if_action_else(self, p):
         """if_action : IF boolean_expression then_clause else_clause FI"""
-        p[0] = ("IfAction", p[2], p[3], p[4])
+        p[0] = IfAction(p[2], p[3], p[4])
 
     def p_if_action(self, p):
         """if_action : IF boolean_expression then_clause FI"""
-        p[0] = ("IfAction", p[2], p[3])
+        p[0] = (IfAction(p[2], p[3], None)
 
     def p_then_clause(self, p):
         """then_clause : THEN action_statement_list"""
-        p[0] = ("ThenClause", p[2])
+        p[0] = ThenClause(p[2])
 
     def p_then_clause_empty(self, p):
         """then_clause : THEN empty"""
-        p[0] = ("ThenClause",)
+        p[0] = ThenClause(None)
 
     def p_else_clause(self, p):
         """else_clause : ELSE action_statement_list"""
-        p[0] = ('ElseClause', p[2])
+        p[0] = ElseClause(p[2])
 
     def p_else_clause_empty(self, p):
         """else_clause : ELSE empty"""
-        p[0] = ('ElseClause',)
+        p[0] = ElseClause(None)
 
     def p_else_clause_if_else(self, p):
         """else_clause : ELSIF boolean_expression then_clause else_clause"""
-        p[0] = ("ElseClause", p[2], p[3], p[4])
+        p[0] = ElsifClause(p[2], p[3], p[4])
 
     def p_else_clause_if(self, p):
         """else_clause : ELSIF boolean_expression then_clause"""
-        p[0] = ("ElseClause", p[2], p[3])
+        p[0] = ElsifClause(p[2], p[3], None)
 
     def p_do_action_control_action(self, p):
         """do_action :           DO control_part SEMICOL action_statement_list OD"""
-        p[0] = ("DoAction", p[2], p[4])
+        p[0] = DoAction(p[2], p[4])
 
     def p_do_action_control(self, p):
         """do_action :           DO control_part SEMICOL OD"""
-        p[0] = ("DoAction", p[2])
+        p[0] = DoAction(p[2], None)
 
     def p_do_action(self, p):
         """do_action :           DO action_statement_list OD"""
-        p[0] = ("DoAction", p[2])
+        p[0] = DoAction(None, p[2])
 
     def p_do_action_zero(self, p):
         """do_action :           DO OD"""
-        p[0] = ("DoAction", None)
+        p[0] = DoAction(None, None)
 
     def p_control_part_forwhile(self, p):
         """control_part :        for_control while_control"""
-        p[0] = ("DoControl", p[1], p[2])
+        p[0] = DoControl(p[1], p[2])
 
-    def p_control_part(self, p):
-        """control_part :        while_control
-                    |           for_control"""
-        p[0] = ("DoControl", p[1])
+    def p_control_part_for(self, p):
+        """control_part :        for_control"""
+        p[0] = DoControl(p[1], None)
+
+    def p_control_part_while(self, p):
+        """control_part :        while_control"""
+        p[0] = DoControl(None, p[1])
 
     def p_for_control(self, p):
         """for_control :         FOR iteration"""
-        p[0] = ("For", p[2])
+        p[0] = ForControl(p[2])
 
     def p_iteration(self, p):
         """iteration :          range_enumeration
@@ -628,23 +631,23 @@ class LyaParser(object):
 
     def p_step_enumeration_stepvalue_down(self, p):
         """step_enumeration :    loop_counter ASSIGN start_value step_value DOWN end_value"""
-        p[0] = ("StepIteration", p[1], p[3], p[4], p[6])
+        p[0] = StepEnumeration(p[1], p[3], p[4], True, p[6])
 
     def p_step_enumeration_stepvalue(self, p):
         """step_enumeration :    loop_counter ASSIGN start_value step_value end_value"""
-        p[0] = ("StepIteration", p[1], p[3], p[4], p[5])
+        p[0] = StepEnumeration(p[1], p[3], p[4], False, p[5])
 
     def p_step_enumeration_down(self, p):
         """step_enumeration :    loop_counter ASSIGN start_value DOWN end_value"""
-        p[0] = ("StepIteration", p[1], p[3], ("StepValue", None), p[5])
+        p[0] = StepEnumeration(p[1], p[3], None, True, p[5])
 
     def p_step_enumeration(self, p):
         """step_enumeration :    loop_counter ASSIGN start_value end_value"""
-        p[0] = ("StepIteration", p[1], p[3], ("StepValue", None), p[4])
+        p[0] = StepEnumeration(p[1], p[3], None, False, p[4])
 
     def p_loop_counter(self, p):
         """loop_counter :        identifier"""
-        p[0] = p[1]
+        p[0] = Identifier(p[1])
 
     def p_start_value(self, p):
         """start_value :         discrete_expression"""
@@ -652,7 +655,7 @@ class LyaParser(object):
 
     def p_step_value(self, p):
         """step_value :          BY integer_expression"""
-        p[0] = ("StepValue", p[2])
+        p[0] = p[2]
 
     def p_end_value(self, p):
         """end_value :           TO discrete_expression"""
@@ -664,15 +667,15 @@ class LyaParser(object):
 
     def p_range_enumeration_down(self, p):
         """range_enumeration :       loop_counter DOWN IN discrete_mode"""
-        p[0] = ("RangeEnumeration", p[1], p[4])
+        p[0] = RangeEnumeration(p[1], True, p[4])
 
     def p_range_enumeration(self, p):
         """range_enumeration :       loop_counter IN discrete_mode"""
-        p[0] = ("RangeEnumeration", p[1], p[3])
+        p[0] = RangeEnumeration(p[1], False, p[3])
 
     def p_while_control(self, p):
         """while_control :       WHILE boolean_expression"""
-        p[0] = ("While", p[2])
+        p[0] = WhileControl(p[2])
 
     # Actions ------------------------------------------------------------
 

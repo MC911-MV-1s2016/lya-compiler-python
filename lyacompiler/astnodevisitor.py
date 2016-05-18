@@ -34,16 +34,12 @@ class ASTNodeVisitor(object):
     tree = parse(txt)
     VisitOps().visit(tree)
     """
-    def __init__(self, indent=None):
-        self._debug_indent = indent
+    def __init__(self):
         self._debug_format_cache = dict()
 
     # Private
 
-    def _generic_decorate(self, node):
-        pass
-
-    def _generic_visit(self, node, depth=0):
+    def _generic_visit(self, node):
         """
         Method executed if no applicable visit_ method can be found.
         This examines the node to see if it has _fields, is a list,
@@ -54,47 +50,49 @@ class ASTNodeVisitor(object):
             if isinstance(value, list):
                 for item in value:
                     if isinstance(item, ASTNode):
-                        self.visit(item, depth)
+                        self.visit(item)
             elif isinstance(value, ASTNode):
-                self.visit(value, depth)
+                self.visit(value)
 
-    def _format_node_debug(self, node, depth=0):
-        indent = self._debug_format_cache.get(depth)
-        if indent is None:
-            indent = ""
+    def _format_node_debug(self, node, depth=0, indent=2):
+        indent_str = self._debug_format_cache.get(depth)
+        if indent_str is None:
+            indent_str = ""
             for d in range(depth):
-                indent += ((" " * self._debug_indent) + "|")
-            indent += "- "
-            self._debug_format_cache[depth] = indent
-        return "{0}{1}".format(indent, str(node))
+                indent_str += ((" " * indent) + "|")
+            indent_str += "- "
+            self._debug_format_cache[depth] = indent_str
+        return "{0}{1}".format(indent_str, str(node))
 
     # Public
 
-    def visit(self, node, depth=-1):
+    def visit(self, node):
         """
         Execute a method of the form visit_NodeName(node) where
         NodeName is the name of the class of a particular node.
         """
         if node:
-            depth += 1
-
-            # Decorating node.
-            decorate_method = 'decorate_' + node.class_name
-            decorator = getattr(self, decorate_method, self._generic_decorate)
-            decorator(node)
-
-            # Debugging node.
-            self.debug_node(node, depth)
-
             # Visiting node.
             visit_method = 'visit_' + node.class_name
             visitor = getattr(self, visit_method, self._generic_visit)
-
-            return visitor(node, depth)
+            return visitor(node)
         else:
             return None
 
-    def debug_node(self, node, depth):
-        if self._debug_indent is None:
+    def show(self, node, depth=-1, indent=2):
+        depth += 1
+        self.debug_node(node, depth, indent)
+
+        for field in getattr(node, "_fields"):
+            value = getattr(node, field, None)
+            if isinstance(value, list):
+                for item in value:
+                    if isinstance(item, ASTNode):
+                        self.show(item, depth, indent)
+            elif isinstance(value, ASTNode):
+                self.show(value, depth, indent)
+
+    def debug_node(self, node, depth, indent=2):
+        if (indent is None) or (node is None):
             return
-        print(self._format_node_debug(node, depth))
+        print(self._format_node_debug(node, depth, indent))

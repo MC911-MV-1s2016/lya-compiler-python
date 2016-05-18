@@ -317,3 +317,35 @@ class RangeEnumeration(ASTNode):
 
 class WhileControl(ASTNode):
     _fields = ['expr']
+
+
+class CallAction(Action):
+    pass
+
+
+class ProcCall(CallAction):
+    _fields = ['name', 'param']
+
+
+class ExitAction(Action):
+    _fields = ['label']
+
+
+class ReturnAction(Action):
+    _fields = ['result']
+
+
+class ResultAction(Action):
+    _fields = ['result']
+
+
+class BuiltinCall(CallAction):
+    _fields = ['name', 'param']
+
+
+class ProcedureDefinition(ASTNode):
+    _fields = ['param', 'result', 'stmt']
+
+
+class FormalParameter(ASTNode):
+    _fields = ['ids', 'param']

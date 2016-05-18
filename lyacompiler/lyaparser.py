@@ -527,7 +527,7 @@ class LyaParser(object):
 
     def p_label_id(self, p):
         """label_id : identifier"""
-        p[0] = Identifier(p[1])
+        p[0] = p[1]
 
     def p_action(self, p):
         """action : bracketed_action
@@ -566,7 +566,7 @@ class LyaParser(object):
 
     def p_if_action(self, p):
         """if_action : IF boolean_expression then_clause FI"""
-        p[0] = (IfAction(p[2], p[3], None)
+        p[0] = IfAction(p[2], p[3], None)
 
     def p_then_clause(self, p):
         """then_clause : THEN action_statement_list"""
@@ -647,7 +647,7 @@ class LyaParser(object):
 
     def p_loop_counter(self, p):
         """loop_counter :        identifier"""
-        p[0] = Identifier(p[1])
+        p[0] = p[1]
 
     def p_start_value(self, p):
         """start_value :         discrete_expression"""
@@ -682,15 +682,15 @@ class LyaParser(object):
     def p_call_action(self, p):
         """call_action : procedure_call
                        | builtin_call"""
-        p[0] = p[1]
+        p[0] = CallAction(p[1])
 
     def p_procedure_call_parameter(self, p):
         """procedure_call : procedure_name LPAREN parameter_list RPAREN"""
-        p[0] = ("ProcCall", p[1], p[3])
+        p[0] = ProcCall(p[1], p[3])
 
     def p_procedure_call(self, p):
         """procedure_call : procedure_name LPAREN RPAREN"""
-        p[0] = ("ProcCall", p[1], None)
+        p[0] = ProcCall(p[1], None)
 
     def p_parameter_list(self, p):
         """parameter_list : parameter_list COMMA parameter
@@ -702,7 +702,7 @@ class LyaParser(object):
 
     def p_parameter(self, p):
         """parameter : expression"""
-        p[0] = ("Parameter", p[1])
+        p[0] = p[1]
 
     def p_procedure_name(self, p):
         """procedure_name : identifier"""
@@ -710,19 +710,19 @@ class LyaParser(object):
 
     def p_exit_action(self, p):
         """exit_action : EXIT label_id"""
-        p[0] = ("Exit", p[2])
+        p[0] = ExitAction(p[2])
 
     def p_return_action_result(self, p):
         """return_action : RETURN result"""
-        p[0] = ("Return", p[2])
+        p[0] = ReturnAction(p[2])
 
     def p_return_action(self, p):
         """return_action : RETURN"""
-        p[0] = ("Return", None)
+        p[0] = ReturnAction(None)
 
     def p_result_action(self, p):
         """result_action : RESULT result"""
-        p[0] = p[2]
+        p[0] = ResultAction(p[2])
 
     def p_result(self, p):
         """result : expression"""
@@ -730,11 +730,11 @@ class LyaParser(object):
 
     def p_builtin_call_parameter(self, p):
         """builtin_call : builtin_name LPAREN parameter_list RPAREN"""
-        p[0] = ("BuiltinCall", p[1], p[3])
+        p[0] = BuiltinCall(p[1], p[3])
 
     def p_builtin_call(self, p):
         """builtin_call : builtin_name LPAREN RPAREN"""
-        p[0] = ("BuiltinCall", p[1])
+        p[0] = BuiltinCall(p[1], None)
 
     def p_builtin_name(self, p):
         """builtin_name : NUM
@@ -751,35 +751,35 @@ class LyaParser(object):
 
     def p_procedure_definition_prs(self, p):
         """procedure_definition : PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL statement_list END"""
-        p[0] = ('ProcedureDefinition', p[3], p[5], p[7])
+        p[0] = ProcedureDefinition(p[3], p[5], p[7])
 
     def p_procedure_definition_pr(self, p):
         """procedure_definition : PROC LPAREN formal_parameter_list RPAREN result_spec SEMICOL END"""
-        p[0] = ('ProcedureDefinition', p[3], p[5])
+        p[0] = ProcedureDefinition(p[3], p[5], None)
 
     def p_procedure_definition_ps(self, p):
         """procedure_definition : PROC LPAREN formal_parameter_list RPAREN SEMICOL statement_list END"""
-        p[0] = ('ProcedureDefinition', p[3], p[6])
+        p[0] = ProcedureDefinition(p[3], None, p[6])
 
     def p_procedure_definition_rs(self, p):
         """procedure_definition : PROC LPAREN RPAREN result_spec SEMICOL statement_list END"""
-        p[0] = ('ProcedureDefinition', p[4], p[6])
+        p[0] = ProcedureDefinition(None, p[4], p[6])
 
     def p_procedure_definition_p(self, p):
         """procedure_definition : PROC LPAREN formal_parameter_list RPAREN SEMICOL END"""
-        p[0] = ('ProcedureDefinition', p[3])
+        p[0] = ProcedureDefinition(p[3], None, None)
 
     def p_procedure_definition_r(self, p):
         """procedure_definition : PROC LPAREN RPAREN result_spec SEMICOL END"""
-        p[0] = ('ProcedureDefinition', p[4])
+        p[0] = ProcedureDefinition(None, p[4], None)
 
     def p_procedure_definition_s(self, p):
         """procedure_definition : PROC LPAREN RPAREN SEMICOL statement_list END"""
-        p[0] = ('ProcedureDefinition', p[5])
+        p[0] = ProcedureDefinition(None, None, p[5])
 
     def p_procedure_definition(self, p):
         """procedure_definition : PROC LPAREN RPAREN SEMICOL END"""
-        p[0] = ('ProcedureDefinition',)
+        p[0] = ProcedureDefinition(None, None, None)
 
     def p_formal_parameter_list(self, p):
         """formal_parameter_list : formal_parameter_list COMMA formal_parameter
@@ -791,7 +791,7 @@ class LyaParser(object):
 
     def p_formal_parameter(self, p):
         """formal_parameter : identifier_list parameter_spec"""
-        p[0] = ('FormalParameter', p[1],  p[2])
+        p[0] = FormalParameter(p[1],  p[2])
 
     def p_parameter_spec(self, p):
         """parameter_spec : mode parameter_attribute

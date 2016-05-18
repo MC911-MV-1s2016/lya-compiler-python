@@ -1104,9 +1104,14 @@ p(n);"""
 #   print(n, " is not an Armstrong number.\n");
 # fi;""")
 
-    ast = lyaparser.parse(lya_source_do2)
-    # from lyacompiler.lyavisitor import Visitor
+    ast = lyaparser.parse(source)
+
+    #from lyacompiler.lyavisitor import ASTNodeVisitor
+    # from lyacompiler.lyavisitor import Visistor
     from lyavisitor import Visitor
 
-    v = Visitor(indent=2)
-    v.visit(ast)
+    # Semantic Analysis
+    semantic_visitor = Visitor()
+    semantic_visitor.visit(ast)
+    semantic_visitor.show(ast)
+    # TODO: Code Generation Visitor

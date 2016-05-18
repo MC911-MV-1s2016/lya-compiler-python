@@ -12,11 +12,11 @@
 
 from ply import yacc
 
-from lyacompiler.lyalexer import LyaLexer
-from lyacompiler.lya_ast import *
+# from lyacompiler.lyalexer import LyaLexer
+# from lyacompiler.lya_ast import *
 
-# from lyalexer import LyaLexer
-# from lya_ast import *
+from lyalexer import LyaLexer
+from lya_ast import *
 
 class LyaParser(object):
     def __init__(self):
@@ -706,7 +706,7 @@ class LyaParser(object):
 
     def p_procedure_name(self, p):
         """procedure_name : identifier"""
-        p[0] = p[1]
+        p[0] = p[1].name
 
     def p_exit_action(self, p):
         """exit_action : EXIT label_id"""
@@ -889,6 +889,7 @@ if __name__ == "__main__":
     type type22 = chars[20];
     type type23 = array [int] char;
     type type24 = array[1:2] bool;
+    type type25 = array[int, bool, char, mode1(1:4), int(3:5), 1:5] bool;
     """
 
     lya_source_composite_mode = """
@@ -1063,20 +1064,23 @@ if __name__ == "__main__":
     """
 
 
-    lya_source_do = """dcl var int = 3;
+    lya_source_do1 = """dcl var int = 3;
                     do od;
                     do var = 2; od;
                     do while 1; od;
                     do while 3; var = 32; od;
-                    do for counter in mode_name; od;
-                    do for counter in mode_name; var3 = 12; od;
-                    do for counter down in mode_name; od;
-                    do for counter in mode_name while 3; var = 32; od;
+                    """
+
+    lya_source_do2 = """
+                    do for counter in int; od;
+                    do for counter in bool; var3 = 12; od;
+                    do for counter down in char; od;
+                    do for counter in int while 3; var = 32; od;
                     do for counter = 3 to 8; od;
                     do for counter = 3 down to 8; od;
                     do for counter = 3 by 5 to 8; od;
                     do for counter = 3 by 5 down to 8; od;
-                    """
+        """
 
     file_name = lya_examples[9]
     file_path = "./lyaexamples/test.lya"# + file_name
@@ -1090,10 +1094,6 @@ p: proc (x int);
   s = m * x;
 end;
 p(n);"""
-
-    # TODO: Test Location
-    # TODO: Test Primitive
-
     # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
 
     # print(source)
@@ -1104,8 +1104,8 @@ p(n);"""
 #   print(n, " is not an Armstrong number.\n");
 # fi;""")
 
-    ast = lyaparser.parse(source)
-    # from lyacompiler.lyavisitor import Visistor
+    ast = lyaparser.parse(lya_source_do2)
+    # from lyacompiler.lyavisitor import Visitor
     from lyavisitor import Visitor
 
     v = Visitor(indent=2)

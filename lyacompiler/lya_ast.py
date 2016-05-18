@@ -193,6 +193,9 @@ class ArraySlice(ASTNode):
 class Constant(ASTNode):
     _fields = ['value']
 
+    def debug_data(self):
+        return self.value
+
 
 class IntegerConstant(Constant):
     pass
@@ -226,6 +229,9 @@ class ValueArraySlice(ASTNode):
 class Assignment(ASTNode):
     _fields = ['l_value', 'op', 'r_value']
 
+    def debug_data(self):
+        return self.op
+
 
 class Expression(ASTNode):
     _fields = ['value']
@@ -257,6 +263,9 @@ class ElsifExpression(Expression):
 
 class BinOp(ASTNode):
     _fields = ['l_value', 'op', 'r_value']
+
+    def debug_data(self):
+        return self.op
 
 
 class UnOp(ASTNode):
@@ -324,7 +333,11 @@ class CallAction(Action):
 
 
 class ProcCall(CallAction):
-    _fields = ['name', 'param']
+    _fields = ['name', 'params']
+
+
+# class Parameter(ASTNode):
+#     _fields = ['value']
 
 
 class ExitAction(Action):

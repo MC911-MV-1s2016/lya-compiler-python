@@ -12,11 +12,11 @@
 
 from ply import yacc
 
-# from lyacompiler.lyalexer import LyaLexer
-# from lyacompiler.lya_ast import *
+from lyacompiler.lyalexer import LyaLexer
+from lyacompiler.lya_ast import *
 
-from lyalexer import LyaLexer
-from lya_ast import *
+# from lyalexer import LyaLexer
+# from lya_ast import *
 
 class LyaParser(object):
     def __init__(self):
@@ -434,7 +434,7 @@ class LyaParser(object):
 
     def p_operand0_op1(self, p):
         """operand0 : operand0 operator1 operand1"""
-        p[0] = (p[1], p[2], p[3])
+        p[0] = BinOp(p[1], p[2], p[3])
 
     def p_operator1(self, p):
         """operator1 : relational_operator
@@ -462,7 +462,7 @@ class LyaParser(object):
 
     def p_operand1_op2(self, p):
         """operand1 : operand1 operator2 operand2"""
-        p[0] = (p[1], p[2], p[3])
+        p[0] = BinOp(p[1], p[2], p[3])
 
     def p_operator2(self, p):
         """operator2 : arithmetic_additive_operator
@@ -484,7 +484,7 @@ class LyaParser(object):
 
     def p_operand2_op3(self, p):
         """operand2 : operand2 arithmetic_multiplicative_operator operand3"""
-        p[0] = (p[1], p[2], p[3])
+        p[0] = BinOp(p[1], p[2], p[3])
 
     def p_arithmetic_multiplicative_operator(self, p):
         """arithmetic_multiplicative_operator : TIMES
@@ -494,11 +494,11 @@ class LyaParser(object):
 
     def p_operand3_uminus(self, p):
         """operand3 : MINUS operand4 %prec UMINUS"""
-        p[0] = (p[1], p[2])
+        p[0] = UnOp(p[1], p[2])
 
     def p_operand3_monadic(self, p):
         """operand3 : NOT operand4"""
-        p[0] = (p[1], p[2])
+        p[0] = UnOp(p[1], p[2])
 
     def p_operand3(self, p):
         """operand3 : operand4"""
@@ -513,7 +513,7 @@ class LyaParser(object):
 
     def p_referenced_location(self, p):
         """referenced_location : ARROW location"""
-        p[0] = p[2]
+        p[0] = ReferencedLocation(p[2])
 
     # Action Statement ---------------------------------------------------
 

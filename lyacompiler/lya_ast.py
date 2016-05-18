@@ -251,6 +251,17 @@ class ElsifExpression(Expression):
     _fields = ['elsif_expr', 'bool_expr', 'then_expr']
 
 
+class BinOp(ASTNode):
+    _fields = ['left', 'op', 'right']
+
+
+class UnOp(ASTNode):
+    _fields = ['op', 'value']
+
+
+class ReferencedLocation(ASTNode):
+    _fields = ['loc']
+
 
 class ConditionalExpression(ASTNode):
     _fields = ['bool_expr', 'then_expr', 'elsif_expr', 'else_expr']

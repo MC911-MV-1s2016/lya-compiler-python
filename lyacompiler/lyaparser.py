@@ -794,28 +794,28 @@ class LyaParser(object):
         p[0] = FormalParameter(p[1],  p[2])
 
     def p_parameter_spec(self, p):
-        """parameter_spec : mode parameter_attribute
+        """parameter_spec : mode LOC
                           | mode"""
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = ParameterSpec(p[1], False)
         else:
-            p[0] = p[1] + [p[2]]
+            p[0] = ParameterSpec(p[1], True)
 
-    def p_parameter_attribute(self, p):
-        """parameter_attribute : LOC"""
-        p[0] = ('ParameterAttribute', p[1])
+    # def p_parameter_attribute(self, p):
+    #     """parameter_attribute : LOC"""
+    #     p[0] = ('ParameterAttribute', p[1])
 
     def p_result_spec_attr(self, p):
-        """result_spec : RETURNS LPAREN mode result_attribute RPAREN"""
-        p[0] = ('Returns', p[3] + p[4])
+        """result_spec : RETURNS LPAREN mode LOC RPAREN"""
+        p[0] = ResultSpec(p[3], True)
 
     def p_result_spec(self, p):
         """result_spec : RETURNS LPAREN mode RPAREN"""
-        p[0] = ('Returns', p[3])
+        p[0] = ResultSpec(p[3], False)
 
-    def p_result_attribute(self, p):
-        """result_attribute : LOC"""
-        p[0] = ("ResultAttribute", p[1])
+    # def p_result_attribute(self, p):
+    #     """result_attribute : LOC"""
+    #     p[0] = ("ResultAttribute", p[1])
 
     # Empty
 

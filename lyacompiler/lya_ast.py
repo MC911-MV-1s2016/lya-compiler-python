@@ -349,3 +349,11 @@ class ProcedureDefinition(ASTNode):
 
 class FormalParameter(ASTNode):
     _fields = ['ids', 'param']
+
+
+class ParameterSpec(ASTNode):
+    _fields = ['mode', 'loc']
+
+
+class ResultSpec(ASTNode):
+    _fields = ['mode', 'loc']

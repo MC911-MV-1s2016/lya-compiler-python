@@ -357,7 +357,7 @@ class BuiltinCall(CallAction):
 
 
 class ProcedureDefinition(ASTNode):
-    _fields = ['param', 'result', 'stmt']
+    _fields = ['params', 'result', 'stmt']
 
 
 class FormalParameter(ASTNode):

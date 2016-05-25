@@ -102,6 +102,21 @@ class Visitor(ASTNodeVisitor):
         for syn in node.synonyms:
             self.visit(syn)
 
+
+    def visit_ProcedureDefinition(self, node):
+        self.environment.push(node)
+        node.environment = self.environment
+        node.symtab = self.environment.peek()
+        for p in node.params:
+            self.visit(p)
+        self.environment.pop()
+
+    def visit_FormalParameter(self, node):
+        for id in node.ids:
+            # TODO: Check init type == mode.raw_type
+            id.scope = self.environment.scope_level()
+            self.environment.add_local(id.name, id)
+
     # def visit_SynonymStatement(self, node, level):
     #     # Visit all of the synonyms
         # for syn in node.syns:

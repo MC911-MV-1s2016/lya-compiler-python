@@ -70,6 +70,8 @@ class ASTNode(object):
 
 
 class Program(ASTNode):
+    """-novo escopo
+    """
     _fields = ['statements']
 
     def debug_data(self):

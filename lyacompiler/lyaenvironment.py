@@ -50,6 +50,8 @@ class Environment(object):
         return len(self.stack) - 2
 
     def add_local(self, name, value):
+        if self.peek().lookup(name) is not None:
+            raise Exception
         self.peek().add(name, value)
 
     def add_root(self, name, value):

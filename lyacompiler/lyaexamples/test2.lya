@@ -1,0 +1,50 @@
+dcl m int = 2, n int = 3;
+p: proc (x int);
+  dcl s int;
+  s = m * x;
+end;
+p(n);
+
+
+//The decorated AST is:
+//
+//Program: offset=2
+//  DeclStmt:
+//    Decl:
+//      ID: name=m, scope=0, value=0 (at line :1)
+//      Mode:
+//        DiscreteMode: name=int (at line :1)
+//      Expr:
+//        Constant: value=2 (at line :1)
+//          DiscreteMode: name=int
+//    Decl:
+//      ID: name=n, scope=0, value=1 (at line :1)
+//      Mode:
+//        DiscreteMode: name=int (at line :1)
+//      Expr:
+//        Constant: value=3 (at line :1)
+//          DiscreteMode: name=int
+//  ProcStmt: offset=1
+//    ID: name=p, start=1, end=2 (at line :2)
+//    ProcDef:  (at line :2)
+//      FormalParam:  (at line :2)
+//        ID: name=x, scope=1, value=-2 (at line :2)
+//        Mode:
+//          DiscreteMode: name=int (at line :2)
+//      DeclStmt:
+//        Decl:
+//          ID: name=s, scope=1, value=0 (at line :3)
+//          Mode:
+//            DiscreteMode: name=int (at line :3)
+//      Action:
+//        Assignment: op== (at line :4)
+//          Location:
+//            ID: name=s, scope=1, value=0 (at line :4)
+//          Expr:
+//            BinaryExpr: op=* (at line :4)
+//              ID: name=m, scope=0, value=0 (at line :4)
+//              ID: name=x, scope=1, value=-2 (at line :4)
+//  Action:
+//    ProcCall: name=p, label=1 (at line :6)
+//      Expr:
+//        ID: name=n, scope=0, value=1 (at line :6)

@@ -11,34 +11,66 @@
 # ------------------------------------------------------------
 
 
-# Types
+from typing import Tuple
 
-class ExprType(object):
-    def __init__(self, decl, default, binops, unops):
-        self.decl = decl
+__all__ = [
+    'LyaType',
+    'IntType',
+    'BoolType',
+    'CharType',
+    'StringType',
+    'ArrayType',
+    'VoidType'
+]
+
+
+# Types
+class LyaType(object):
+    """Base class that represents a Lya builtin type.
+
+    Attributes:
+        name -- The LyaType name.
+        default -- The type default value.
+        binops -- The group of supported binary operation symbols.
+        unops -- The group of
+    """
+    def __init__(self, name: str, default, binops: Tuple[str, ...], unops: Tuple[str, ...]):
+        self.name = name
         self.default = default
         self.binops = binops
         self.unops = unops
 
-int_binops = ('+', '-', '*', '/', '%', '==', '!=', '>', '>=', '<', '<=')
-int_unops = ('+', '-')
-IntType = ExprType("int", 0, int_binops, int_unops)
+    def __str__(self):
+        return self.name
 
-bool_binops = ('==', '!=')
-bool_unops = ('!')
-BoolType = ExprType("bool", False, bool_binops, bool_unops)
+    def __eq__(self, other):
+        return self.name == other.name
 
-char_binops = ('==', '!=', '>', '>=', '<', '<=')
+    def __ne__(self, other):
+        return self.name != other.name
+
+
+int_binops = tuple(['+', '-', '*', '/', '%', '==', '!=', '>', '>=', '<', '<='])
+int_unops = tuple(['+', '-'])
+IntType = LyaType("int", 0, int_binops, int_unops)
+
+bool_binops = tuple(['==', '!='])
+bool_unops = tuple('!')
+BoolType = LyaType("bool", False, bool_binops, bool_unops)
+
+char_binops = tuple(['==', '!=', '>', '>=', '<', '<='])
 char_unops = tuple()
-CharType = ExprType("char", '', char_binops, char_unops)
+CharType = LyaType("char", '', char_binops, char_unops)
 
-string_binops = ('+', '==', '!=')
+string_binops = tuple(['+', '==', '!='])
 string_unops = tuple()
-StringType = ExprType("string", "", string_binops, string_unops)
+StringType = LyaType("string", "", string_binops, string_unops)
 
-array_binops = ()
-array_unops = ()
-ArrayType = ExprType("array", list(), array_binops, array_unops)
+array_binops = tuple()
+array_unops = tuple()
+ArrayType = LyaType("array", list(), array_binops, array_unops)
+
+VoidType = LyaType("void", None, tuple(), tuple())
 
 # Functions
 

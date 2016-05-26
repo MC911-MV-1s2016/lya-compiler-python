@@ -10,8 +10,8 @@
 #
 # ------------------------------------------------------------
 
-from lya_ast import ASTNode
 # from lyacompiler.lya_ast import ASTNode
+from lya_ast import ASTNode
 
 
 class ASTNodeVisitor(object):

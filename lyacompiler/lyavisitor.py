@@ -13,10 +13,13 @@
 # from lyacompiler.astnodevisitor import ASTNodeVisitor
 # from lyacompiler.lyaenvironment import Environment
 # from lyacompiler.lya_ast import *
+# from lyacompiler.lya_errors import *
 
 from astnodevisitor import ASTNodeVisitor
 from lyaenvironment import Environment
 from lya_ast import *
+from lya_errors import *
+from lyabuiltins import *
 
 
 class Visitor(ASTNodeVisitor):
@@ -30,6 +33,22 @@ class Visitor(ASTNodeVisitor):
     def __init__(self):
         super().__init__()
         self.environment = Environment()
+        self.errors = []
+
+    def visit(self, node):
+        # TODO: Can try to bypass error to continue compilation.
+        try:
+            super().visit(node)
+        except LyaError as err:
+            print(err)
+            self.errors.append(err)
+            exit()
+        else:
+            # Called if no errors raised.
+            pass
+        finally:
+            # Called always.
+            pass
 
     # Private
 
@@ -121,9 +140,7 @@ class Visitor(ASTNodeVisitor):
             # TODO: criar environment.setreturn
         else:
             ret = Identifier("_ret")
-            #TODO fix this
-            #ret.raw_type = VoidType
-            ret.raw_type = None
+            ret.raw_type = VoidType
             ret.raw_type = IDQualType.none
             self.environment.add_local(ret.name, ret)
 

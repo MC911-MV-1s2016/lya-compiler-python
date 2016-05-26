@@ -10,6 +10,18 @@
 #
 # ------------------------------------------------------------
 
+# from enum import Enum, unique
+# from lyacompiler.lyabuiltins import *
+
+from enum import Enum, unique
+from lyabuiltins import *
+
+@unique
+class IDQualType(Enum):
+    none = 0
+    loc = 1
+    ref = 2
+
 
 class ASTNode(object):
     """
@@ -25,6 +37,8 @@ class ASTNode(object):
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
+
+        self.raw_type = None
 
         for name, value in zip(self._fields, args):
             setattr(self, name, value)
@@ -97,6 +111,14 @@ class NewModeStatement(Statement):
 
 
 class ProcedureStatement(Statement):
+    """-adicionar o label no escopo
+    -criar um novo escopo
+    -visitar def->result (p/ saber o tipo de retorno)
+    -visitar a definition
+    -percorrer def->stmts p/ checar se os tipos do return coincidem com
+    o tipo de return da funcao
+    -remover o escopo
+    """
     _fields = ['label', 'definition']
 
 
@@ -359,11 +381,17 @@ class BuiltinCall(CallAction):
 
 
 class ProcedureDefinition(ASTNode):
-    _fields = ['params', 'result', 'stmt']
+    """ -visitar a lista de parametros e stmts (ok)
+    """
+    _fields = ['params', 'result', 'stmts']
 
 
 class FormalParameter(ASTNode):
-    _fields = ['ids', 'param']
+    """-visitar o spec (ok)
+    -visitar os ids (ok) e adiciona-los no escopo (add formalparam) (ok)
+    -associar a cada id o seu tipo
+    """
+    _fields = ['ids', 'spec']
 
 
 class ParameterSpec(ASTNode):

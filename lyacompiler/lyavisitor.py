@@ -89,12 +89,13 @@ class Visitor(ASTNodeVisitor):
         node.symtab = self.environment.peek()
         for stmts in node.statements:
             self.visit(stmts)
+        self.environment.pop()
 
     def visit_Declaration(self, node):
         for id in node.ids:
             # TODO: Check init type == mode.raw_type
             id.scope = self.environment.scope_level()
-            id.declaration = node
+            id.raw_type = node.raw_type
             id.displacement = len(self.environment.peek())
             self.environment.add_local(id.name, id)
 
@@ -102,20 +103,52 @@ class Visitor(ASTNodeVisitor):
         for syn in node.synonyms:
             self.visit(syn)
 
+    def visit_ProcedureStatement(self, node):
+        self.environment.add_local(node.label.name, node.label)
 
-    def visit_ProcedureDefinition(self, node):
         self.environment.push(node)
         node.environment = self.environment
         node.symtab = self.environment.peek()
-        for p in node.params:
-            self.visit(p)
+
+        d = node.definition
+
+        if d.result is not None:
+            self.visit(d.result)
+            ret = Identifier("_ret")
+            ret.raw_type = d.result.raw_type
+            ret.qual_type = d.result.loc
+            self.environment.add_local(ret.name, ret)
+            # TODO: criar environment.setreturn
+        else:
+            ret = Identifier("_ret")
+            #TODO fix this
+            #ret.raw_type = VoidType
+            ret.raw_type = None
+            ret.raw_type = IDQualType.none
+            self.environment.add_local(ret.name, ret)
+
+        node.label.raw_type = ret.raw_type
+
+        self.visit(node.definition)
         self.environment.pop()
 
+    def visit_ProcedureDefinition(self, node):
+        for p in node.params:
+            self.visit(p)
+        for s in node.stmts:
+            self.visit(s)
+
     def visit_FormalParameter(self, node):
+        self.visit(node.spec)
+
         for id in node.ids:
             # TODO: Check init type == mode.raw_type
+            self.visit(id)
             id.scope = self.environment.scope_level()
+            id.raw_type = node.spec.mode.raw_type
+            id.qual_type = node.spec.loc
             self.environment.add_local(id.name, id)
+            #TODO: criar environment.add.formalparameter
 
     # def visit_SynonymStatement(self, node, level):
     #     # Visit all of the synonyms

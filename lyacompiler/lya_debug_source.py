@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 lya_source_dcl = """
     dcl dcl1 int;
     dcl dcl2, dcl3, dcl4, dcl5 char;

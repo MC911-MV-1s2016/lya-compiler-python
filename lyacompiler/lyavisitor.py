@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ------------------------------------------------------------
 # MC911 - Compiler construction laboratory.
 # IC - UNICAMP
@@ -10,16 +11,11 @@
 #
 # ------------------------------------------------------------
 
-# from lyacompiler.astnodevisitor import ASTNodeVisitor
-# from lyacompiler.lyaenvironment import Environment
-# from lyacompiler.lya_ast import *
-# from lyacompiler.lya_errors import *
-
-from astnodevisitor import ASTNodeVisitor
-from lyaenvironment import Environment
-from lya_ast import *
-from lya_errors import *
-from lyabuiltins import *
+from .astnodevisitor import ASTNodeVisitor
+from .lyaenvironment import Environment
+from .lya_ast import *
+from .lya_errors import *
+from .lyabuiltins import *
 
 
 class Visitor(ASTNodeVisitor):

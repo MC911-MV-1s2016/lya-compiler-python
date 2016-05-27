@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ------------------------------------------------------------
 # MC911 - Compiler construction laboratory.
 # IC - UNICAMP
@@ -9,6 +10,7 @@
 # Tokenizer for the Lya scripting language.
 #
 # ------------------------------------------------------------
+
 import ply.lex as lex
 from ply.lex import TOKEN
 

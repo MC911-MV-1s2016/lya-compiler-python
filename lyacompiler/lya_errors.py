@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ------------------------------------------------------------
 # MC911 - Compiler construction laboratory.
 # IC - UNICAMP
@@ -11,11 +12,8 @@
 # ------------------------------------------------------------
 
 
-# from lyacompiler.lyabuiltins import *
-# from lyacompiler.lya_ast import ASTNode
-
-from lyabuiltins import *
-from lya_ast import ASTNode
+from .lyabuiltins import *
+from .lya_ast import ASTNode
 
 __all__ = [
     'LyaError',

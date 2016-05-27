@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ------------------------------------------------------------
 # MC911 - Compiler construction laboratory.
 # IC - UNICAMP
@@ -5,13 +6,12 @@
 # RA094139 - Marcelo Mingatos de Toledo
 # RA093175 - Victor Fernando Pompeo Barbosa
 #
-# nodevisistor.py
+# astnodevisistor.py
 # AST Generic Node Visitor
 #
 # ------------------------------------------------------------
 
-# from lyacompiler.lya_ast import ASTNode
-from lya_ast import ASTNode
+from .lya_ast import ASTNode
 
 
 class ASTNodeVisitor(object):

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ------------------------------------------------------------
 # MC911 - Compiler construction laboratory.
 # IC - UNICAMP
@@ -10,11 +11,8 @@
 #
 # ------------------------------------------------------------
 
-# from lyacompiler.symboltable import SymbolTable
-# from lyacompiler.lyabuiltins import IntType, CharType, StringType, BoolType, ArrayType
-
-from symboltable import SymbolTable
-from lyabuiltins import IntType, CharType, StringType, BoolType, ArrayType
+from .symboltable import SymbolTable
+from .lyabuiltins import *
 
 
 class Environment(object):

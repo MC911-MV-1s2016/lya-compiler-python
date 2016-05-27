@@ -1,0 +1,248 @@
+#!/usr/bin/env python3
+
+lya_source_dcl = """
+    dcl dcl1 int;
+    dcl dcl2, dcl3, dcl4, dcl5 char;
+    dcl dcl6, dcl7 int, dcl8 bool;
+    dcl dcl9 int = 5;
+    dcl dcl10, dcl11 int = 6;
+    dcl dcl12 int, dcl13, dcl14 int = 10;
+    dcl dcl15 int (2:5);
+    dcl dcl16 char (0:10);
+    dcl dcl17 bool(10:11);
+    dcl dcl18 dcl17 (1:2);
+    dcl dcl19 int (0:1) (1:2);
+    """
+
+lya_source_syn = """
+    syn syn1 = 1;
+    syn syn2, syn3, syn4 = 3;
+    syn syn5 int = 2;
+    syn syn6, syn7 int = 3;
+    syn syn8 = 10, syn9 = 12;
+    syn syn10, syn11 int = 13, syn12 = 20;
+    """
+
+lya_source_type = """
+    type type1 = int;
+    type type2 = char;
+    type type3 = bool;
+    type type4 = type3;
+    type type7, type8 = int;
+    type type9, type10, type11 = char;
+    type type12 = bool, type13 = type9;
+    type type14 = int, type15, type16 = char, type17, type18, type19 = char;
+    type type20 = ref int;
+    type type21 = ref ref type20;
+    type type22 = chars[20];
+    type type23 = array [int] char;
+    type type24 = array[1:2] bool;
+    type type25 = array[int, bool, char, mode1(1:4), int(3:5), 1:5] bool;
+    """
+
+lya_source_composite_mode = """
+    dcl cms1 chars [10];
+    dcl cma1 array [int] bool;
+    dcl cma2 array [bool, int] char;
+    """
+
+lya_source_procedure1 = """
+    power: proc (n int, r int) returns (int);
+        dcl c int;
+        type t = bool;
+    end;
+    """
+
+lya_source_procedure2 = """
+    power: proc (n int, r int) returns (int);
+    end;
+    """
+
+lya_source_procedure3 = """
+    power: proc (n int, r int);
+        dcl c int;
+        type t = bool;
+    end;
+    """
+
+lya_source_procedure4 = """
+    power: proc () returns (int);
+        dcl c int;
+        type t = bool;
+    end;
+    """
+
+lya_source_procedure5 = """
+    power: proc (n int, r int);
+    end;
+    """
+
+lya_source_procedure6 = """
+    power: proc () returns (int);
+    end;
+    """
+
+lya_source_procedure7 = """
+    power: proc ();
+        dcl c int;
+    end;
+    """
+
+lya_source_procedure8 = """
+    power: proc ();
+    end;
+    """
+
+lya_source_procedure9 = """
+    power: proc (n int loc, r, z int) returns (int loc);
+        dcl c, d int = 1;
+        type t = bool;
+    end;
+    """
+
+lya_source_if1 = """
+    label: if 1+2 then
+        exit label1;
+    else
+        exit label2;
+    fi;
+    """
+
+lya_source_if2 = """
+    if 1+2 then
+        exit label1;
+        exit label2;
+    fi;
+    """
+
+lya_source_if3 = """
+    if 1+2 then
+    else
+        exit label2;
+        exit label3;
+    fi;
+    """
+
+lya_source_if4 = """
+    if 1+2 then
+    else
+    fi;
+    """
+
+lya_source_if5 = """
+    if 1+2 then
+        exit label1;
+    elsif 1+2 then
+        exit label2;
+        exit label22;
+    else
+        exit lable3;
+    fi;
+    """
+
+lya_source_if6 = """
+    if 1+2 then
+        exit label1;
+    elsif 1+2 then
+        exit label2;
+        exit label22;
+    fi;
+    """
+
+lya_source_if7 = """
+    if 1+2 then
+        if 1+3 then
+            exit label1;
+        fi;
+    elsif 1+2 then
+        exit label2;
+        if 2+5 then
+        else
+            exit label22;
+        fi;
+    else
+        if 2+5 then
+            exit a1;
+        elsif 1+2 then
+            exit label22;
+        fi;
+    fi;
+    """
+
+lya_source_action1 = """
+    label1: ac1 = 10 + 10;
+    ac2 += 2;
+    ac3 -= 10;
+    ac4 *= 55;
+    ac5 /= 1;
+    ac5 %= 20;
+    ac6 &= 2;
+    """
+
+lya_source_expression = """
+    dcl var1 int=3+5-7*7/9%3;
+    dcl var2 int = 2 in 3;
+    dcl var3 bool = 5 && 3 || 1 == 2 & 2;
+    dcl var4 bool = if 2 then 3 else 5 fi;
+    dcl var2 int = var1 + 3;
+    """
+
+lya_source_action2 = """
+    exit label1;
+    result 1 + 2;
+    return;
+    return 2 + 1;
+    """
+
+lya_source_call1 = """
+    function();
+    function(1);
+    function(1, 2);
+    function(1+2, 2);
+    function(1,2,3/2);
+    """
+
+lya_source_call2 = """
+    num(1);
+    pred();
+    succ(1,2);
+    upper(1/2);
+    lower(2/3);
+    length();
+    read(100);
+    print(var2+2);
+    """
+
+lya_source_do1 = """
+    dcl var int = 3;
+    do od;
+    do var = 2; od;
+    do while 1; od;
+    do while 3; var = 32; od;
+    """
+
+lya_source_do2 = """
+    do for counter in int; od;
+    do for counter in bool; var3 = 12; od;
+    do for counter down in char; od;
+    do for counter in int while 3; var = 32; od;
+    do for counter = 3 to 8; od;
+    do for counter = 3 down to 8; od;
+    do for counter = 3 by 5 to 8; od;
+    do for counter = 3 by 5 down to 8; od;
+    """
+
+test2_source = """dcl m int = 2, n int = 3;
+p: proc (x int);
+  dcl s int;
+  s = m * x;
+end;
+p(n);"""
+
+dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""
+dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 10 + 5 * (10 - 20);"""
+
+# The only variable exported from this module.
+__all__ = ['lya_debug_source']
+
+lya_debug_source = test2_source

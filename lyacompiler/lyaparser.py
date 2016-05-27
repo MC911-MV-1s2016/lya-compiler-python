@@ -11,7 +11,7 @@
 #
 # ------------------------------------------------------------
 
-from ply import yacc
+from .ply import yacc
 
 from .lyalexer import LyaLexer
 from .lya_ast import *

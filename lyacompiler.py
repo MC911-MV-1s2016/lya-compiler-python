@@ -39,60 +39,88 @@ class LyaCompiler(object):
     def compile(self, args):
 
         if len(args) == 0:
-            m = '-h'
-        else:
-            m = args[0]
+            args.append('-h')
+
+        m = args[0]
 
         mode_method_name = "{0}_mode".format(self.modes.get(m, "_invalid"))
-        mode_method = getattr(self.modes, mode_method_name, self._invalid_mode)
-        mode_method(args)
+        mode_method = getattr(self, mode_method_name, self._invalid_mode)
+        mode_method(args[1:])
 
     # Private
 
-    def _compile(self, source_code: str):
+    @staticmethod
+    def _compile(source_code: str):
         from lyacompiler.lyaparser import LyaParser
         from lyacompiler.lyavisitor import Visitor
 
+        print("\n--- Lya Source Code ---\n")
+        i = 1
+        for line in source_code.split("\n"):
+            print("{0}:\t{1}".format(i, line))
+            i += 1
+
+        print("\n--- Lya Source Code EOF ---\n")
+
         # Generating AST
+        print("Parsing source code...")
         parser = LyaParser()
         ast = parser.parse(source_code)
 
         # Semantic Analysis
+        print("\nAnalysing semantics...")
         semantic_visitor = Visitor()
         semantic_visitor.visit(ast)
+        print("\n--- Decorated AST ---\n")
         semantic_visitor.show(ast)
+        print("\n--- Decorated AST END ---\n")
 
         # TODO: Code Generation Visitor
 
     def _debug_mode(self, args):
-        pass
+        from lyacompiler.lya_debug_source import lya_debug_source
+        self._compile(lya_debug_source)
 
     def _interactive_mode(self, args):
         # TODO: Loop reading from input
         print("Interactive mode not implemented.")
 
-    def _source_file_mode(self, args):
-        pass
+    def _file_mode(self, args):
 
-    def _lya_source_mode(self, args):
-        pass
+        if len(args) < 1:
+            self._invalid_mode(args)
+            return
+
+        file_name = args[0]
+
+        print("Source file mode:")
+
+        file = open(file_name)
+        lya_source = file.read()
+
+        self._compile(lya_source)
+
+    def _lya_mode(self, args):
+        print("Lya source mode not implemented.")
 
     def _examples_mode(self, args):
-        # TODO: List all files in lyacompiler/lyaexamples
-        pass
+        from glob import glob
+        print("Lya Examples:")
+        for file_path in glob("./lyacompiler/lyaexamples/*.lya"):
+            print("\t'{0}'".format(file_path))
 
     def _run_tests_mode(self, args):
         print("Test mode not implemented.")
         pass
 
-    def _help_mode(self):
+    def _help_mode(self, args):
         print("Available modes:")
-        for key, value in self.modes.items():
+        for key, value in self.help.items():
             print("\t{0}: {1}".format(key, value))
 
-    def _invalid_mode(self):
-        print("Invalid mode")
-        self._help_mode()
+    def _invalid_mode(self, args):
+        print("Invalid mode.")
+        self._help_mode(args)
 
 if __name__ == '__main__':
 

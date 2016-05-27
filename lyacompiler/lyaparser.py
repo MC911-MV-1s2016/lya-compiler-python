@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ------------------------------------------------------------
 # MC911 - Compiler construction laboratory.
 # IC - UNICAMP
@@ -10,13 +11,11 @@
 #
 # ------------------------------------------------------------
 
-from ply import yacc
+from .ply import yacc
 
-# from lyacompiler.lyalexer import LyaLexer
-# from lyacompiler.lya_ast import *
+from .lyalexer import LyaLexer
+from .lya_ast import *
 
-from lyalexer import LyaLexer
-from lya_ast import *
 
 class LyaParser(object):
     def __init__(self):
@@ -82,22 +81,18 @@ class LyaParser(object):
 
     def p_declaration_statement(self, p):
         """declaration_statement : DCL declaration_list SEMICOL"""
-        #p[0] = ('DeclarationStatement (at line {0})'.format(p.lineno(1)), p[2])
         p[0] = DeclarationStatement(p[2])
 
     def p_synonym_statement(self, p):
         """synonym_statement : SYN synonym_list SEMICOL"""
-        # p[0] = ('SynonymStatement (at line {0})'.format(p.lineno(1)), p[2])
         p[0] = SynonymStatement(p[2])
 
     def p_newmode_statement(self, p):
         """newmode_statement : TYPE newmode_list SEMICOL"""
-        # p[0] = ('NewmodeStatement (at line {0})'.format(p.lineno(1)), p[2])
         p[0] = NewModeStatement(p[2])
 
     def p_procedure_statement(self, p):
         """procedure_statement : label_id COLON procedure_definition SEMICOL"""
-        # p[0] = ('ProcedureStatement (at line {0})'.format(p.lineno(2)), p[2])
         p[0] = ProcedureStatement(p[1], p[3])
 
     def p_action_statement_label(self, p):
@@ -200,10 +195,6 @@ class LyaParser(object):
     def p_mode_name(self, p):
         """mode_name : identifier"""
         p[0] = p[1]
-    #
-    # def p_discrete_mode_name(self, p):
-    #     """discrete_mode_name : identifier"""
-    #     p[0] = p[1]
 
     def p_literal_range(self, p):
         """literal_range : lower_bound COLON upper_bound"""
@@ -300,10 +291,6 @@ class LyaParser(object):
     def p_string_slice(self, p):
         """string_slice : identifier LBRACK left_element COLON right_element RBRACK"""
         p[0] = StringSlice(p[1], p[3], p[5])
-
-    # def p_string_location(self, p):
-    #     """string_location : identifier"""
-    #     p[0] = p[1]
 
     def p_left_element(self, p):
         """left_element : integer_expression"""
@@ -413,19 +400,19 @@ class LyaParser(object):
         p[0] = BooleanExpression(p[1])
 
     def p_then_expression(self, p):
-        """then_expression :     THEN expression"""
+        """then_expression : THEN expression"""
         p[0] = ThenExpression(p[2])
 
     def p_else_expression(self, p):
-        """else_expression :     ELSE expression"""
+        """else_expression : ELSE expression"""
         p[0] = ElseExpression(p[2])
 
     def p_elsif_expression_elsif(self, p):
-        """elsif_expression :    elsif_expression ELSIF boolean_expression then_expression"""
+        """elsif_expression : elsif_expression ELSIF boolean_expression then_expression"""
         p[0] = ElsifExpression(p[1], p[3], p[4])
 
     def p_elsif_expression(self, p):
-        """elsif_expression :    ELSIF boolean_expression then_expression"""
+        """elsif_expression : ELSIF boolean_expression then_expression"""
         p[0] = ElsifExpression(None, p[2], p[3])
 
     def p_operand0(self, p):
@@ -502,7 +489,6 @@ class LyaParser(object):
 
     def p_operand3(self, p):
         """operand3 : operand4"""
-                    # "| integer_literal"""
         p[0] = p[1]
 
     def p_operand4(self, p):
@@ -593,88 +579,88 @@ class LyaParser(object):
         p[0] = ElsifClause(p[2], p[3], None)
 
     def p_do_action_control_action(self, p):
-        """do_action :           DO control_part SEMICOL action_statement_list OD"""
+        """do_action : DO control_part SEMICOL action_statement_list OD"""
         p[0] = DoAction(p[2], p[4])
 
     def p_do_action_control(self, p):
-        """do_action :           DO control_part SEMICOL OD"""
+        """do_action : DO control_part SEMICOL OD"""
         p[0] = DoAction(p[2], None)
 
     def p_do_action(self, p):
-        """do_action :           DO action_statement_list OD"""
+        """do_action : DO action_statement_list OD"""
         p[0] = DoAction(None, p[2])
 
     def p_do_action_zero(self, p):
-        """do_action :           DO OD"""
+        """do_action : DO OD"""
         p[0] = DoAction(None, None)
 
     def p_control_part_forwhile(self, p):
-        """control_part :        for_control while_control"""
+        """control_part : for_control while_control"""
         p[0] = DoControl(p[1], p[2])
 
     def p_control_part_for(self, p):
-        """control_part :        for_control"""
+        """control_part : for_control"""
         p[0] = DoControl(p[1], None)
 
     def p_control_part_while(self, p):
-        """control_part :        while_control"""
+        """control_part : while_control"""
         p[0] = DoControl(None, p[1])
 
     def p_for_control(self, p):
-        """for_control :         FOR iteration"""
+        """for_control : FOR iteration"""
         p[0] = ForControl(p[2])
 
     def p_iteration(self, p):
-        """iteration :          range_enumeration
-                    |          step_enumeration"""
+        """iteration : range_enumeration
+                     | step_enumeration"""
         p[0] = p[1]
 
     def p_step_enumeration_stepvalue_down(self, p):
-        """step_enumeration :    loop_counter ASSIGN start_value step_value DOWN end_value"""
+        """step_enumeration : loop_counter ASSIGN start_value step_value DOWN end_value"""
         p[0] = StepEnumeration(p[1], p[3], p[4], True, p[6])
 
     def p_step_enumeration_stepvalue(self, p):
-        """step_enumeration :    loop_counter ASSIGN start_value step_value end_value"""
+        """step_enumeration : loop_counter ASSIGN start_value step_value end_value"""
         p[0] = StepEnumeration(p[1], p[3], p[4], False, p[5])
 
     def p_step_enumeration_down(self, p):
-        """step_enumeration :    loop_counter ASSIGN start_value DOWN end_value"""
+        """step_enumeration : loop_counter ASSIGN start_value DOWN end_value"""
         p[0] = StepEnumeration(p[1], p[3], None, True, p[5])
 
     def p_step_enumeration(self, p):
-        """step_enumeration :    loop_counter ASSIGN start_value end_value"""
+        """step_enumeration : loop_counter ASSIGN start_value end_value"""
         p[0] = StepEnumeration(p[1], p[3], None, False, p[4])
 
     def p_loop_counter(self, p):
-        """loop_counter :        identifier"""
+        """loop_counter : identifier"""
         p[0] = p[1]
 
     def p_start_value(self, p):
-        """start_value :         discrete_expression"""
+        """start_value : discrete_expression"""
         p[0] = p[1]
 
     def p_step_value(self, p):
-        """step_value :          BY integer_expression"""
+        """step_value : BY integer_expression"""
         p[0] = p[2]
 
     def p_end_value(self, p):
-        """end_value :           TO discrete_expression"""
+        """end_value : TO discrete_expression"""
         p[0] = p[2]
 
     def p_discrete_expression(self, p):
-        """discrete_expression :     expression"""
+        """discrete_expression : expression"""
         p[0] = p[1]
 
     def p_range_enumeration_down(self, p):
-        """range_enumeration :       loop_counter DOWN IN discrete_mode"""
+        """range_enumeration : loop_counter DOWN IN discrete_mode"""
         p[0] = RangeEnumeration(p[1], True, p[4])
 
     def p_range_enumeration(self, p):
-        """range_enumeration :       loop_counter IN discrete_mode"""
+        """range_enumeration : loop_counter IN discrete_mode"""
         p[0] = RangeEnumeration(p[1], False, p[3])
 
     def p_while_control(self, p):
-        """while_control :       WHILE boolean_expression"""
+        """while_control : WHILE boolean_expression"""
         p[0] = WhileControl(p[2])
 
     # Actions ------------------------------------------------------------
@@ -831,287 +817,3 @@ class LyaParser(object):
             print("Line: %d" % p.lineno)
         except:
             print("Syntax error")
-
-# ------------------------------------------------------------
-
-if __name__ == "__main__":
-    import pprint
-
-    lya_examples = ["example1.lya",
-                    "example2.lya",
-                    "example3.lya",
-                    "example4.lya",
-                    "factorial.lya",
-                    "fibonacci.lya",
-                    "gcd.lya",
-                    "palindrome.lya",
-                    "bubble_sort.lya",
-                    "armstrong_number.lya",
-                    "gen_primes.lya",
-                    "int_stack.lya"
-                    ]
-
-    lyaparser = LyaParser()
-
-    lya_source_dcl = """
-    dcl dcl1 int;
-    dcl dcl2, dcl3, dcl4, dcl5 char;
-    dcl dcl6, dcl7 int, dcl8 bool;
-    dcl dcl9 int = 5;
-    dcl dcl10, dcl11 int = 6;
-    dcl dcl12 int, dcl13, dcl14 int = 10;
-    dcl dcl15 int (2:5);
-    dcl dcl16 char (0:10);
-    dcl dcl17 bool(10:11);
-    dcl dcl18 dcl17 (1:2);
-    dcl dcl19 int (0:1) (1:2);
-    """
-
-    lya_source_syn = """
-    syn syn1 = 1;
-    syn syn2, syn3, syn4 = 3;
-    syn syn5 int = 2;
-    syn syn6, syn7 int = 3;
-    syn syn8 = 10, syn9 = 12;
-    syn syn10, syn11 int = 13, syn12 = 20;"""
-
-    lya_source_type = """
-    type type1 = int;
-    type type2 = char;
-    type type3 = bool;
-    type type4 = type3;
-    type type7, type8 = int;
-    type type9, type10, type11 = char;
-    type type12 = bool, type13 = type9;
-    type type14 = int, type15, type16 = char, type17, type18, type19 = char;
-    type type20 = ref int;
-    type type21 = ref ref type20;
-    type type22 = chars[20];
-    type type23 = array [int] char;
-    type type24 = array[1:2] bool;
-    type type25 = array[int, bool, char, mode1(1:4), int(3:5), 1:5] bool;
-    """
-
-    lya_source_composite_mode = """
-    dcl cms1 chars [10];
-    dcl cma1 array [int] bool;
-    dcl cma2 array [bool, int] char;
-    """
-
-    lya_source_procedure1 = """
-    power: proc (n int, r int) returns (int);
-        dcl c int;
-        type t = bool;
-    end;
-    """
-
-    lya_source_procedure2 = """
-    power: proc (n int, r int) returns (int);
-    end;
-    """
-
-    lya_source_procedure3 = """
-    power: proc (n int, r int);
-        dcl c int;
-        type t = bool;
-    end;
-    """
-
-    lya_source_procedure4 = """
-    power: proc () returns (int);
-        dcl c int;
-        type t = bool;
-    end;
-    """
-
-    lya_source_procedure5 = """
-    power: proc (n int, r int);
-    end;
-    """
-
-    lya_source_procedure6 = """
-    power: proc () returns (int);
-    end;
-    """
-
-    lya_source_procedure7 = """
-    power: proc ();
-        dcl c int;
-    end;
-    """
-
-    lya_source_procedure8 = """
-    power: proc ();
-    end;
-    """
-
-    lya_source_procedure9 = """
-    power: proc (n int loc, r, z int) returns (int loc);
-        dcl c, d int = 1;
-        type t = bool;
-    end;
-    """
-
-    lya_source_if1 = """
-    label: if 1+2 then
-        exit label1;
-    else
-        exit label2;
-    fi;
-    """
-
-    lya_source_if2 = """
-    if 1+2 then
-        exit label1;
-        exit label2;
-    fi;
-    """
-
-    lya_source_if3 = """
-    if 1+2 then
-    else
-        exit label2;
-        exit label3;
-    fi;
-    """
-
-    lya_source_if4 = """
-    if 1+2 then
-    else
-    fi;
-    """
-
-    lya_source_if5 = """
-    if 1+2 then
-        exit label1;
-    elsif 1+2 then
-        exit label2;
-        exit label22;
-    else
-        exit lable3;
-    fi;
-    """
-
-    lya_source_if6 = """
-    if 1+2 then
-        exit label1;
-    elsif 1+2 then
-        exit label2;
-        exit label22;
-    fi;
-    """
-
-    lya_source_if7 = """
-    if 1+2 then
-        if 1+3 then
-            exit label1;
-        fi;
-    elsif 1+2 then
-        exit label2;
-        if 2+5 then
-        else
-            exit label22;
-        fi;
-    else
-        if 2+5 then
-            exit a1;
-        elsif 1+2 then
-            exit label22;
-        fi;
-    fi;
-    """
-
-    lya_source_action1 = """
-    label1: ac1 = 10 + 10;
-    ac2 += 2;
-    ac3 -= 10;
-    ac4 *= 55;
-    ac5 /= 1;
-    ac5 %= 20;
-    ac6 &= 2;
-    """
-
-    lya_source_expression = """dcl var1 int=3+5-7*7/9%3;
-                        dcl var2 int = 2 in 3;
-                        dcl var3 bool = 5 && 3 || 1 == 2 & 2;
-                        dcl var4 bool = if 2 then 3 else 5 fi;
-                        dcl var2 int = var1 + 3;"""
-
-    lya_source_action2 = """
-    exit label1;
-    result 1 + 2;
-    return;
-    return 2 + 1;
-    """
-
-    lya_source_call1 = """
-    function();
-    function(1);
-    function(1, 2);
-    function(1+2, 2);
-    function(1,2,3/2);
-    """
-
-    lya_source_call2 = """
-    num(1);
-    pred();
-    succ(1,2);
-    upper(1/2);
-    lower(2/3);
-    length();
-    read(100);
-    print(var2+2);
-    """
-
-
-    lya_source_do1 = """dcl var int = 3;
-                    do od;
-                    do var = 2; od;
-                    do while 1; od;
-                    do while 3; var = 32; od;
-                    """
-
-    lya_source_do2 = """
-                    do for counter in int; od;
-                    do for counter in bool; var3 = 12; od;
-                    do for counter down in char; od;
-                    do for counter in int while 3; var = 32; od;
-                    do for counter = 3 to 8; od;
-                    do for counter = 3 down to 8; od;
-                    do for counter = 3 by 5 to 8; od;
-                    do for counter = 3 by 5 down to 8; od;
-        """
-
-    file_name = lya_examples[9]
-    file_path = "./lyaexamples/test.lya"# + file_name
-    file = open(file_path)
-    lya_source = file.read()
-
-    # source = lya_source
-    source = """dcl m int = 2, n int = 3;
-p: proc (x int);
-  dcl s int;
-  s = m * x;
-end;
-p(n);"""
-    # lya_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""  # ;\ndcl var2, varx char;\ndcl var3, var4 int = 10;"""#\ndcl var5 = 10;"""# + 5 * (10 - 20);"""
-
-    # print(source)
-
-#     lyaparser.lex.test("""if n == sum then
-#   print(n, " is an Armstrong number.\n");
-# else
-#   print(n, " is not an Armstrong number.\n");
-# fi;""")
-
-    ast = lyaparser.parse(source)
-
-    #from lyacompiler.lyavisitor import ASTNodeVisitor
-    # from lyacompiler.lyavisitor import Visistor
-    from lyavisitor import Visitor
-
-    # Semantic Analysis
-    semantic_visitor = Visitor()
-    semantic_visitor.visit(ast)
-    semantic_visitor.show(ast)
-    # TODO: Code Generation Visitor

@@ -111,3 +111,6 @@ fabric.properties
 .idea/misc.xml
 
 .DS_Store
+
+parser.out
+parsetab.py

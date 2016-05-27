@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ------------------------------------------------------------
 # MC911 - Compiler construction laboratory.
 # IC - UNICAMP
@@ -14,7 +15,8 @@
 # from lyacompiler.lyabuiltins import *
 
 from enum import Enum, unique
-from lyabuiltins import *
+from .lyabuiltins import VoidType
+
 
 @unique
 class IDQualType(Enum):
@@ -38,7 +40,7 @@ class ASTNode(object):
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
 
-        self.raw_type = None
+        self.raw_type = VoidType
 
         for name, value in zip(self._fields, args):
             setattr(self, name, value)

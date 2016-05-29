@@ -10,11 +10,11 @@
 #
 # ------------------------------------------------------------
 
-# from enum import Enum, unique
-# from lyacompiler.lyabuiltins import *
+
+from typing import List
 
 from enum import Enum, unique
-from .lyabuiltins import VoidType
+from .lya_builtins import VoidType
 
 
 @unique
@@ -34,7 +34,8 @@ class ASTNode(object):
     """
 
     _fields = []
-    _debug_fields = ['name', 'scope', 'offset', 'displacement']
+    _raw_type_field = None
+    _debug_fields = ['name', 'value', 'scope', 'offset', 'displacement']
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
@@ -85,15 +86,17 @@ class ASTNode(object):
 
 
 class Program(ASTNode):
-    """-novo escopo
+    """
+    :type statements: list[Statement]
     """
     _fields = ['statements']
 
-    def debug_data(self):
-        return "testing debug data string"
+    def __init__(self, statements, **kwargs):
+        super().__init__(statements, **kwargs)
+        self.statements = statements
+
 
 # Statement
-
 
 class Statement(ASTNode):
     pass
@@ -112,15 +115,16 @@ class NewModeStatement(Statement):
 
 
 class ProcedureStatement(Statement):
-    """-adicionar o label no escopo
-    -criar um novo escopo
-    -visitar def->result (p/ saber o tipo de retorno)
-    -visitar a definition
-    -percorrer def->stmts p/ checar se os tipos do return coincidem com
-    o tipo de return da funcao
-    -remover o escopo
+    """
+    :type label: Identifier
+    :type definition: ProcedureDefinition
     """
     _fields = ['label', 'definition']
+
+    def __init__(self, label, definition, **kwargs):
+        super().__init__(label, definition, **kwargs)
+        self.label = label
+        self.definition = definition
 
 
 class ActionStatement(Statement):
@@ -128,8 +132,19 @@ class ActionStatement(Statement):
 
 
 class Declaration(ASTNode):
+    """
+    :type ids: list[Identifier]
+    :type mode: Mode
+    :type init: Expression
+    """
+
     _fields = ['ids', 'mode', 'init']
 
+    def __init__(self, ids, mode, init, **kwargs):
+        super().__init__(ids, mode, init, **kwargs)
+        self.ids = ids
+        self.mode = mode
+        self.init = init
 
 class SynonymDefinition(ASTNode):
     _fields = ['ids', 'mode', 'expr']
@@ -140,7 +155,13 @@ class ModeDefinition(ASTNode):
 
 
 class Mode(ASTNode):
+
     _fields = ['type']
+
+    def __init__(self, type, *args, **kwargs):
+        super().__init__(type, *args, **kwargs)
+        self.type = type
+        self.memory_size = 1
 
 
 class DiscreteMode(Mode):
@@ -184,7 +205,29 @@ class ElementMode(ASTNode):
 
 
 class Identifier(ASTNode):
+    """
+    :type lineno: int
+    :type name: str
+    :type memory_size: int
+    :type scope: int
+    :type displacement: int
+    :type start: int
+    :type stop: int
+    :type qual_type: IDQualType
+    """
+
     _fields = ['name']
+
+    def __init__(self, name, **kwargs):
+        self.lineno = None
+        super().__init__(name, **kwargs)
+        self.name = name
+        self.memory_size = 1
+        self.scope = None
+        self.displacement = None
+        self.start = None
+        self.stop = None
+        self.qual_type = IDQualType.none
 
 
 class Location(ASTNode):
@@ -218,9 +261,6 @@ class ArraySlice(ASTNode):
 class Constant(ASTNode):
     _fields = ['value']
 
-    def debug_data(self):
-        return self.value
-
 
 class IntegerConstant(Constant):
     pass
@@ -250,7 +290,6 @@ class ValueArraySlice(ASTNode):
     _fields = ['value', 'l_bound', 'u_bound']
 
 
-
 class Assignment(ASTNode):
     _fields = ['l_value', 'op', 'r_value']
 
@@ -259,7 +298,7 @@ class Assignment(ASTNode):
 
 
 class Expression(ASTNode):
-    _fields = ['value']
+    _fields = ['sub_expression']
 
 
 class ConditionalExpression(Expression):
@@ -382,22 +421,61 @@ class BuiltinCall(CallAction):
 
 
 class ProcedureDefinition(ASTNode):
-    """ -visitar a lista de parametros e stmts (ok)
     """
-    _fields = ['params', 'result', 'stmts']
+    :type parameters: list[FormalParameter]
+    :type result: ResultSpec
+    :type statements: list[Statement]
+    """
+
+    _fields = ['parameters', 'result', 'statements']
+
+    def __init__(self, parameters, result, statements, **kwargs):
+        super().__init__(parameters, result, statements, **kwargs)
+        self.parameters = parameters
+        self.result = result
+        self.statements = statements
+
+    def validate_arguments(self, arguments: List[Expression]):
+        pass
 
 
 class FormalParameter(ASTNode):
-    """-visitar o spec (ok)
-    -visitar os ids (ok) e adiciona-los no escopo (add formalparam) (ok)
-    -associar a cada id o seu tipo
     """
+    :type ids: list[Identifier]
+    :type spec: ParameterSpec
+    """
+
     _fields = ['ids', 'spec']
+
+    def __init__(self, ids, spec, **kwargs):
+        super().__init__(ids, spec, **kwargs)
+        self.ids = ids
+        self.spec = spec
 
 
 class ParameterSpec(ASTNode):
+    """
+    :type mode: Mode
+    :type loc: IDQualType
+    """
+
     _fields = ['mode', 'loc']
+
+    def __init__(self, mode, loc, **kwargs):
+        super().__init__(mode, loc, **kwargs)
+        self.mode = mode
+        self.loc = loc
 
 
 class ResultSpec(ASTNode):
+    """
+    :type mode: Mode
+    :type loc: IDQualType
+    """
+
     _fields = ['mode', 'loc']
+
+    def __init__(self, mode, loc, **kwargs):
+        super().__init__(mode, loc, **kwargs)
+        self.mode = mode
+        self.loc = loc

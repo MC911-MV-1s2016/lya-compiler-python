@@ -14,13 +14,13 @@ from .astnodevisitor import ASTNodeVisitor
 from .lyaenvironment import Environment
 from .lya_ast import *
 from .lya_errors import *
-from .lyabuiltins import *
+from .lya_builtins import *
 
 
 class Visitor(ASTNodeVisitor):
     """
     Program Visitor class. This class uses the visitor pattern as
-    described in lya_ast.py.   It’s define methods of the form
+    described in astnodevisitor.py.   It’s define methods of the form
     visit_NodeName() for each kind of AST node that we want to process.
     Note: You will need to adjust the names of the AST nodes if you
     picked different names.
@@ -49,7 +49,7 @@ class Visitor(ASTNodeVisitor):
 
     # TODO: RawType Mode
     # TODO: TypeChecker Class
-    def _raw_type_id(self, id):
+    def _raw_type_id(self, ide):
         name = "int"
         t = self.environment.raw_type(name)
         if t is None:
@@ -58,7 +58,7 @@ class Visitor(ASTNodeVisitor):
             raise TypeError
         return t
 
-    def _declare_type(self, name, type):
+    def _declare_type(self, name, typee):
         pass
 
     # def error(self, a, b):
@@ -87,85 +87,67 @@ class Visitor(ASTNodeVisitor):
     #                   "Binary operator {} not supported on {} of expression".format(op, errside))
     #     return left.check_type
 
+    def visit_Program(self, program: Program):
+        self.environment.start_new_level(program)
+        for statement in program.statements:
+            self.visit(statement)
+        program.offset = self.environment.current_scope.locals_count
+        self.environment.end_current_level()
 
-
-    # def visit_Program(self, node, depth):
-    #     self.environment.push(node)
-    #     node.environment = self.environment
-    #     node.symtab = self.environment.peek()
-    #     # Visit all of the statements
-    #     for statement in node.statements:
-    #         self.visit(statement, depth)
-
-    def visit_Program(self, node):
-        self.environment.push(node)
-        node.environment = self.environment
-        node.symtab = self.environment.peek()
-        for stmts in node.statements:
-            self.visit(stmts)
-        self.environment.pop()
-
-    def visit_Declaration(self, node):
-        for id in node.ids:
-            # TODO: Check init type == mode.raw_type
-            id.scope = self.environment.scope_level()
-            id.raw_type = node.raw_type
-            id.displacement = len(self.environment.peek())
-            self.environment.add_local(id.name, id)
+    def visit_Declaration(self, declaration: Declaration):
+        self.visit(declaration.mode)
+        self.visit(declaration.init)
+        # TODO: Check if init expression matches mode.
+        # Check type
+        # Can init array/string? Check mem size.
+        for identifier in declaration.ids:
+            identifier.raw_type = declaration.mode.raw_type
+            identifier.memory_size = declaration.mode.memory_size
+            self.environment.declare_local(identifier)
 
     def visit_SynonymStatement(self, node):
         for syn in node.synonyms:
             self.visit(syn)
 
-    def visit_ProcedureStatement(self, node):
-        self.environment.add_local(node.label.name, node.label)
+    def visit_ProcedureStatement(self, procedure: ProcedureStatement):
+        self.environment.declare_procedure(procedure)
+        self.environment.start_new_level(procedure)
 
-        self.environment.push(node)
-        node.environment = self.environment
-        node.symtab = self.environment.peek()
+        definition = procedure.definition
+        parameters = definition.parameters
+        result = definition.result
+        statements = definition.statements
 
-        d = node.definition
+        ret = Identifier("_ret")
+        ret.raw_type = VoidType
+        ret.qual_type = IDQualType.none
 
-        if d.result is not None:
-            self.visit(d.result)
-            ret = Identifier("_ret")
-            ret.raw_type = d.result.raw_type
-            ret.qual_type = d.result.loc
-            self.environment.add_local(ret.name, ret)
-            # TODO: criar environment.setreturn
-        else:
-            ret = Identifier("_ret")
-            ret.raw_type = VoidType
-            ret.raw_type = IDQualType.none
-            self.environment.add_local(ret.name, ret)
+        if result is not None:
+            self.visit(result)
+            ret.raw_type = result.raw_type
+            ret.qual_type = result.qual_type
 
-        node.label.raw_type = ret.raw_type
+        self.environment.declare_label(ret)
 
-        self.visit(node.definition)
-        self.environment.pop()
+        procedure.label.raw_type = ret.raw_type
 
-    def visit_ProcedureDefinition(self, node):
-        for p in node.params:
+        for p in parameters:
             self.visit(p)
-        for s in node.stmts:
+        for s in statements:
             self.visit(s)
 
-    def visit_FormalParameter(self, node):
-        self.visit(node.spec)
+        ret.displacement = self.environment.current_procedures.parameters_count
 
-        for id in node.ids:
-            # TODO: Check init type == mode.raw_type
-            self.visit(id)
-            id.scope = self.environment.scope_level()
-            id.raw_type = node.spec.mode.raw_type
-            id.qual_type = node.spec.loc
-            self.environment.add_local(id.name, id)
-            #TODO: criar environment.add.formalparameter
+        self.environment.end_current_level()
 
-    # def visit_SynonymStatement(self, node, level):
-    #     # Visit all of the synonyms
-        # for syn in node.syns:
-        #     self.visit(syn)
+    def visit_FormalParameter(self, parameter):
+        self.visit(parameter.spec)
+
+        for identifier in parameter.ids:
+            identifier.raw_type = parameter.spec.mode.raw_type
+            identifier.memory_size = parameter.spec.mode.memory_size
+            identifier.qual_type = parameter.spec.loc
+            self.environment.declare_formal_parameter(identifier)
 
     # def visit_UnaryExpr(self, node):
     #     self.visit(node.expr)
@@ -182,9 +164,3 @@ class Visitor(ASTNodeVisitor):
     #     raw_type = self.raw_type_binary(node, node.op, node.left, node.right)
     #     # Assign the result type
     #     node.raw_type = raw_type
-# def decorate_DeclarationStatement(self, node):
-    #     node.environment.add_local(node.i)
-    #     pass
-
-    # def decorate_Identifier(self, node):
-    #     node.displacement = 1

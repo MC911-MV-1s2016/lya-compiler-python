@@ -11,7 +11,7 @@
 # ------------------------------------------------------------
 
 
-from .lyabuiltins import *
+from .lya_builtins import *
 from .lya_ast import ASTNode
 
 __all__ = [

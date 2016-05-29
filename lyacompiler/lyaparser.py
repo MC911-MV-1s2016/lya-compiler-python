@@ -787,10 +787,6 @@ class LyaParser(object):
         else:
             p[0] = ParameterSpec(p[1], IDQualType.loc)
 
-    # def p_parameter_attribute(self, p):
-    #     """parameter_attribute : LOC"""
-    #     p[0] = ('ParameterAttribute', p[1])
-
     def p_result_spec_attr(self, p):
         """result_spec : RETURNS LPAREN mode LOC RPAREN"""
         p[0] = ResultSpec(p[3], IDQualType.loc)
@@ -798,10 +794,6 @@ class LyaParser(object):
     def p_result_spec(self, p):
         """result_spec : RETURNS LPAREN mode RPAREN"""
         p[0] = ResultSpec(p[3], IDQualType.none)
-
-    # def p_result_attribute(self, p):
-    #     """result_attribute : LOC"""
-    #     p[0] = ("ResultAttribute", p[1])
 
     # Empty
 

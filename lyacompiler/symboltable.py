@@ -17,9 +17,9 @@ class SymbolTable(dict):
     provide functionality for adding and looking
     up nodes associated with identifiers.
     """
-    def __init__(self, decl=None):
+    def __init__(self, enclosure=None):
         super().__init__()
-        self.decl = decl
+        self.enclosure = enclosure
 
     def add(self, name, value):
         self[name] = value
@@ -28,6 +28,6 @@ class SymbolTable(dict):
         return self.get(name, None)
 
     def return_type(self):
-        if self.decl:
-            return self.decl.mode
+        if self.enclosure:
+            return self.enclosure.mode
         return None

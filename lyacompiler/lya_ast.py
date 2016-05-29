@@ -35,7 +35,7 @@ class ASTNode(object):
 
     _fields = []
     _raw_type_field = None
-    _debug_fields = ['name', 'value', 'scope', 'offset', 'displacement']
+    _debug_fields = ['name', 'value', 'scope_level', 'offset', 'displacement']
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
@@ -125,10 +125,6 @@ class ProcedureStatement(Statement):
         super().__init__(label, definition, **kwargs)
         self.label = label
         self.definition = definition
-
-
-class ActionStatement(Statement):
-    _fields = ['label', 'action']
 
 
 class Declaration(ASTNode):
@@ -223,7 +219,7 @@ class Identifier(ASTNode):
         super().__init__(name, **kwargs)
         self.name = name
         self.memory_size = 1
-        self.scope = None
+        self.scope_level = None
         self.displacement = None
         self.start = None
         self.stop = None
@@ -338,6 +334,10 @@ class UnOp(ASTNode):
 
 class ReferencedLocation(ASTNode):
     _fields = ['loc']
+
+
+class LabeledAction(Statement):
+    _fields = ['label', 'action']
 
 
 class Action(ASTNode):

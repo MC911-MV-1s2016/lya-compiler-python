@@ -17,6 +17,17 @@ from .lya_errors import *
 from .lya_builtins import *
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 class Visitor(ASTNodeVisitor):
     """
     Program Visitor class. This class uses the visitor pattern as
@@ -35,7 +46,7 @@ class Visitor(ASTNodeVisitor):
         try:
             super().visit(node)
         except LyaError as err:
-            print(err)
+            print(bcolors.WARNING + str(err) + bcolors.ENDC)
             self.errors.append(err)
             exit()
         else:
@@ -45,25 +56,10 @@ class Visitor(ASTNodeVisitor):
             # Called always.
             pass
 
-    # Private
+    @property
+    def current_scope(self):
+        return self.environment.current_scope
 
-    # TODO: RawType Mode
-    # TODO: TypeChecker Class
-    def _raw_type_id(self, ide):
-        name = "int"
-        t = self.environment.raw_type(name)
-        if t is None:
-            # TODO: Define and raise Undefined/Unrecognized Type Exception (name)
-            # TODO: Error function
-            raise TypeError
-        return t
-
-    def _declare_type(self, name, typee):
-        pass
-
-    # def error(self, a, b):
-    #     pass
-    #
     # def raw_type_unary(self, node, op, val):
     #     if hasattr(val, "check_type"):
     #         if op not in val.check_type.unary_ops:
@@ -88,11 +84,11 @@ class Visitor(ASTNodeVisitor):
     #     return left.check_type
 
     def visit_Program(self, program: Program):
-        self.environment.start_new_level(program)
+        self.environment.start_new_scope(program)
         for statement in program.statements:
             self.visit(statement)
-        program.offset = self.environment.current_scope.locals_count
-        self.environment.end_current_level()
+        program.offset = self.current_scope.locals_displacement
+        self.environment.end_current_scope()
 
     def visit_Declaration(self, declaration: Declaration):
         self.visit(declaration.mode)
@@ -102,16 +98,17 @@ class Visitor(ASTNodeVisitor):
         # Can init array/string? Check mem size.
         for identifier in declaration.ids:
             identifier.raw_type = declaration.mode.raw_type
+            # TODO: Calculate string/array size.
             identifier.memory_size = declaration.mode.memory_size
-            self.environment.declare_local(identifier)
+            self.current_scope.add_declaration(identifier, declaration)
 
     def visit_SynonymStatement(self, node):
         for syn in node.synonyms:
             self.visit(syn)
 
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
-        self.environment.declare_procedure(procedure)
-        self.environment.start_new_level(procedure)
+        self.current_scope.add_procedure(procedure.label, procedure)
+        self.environment.start_new_scope(procedure)
 
         definition = procedure.definition
         parameters = definition.parameters
@@ -127,7 +124,7 @@ class Visitor(ASTNodeVisitor):
             ret.raw_type = result.raw_type
             ret.qual_type = result.qual_type
 
-        self.environment.declare_label(ret)
+        self.current_scope.add_return(ret)
 
         procedure.label.raw_type = ret.raw_type
 
@@ -136,18 +133,19 @@ class Visitor(ASTNodeVisitor):
         for s in statements:
             self.visit(s)
 
-        ret.displacement = self.environment.current_procedures.parameters_count
+        ret.displacement = self.current_scope.parameters_displacement
 
-        self.environment.end_current_level()
+        self.environment.end_current_scope()
 
-    def visit_FormalParameter(self, parameter):
+    def visit_FormalParameter(self, parameter: FormalParameter):
         self.visit(parameter.spec)
 
         for identifier in parameter.ids:
             identifier.raw_type = parameter.spec.mode.raw_type
+            # TODO: Calculate memory size for string/arrays
             identifier.memory_size = parameter.spec.mode.memory_size
             identifier.qual_type = parameter.spec.loc
-            self.environment.declare_formal_parameter(identifier)
+            self.current_scope.add_parameter(identifier, parameter)
 
     # def visit_UnaryExpr(self, node):
     #     self.visit(node.expr)

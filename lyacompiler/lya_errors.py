@@ -22,6 +22,9 @@ __all__ = [
     'LyaUnknownError'
 ]
 
+# Index Out Of Range
+# FuncCall (Wrong Params)
+#
 
 class LyaError(Exception):
     """Base class for exceptions in the Lya compiler."""
@@ -60,14 +63,17 @@ class LyaTypeError(LyaError):
         expected_type -- The expected LyaType
     """
 
-    def __init__(self, lineno: int, current_type: LyaType, expected_type: LyaType):
+    def __init__(self, lineno: int, current_type: LyaType, expected_type: LyaType = None):
         self.lineno = lineno
         self.current_type = current_type
         self.expected_type = expected_type
 
     def __str__(self):
-        return "LyaTypeError ({0}): '{1}' received. " \
-               "Expected '{2}'.".format(self.lineno, self.current_type, self.expected_type)
+        if self.expected_type is None:
+            return "LyaTypeError ({0}): Undefined type '{1}'.".format(self.lineno, self.current_type)
+        else:
+            return "LyaTypeError ({0}): '{1}' received. " \
+                   "Expected '{2}'.".format(self.lineno, self.current_type, self.expected_type)
 
 
 class LyaOperationError(LyaError):

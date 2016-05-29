@@ -97,11 +97,11 @@ class LyaParser(object):
 
     def p_action_statement_label(self, p):
         """action_statement : label_id COLON action SEMICOL"""
-        p[0] = ActionStatement(p[1], p[3])
+        p[0] = LabeledAction(p[1], p[3])
 
     def p_action_statement(self, p):
         """action_statement : action SEMICOL"""
-        p[0] = ActionStatement(None, p[1])
+        p[0] = p[1]
 
     # Declaration --------------------------------------------------
 
@@ -212,7 +212,7 @@ class LyaParser(object):
         """reference_mode : REF mode"""
         p[0] = ReferenceMode(p[2])
 
-    def p_composite_mode_string(self, p):
+    def p_composite_mode(self, p):
         """composite_mode : string_mode
                           | array_mode"""
         p[0] = CompositeMode(p[1])

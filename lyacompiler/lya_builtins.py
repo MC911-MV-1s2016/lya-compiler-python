@@ -46,6 +46,7 @@ class LyaType(object):
         self.unary_opcodes = unary_opcodes
         self.binary_opcodes = binary_opcodes
         self.rel_opcodes = rel_opcodes
+        self.memory_size = 1
 
     def __str__(self):
         return self.name
@@ -58,6 +59,20 @@ class LyaType(object):
     def __ne__(self, other):
         return not (self == other)
 
+
+class LyaCompositeType(LyaType):
+    def __init__(self, name, unary_ops, binary_ops,
+                 rel_ops, unary_opcodes, binary_opcodes, rel_opcodes):
+        super().__init__(name, unary_ops, binary_ops,
+                         rel_ops, unary_opcodes, binary_opcodes, rel_opcodes)
+        self.name = name
+        self.unary_ops = unary_ops
+        self.binary_ops = binary_ops
+        self.rel_ops = rel_ops
+        self.unary_opcodes = unary_opcodes
+        self.binary_opcodes = binary_opcodes
+        self.rel_opcodes = rel_opcodes
+        self.memory_size = 1
 
 IntType = LyaType("int",
                   unary_ops={'+', '-'},
@@ -86,7 +101,7 @@ CharType = LyaType("char",
                    rel_opcodes={}
                    )
 
-StringType = LyaType("string",
+StringType = LyaType("chars",
                      unary_ops={},
                      binary_ops={'+'},
                      rel_ops={'==', '!='},
@@ -94,6 +109,15 @@ StringType = LyaType("string",
                      binary_opcodes={},
                      rel_opcodes={}
                      )
+
+VoidType = LyaType("void",
+                   unary_ops={},
+                   binary_ops={},
+                   rel_ops={},
+                   unary_opcodes={},
+                   binary_opcodes={},
+                   rel_opcodes={}
+                   )
 
 ArrayType = LyaType("array",
                     unary_ops={},
@@ -104,14 +128,6 @@ ArrayType = LyaType("array",
                     rel_opcodes={}
                     )
 
-VoidType = LyaType("void",
-                   unary_ops={},
-                   binary_ops={},
-                   rel_ops={},
-                   unary_opcodes={},
-                   binary_opcodes={},
-                   rel_opcodes={}
-                   )
 
 RefType = LyaType("ref",
                   unary_ops={"->"},

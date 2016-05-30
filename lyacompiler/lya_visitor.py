@@ -5,17 +5,16 @@
 # RA094139 - Marcelo Mingatos de Toledo
 # RA093175 - Victor Fernando Pompeo Barbosa
 #
-# lyavisitor.py
+# lya_visitor.py
 # Lya AST Nodes Visitor
 #
 # ------------------------------------------------------------
 
 from .astnodevisitor import ASTNodeVisitor
-from .lyaenvironment import Environment
+from .lya_environment import Environment
 from .lya_ast import *
-from .lya_errors import *
+from .lya_errors import LyaError, LyaAssignmentError
 from .lya_builtins import *
-
 
 class Visitor(ASTNodeVisitor):
     """
@@ -35,7 +34,7 @@ class Visitor(ASTNodeVisitor):
         try:
             super().visit(node)
         except LyaError as err:
-            print(err)
+            print(LyaColor.WARNING + str(err) + LyaColor.ENDC)
             self.errors.append(err)
             exit()
         else:
@@ -45,25 +44,10 @@ class Visitor(ASTNodeVisitor):
             # Called always.
             pass
 
-    # Private
+    @property
+    def current_scope(self):
+        return self.environment.current_scope
 
-    # TODO: RawType Mode
-    # TODO: TypeChecker Class
-    def _raw_type_id(self, ide):
-        name = "int"
-        t = self.environment.raw_type(name)
-        if t is None:
-            # TODO: Define and raise Undefined/Unrecognized Type Exception (name)
-            # TODO: Error function
-            raise TypeError
-        return t
-
-    def _declare_type(self, name, typee):
-        pass
-
-    # def error(self, a, b):
-    #     pass
-    #
     # def raw_type_unary(self, node, op, val):
     #     if hasattr(val, "check_type"):
     #         if op not in val.check_type.unary_ops:
@@ -88,30 +72,33 @@ class Visitor(ASTNodeVisitor):
     #     return left.check_type
 
     def visit_Program(self, program: Program):
-        self.environment.start_new_level(program)
+        self.environment.start_new_scope(program)
         for statement in program.statements:
             self.visit(statement)
-        program.offset = self.environment.current_scope.locals_count
-        self.environment.end_current_level()
+        self.environment.end_current_scope()
 
     def visit_Declaration(self, declaration: Declaration):
         self.visit(declaration.mode)
         self.visit(declaration.init)
-        # TODO: Check if init expression matches mode.
-        # Check type
-        # Can init array/string? Check mem size.
+        if declaration.init is not None:
+            if declaration.mode.raw_type != declaration.init.raw_type:
+                raise LyaAssignmentError(declaration.ids[0].lineno,
+                                         declaration.init.raw_type,
+                                         declaration.mode.raw_type)
         for identifier in declaration.ids:
             identifier.raw_type = declaration.mode.raw_type
+            # TODO: Calculate string/array size.
+            # Can init array/string? Check mem size.
             identifier.memory_size = declaration.mode.memory_size
-            self.environment.declare_local(identifier)
+            self.current_scope.add_declaration(identifier, declaration)
 
     def visit_SynonymStatement(self, node):
         for syn in node.synonyms:
             self.visit(syn)
 
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
-        self.environment.declare_procedure(procedure)
-        self.environment.start_new_level(procedure)
+        self.current_scope.add_procedure(procedure.label, procedure)
+        self.environment.start_new_scope(procedure)
 
         definition = procedure.definition
         parameters = definition.parameters
@@ -127,7 +114,7 @@ class Visitor(ASTNodeVisitor):
             ret.raw_type = result.raw_type
             ret.qual_type = result.qual_type
 
-        self.environment.declare_label(ret)
+        self.current_scope.add_return(ret)
 
         procedure.label.raw_type = ret.raw_type
 
@@ -136,18 +123,64 @@ class Visitor(ASTNodeVisitor):
         for s in statements:
             self.visit(s)
 
-        ret.displacement = self.environment.current_procedures.parameters_count
+        ret.displacement = self.current_scope.parameters_displacement
 
-        self.environment.end_current_level()
+        self.environment.end_current_scope()
 
-    def visit_FormalParameter(self, parameter):
+    def visit_FormalParameter(self, parameter: FormalParameter):
         self.visit(parameter.spec)
-
+        parameter.raw_type = parameter.spec.mode.raw_type
         for identifier in parameter.ids:
             identifier.raw_type = parameter.spec.mode.raw_type
+            # TODO: Calculate memory size for string/arrays
             identifier.memory_size = parameter.spec.mode.memory_size
             identifier.qual_type = parameter.spec.loc
-            self.environment.declare_formal_parameter(identifier)
+            self.current_scope.add_parameter(identifier, parameter)
+
+    # Mode
+
+    def visit_Mode(self, mode: Mode):
+        self.visit(mode.base_mode)
+        # TODO: If base_mode is Identifier (mode_name), check if defined as type
+        mode.raw_type = mode.base_mode.raw_type
+
+    def visit_DiscreteMode(self, discrete_mode: DiscreteMode):
+        discrete_mode.raw_type = LyaType.from_string(discrete_mode.name)
+
+    def visit_ReferenceMode(self, reference_mode: ReferenceMode):
+        self.visit(reference_mode.mode)
+        # TODO: Improve Reference Mode management (Ref RawType + Mode RaType)
+
+    def visit_CompositeMode(self, composite_mode: CompositeMode):
+        self.visit(composite_mode.mode)
+        # TODO: Improve Array/String Type (size and raw type)
+        if isinstance(composite_mode.mode, StringMode):
+            composite_mode.raw_type = StringType
+        elif isinstance(composite_mode.mode, ArrayMode):
+            composite_mode.raw_type = ArrayType
+
+    # Expression
+
+    def visit_Expression(self, expression: Expression):
+        self.visit(expression.sub_expression)
+        expression.raw_type = expression.sub_expression.raw_type
+
+    # Constans / Literals
+
+    def visit_IntegerConstant(self, iconst: IntegerConstant):
+        iconst.raw_type = IntType
+
+    def visit_BooleanConstant(self, bconst: BooleanConstant):
+        bconst.raw_type = BoolType
+
+    def visit_CharacterConstant(self, cconst: CharacterConstant):
+        cconst.raw_type = CharType
+
+    def visit_EmptyConstant(self, econst: EmptyConstant):
+        econst.raw_type = VoidType
+
+    def visit_StringConstant(self, sconst: StringConstant):
+        sconst.raw_type = StringType
 
     # def visit_UnaryExpr(self, node):
     #     self.visit(node.expr)

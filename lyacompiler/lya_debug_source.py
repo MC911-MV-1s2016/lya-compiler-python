@@ -235,6 +235,7 @@ p: proc (x int);
   dcl s int;
   s = m * x;
 end;
+dcl c char = 'c', s chars[20] = "banana", arr array[int] int;
 p(n);"""
 
 dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""

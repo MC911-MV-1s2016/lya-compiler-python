@@ -273,7 +273,6 @@ class LyaParser(object):
                     | array_slice
                     | call_action"""
         p[0] = Location(p[1])
-        # TODO: if location name, check if defined
 
     def p_location_name(self, p):
         """location_name : identifier"""
@@ -282,6 +281,7 @@ class LyaParser(object):
     def p_dereferenced_reference(self, p):
         """dereferenced_reference : location ARROW"""
         p[0] = DereferencedReference(p[1])
+        # TODO: check if location is RefType
 
     def p_string_element(self, p):
         """string_element : identifier LBRACK start_element RBRACK"""

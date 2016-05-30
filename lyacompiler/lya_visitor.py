@@ -13,7 +13,7 @@
 from .astnodevisitor import ASTNodeVisitor
 from .lya_environment import Environment
 from .lya_ast import *
-from .lya_errors import LyaError, LyaAssignmentError
+from .lya_errors import *
 from .lya_builtins import *
 
 class Visitor(ASTNodeVisitor):
@@ -47,6 +47,20 @@ class Visitor(ASTNodeVisitor):
     @property
     def current_scope(self):
         return self.environment.current_scope
+
+    def _lookup_identifier(self, identifier):
+        entry_identifier = self.current_scope.identifier_lookup(identifier.name)
+        if entry_identifier is None:
+            raise LyaNameError(identifier.lineno, identifier.name)
+        identifier.raw_type = entry_identifier.raw_type
+        identifier.memory_size = entry_identifier.memory_size
+        identifier.scope_level = entry_identifier.scope_level
+        identifier.displacement = entry_identifier.displacement
+        identifier.start = entry_identifier.start
+        identifier.stop = entry_identifier.stop
+        identifier.qual_type = entry_identifier.qual_type
+        return entry_identifier
+
 
     # def raw_type_unary(self, node, op, val):
     #     if hasattr(val, "check_type"):
@@ -85,6 +99,7 @@ class Visitor(ASTNodeVisitor):
                 raise LyaAssignmentError(declaration.ids[0].lineno,
                                          declaration.init.raw_type,
                                          declaration.mode.raw_type)
+        # TODO: Check if string init fits.
         for identifier in declaration.ids:
             identifier.raw_type = declaration.mode.raw_type
             # TODO: Calculate string/array size.
@@ -158,6 +173,14 @@ class Visitor(ASTNodeVisitor):
             composite_mode.raw_type = StringType
         elif isinstance(composite_mode.mode, ArrayMode):
             composite_mode.raw_type = ArrayType
+
+    # Location
+
+    def visit_Location(self, location: Location):
+        self.visit(location.type)
+        if isinstance(location.type, Identifier):
+            ident = self._lookup_identifier(location.type)
+        location.raw_type = location.type.raw_type
 
     # Expression
 

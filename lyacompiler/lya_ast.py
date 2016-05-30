@@ -248,6 +248,10 @@ class Identifier(ASTNode):
 class Location(ASTNode):
     _fields = ['type']
 
+    def __init__(self, type, **kwargs):
+        super().__init__(type, **kwargs)
+        self.type = type
+
 
 class DereferencedReference(ASTNode):
     _fields = ['loc']

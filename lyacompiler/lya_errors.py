@@ -74,8 +74,8 @@ class LyaNameError(LyaError):
         if self.previous_def is None:
             return "Name '{0}' not defined.".format(self.name)
         else:
-            return "Name '{0}' redefinition. Previously defined as" \
-                   "{1} at line {2}.".format(self.name,
+            return "Name '{0}' redefinition. Previously defined as " \
+                   "'{1}' at line {2}.".format(self.name,
                                              self.previous_def.raw_type,
                                              self.previous_def.lineno)
 

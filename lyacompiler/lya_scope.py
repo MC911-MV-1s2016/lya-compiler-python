@@ -145,7 +145,7 @@ class LyaScope(object):
     def _add_symbol(self, name, entry: SymbolEntry):
         prev_entry = self.symbols.lookup(name)
         if prev_entry is not None:
-            raise LyaNameError(entry.lineno, name, prev_entry.lineno)
+            raise LyaNameError(entry.lineno, name, prev_entry)
         self.symbols.add(name, entry)
         entry.identifier.scope_level = self.level
 

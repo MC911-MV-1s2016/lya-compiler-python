@@ -24,6 +24,7 @@ __all__ = [
     'LyaScope'
 ]
 
+
 @unique
 class SymbolType(Enum):
     declaration = 0
@@ -105,7 +106,7 @@ class LyaScope(object):
     :type synonyms: (str:SynonymDefinition)
     :type type_definitions: (str:LyaType)
     :type procedures: dict(str:ProcedureStatement)
-    :type labels: Identifier
+    :type labels: dict(str:Identifier)
     :type locals_displacement: int
     :type parameters_displacement: int
     :type tables: dict(SymbolType:SymbolTable)
@@ -114,9 +115,8 @@ class LyaScope(object):
     def __init__(self, enclosure=None, parent=None):
         self.enclosure = enclosure
         self.parent = parent
-        if parent is None:
-            self.level = 0
-        else:
+        self.level = 0
+        if parent is not None:
             self.level = parent.level + 1
         self.children = []
         self.symbols = SymbolTable(enclosure)
@@ -162,7 +162,7 @@ class LyaScope(object):
     def add_parameter(self, identifier: Identifier, parameter: FormalParameter):
         self._add_symbol(identifier.name, SymbolEntry.parameter(identifier))
         self.parameters.add(identifier.name, parameter)
-        identifier.displacement = self.parameters_displacement - 3
+        identifier.displacement = self.parameters_displacement
         self.parameters_displacement -= identifier.memory_size
 
     # Synonyms

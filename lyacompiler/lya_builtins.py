@@ -52,12 +52,30 @@ class LyaType(object):
         return self.name
 
     def __eq__(self, other):
-        if not isinstance(other, LyaType.__class__):
+        if not isinstance(other, LyaType):
             return False
         return self.name == other.name
 
     def __ne__(self, other):
         return not (self == other)
+
+    @staticmethod
+    def from_string(s):
+        if s == IntType.name:
+            return IntType
+        if s == CharType.name:
+            return CharType
+        if s == BoolType.name:
+            return BoolType
+        if s == StringType.name:
+            return StringType
+        if s == VoidType.name:
+            return VoidType
+        if s == ArrayType.name:
+            return ArrayType
+        if s == RefType.name:
+            return RefType
+        return None
 
 
 class LyaCompositeType(LyaType):

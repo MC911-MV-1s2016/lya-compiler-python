@@ -5,7 +5,7 @@
 # RA094139 - Marcelo Mingatos de Toledo
 # RA093175 - Victor Fernando Pompeo Barbosa
 #
-# lyalexer.py
+# lya_lexer.py
 # Tokenizer for the Lya scripting language.
 #
 # ------------------------------------------------------------

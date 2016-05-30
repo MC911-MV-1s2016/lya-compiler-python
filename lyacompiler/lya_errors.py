@@ -10,14 +10,16 @@
 #
 # ------------------------------------------------------------
 
-
+from . import LyaColor
 from .lya_builtins import *
 from .lya_ast import ASTNode
+# from .lya_scope import SymbolEntry
 
 __all__ = [
     'LyaError',
     'LyaNameError',
     'LyaTypeError',
+    'LyaAssignmentError',
     'LyaOperationError',
     'LyaUnknownError'
 ]
@@ -26,9 +28,31 @@ __all__ = [
 # FuncCall (Wrong Params)
 #
 
+
 class LyaError(Exception):
     """Base class for exceptions in the Lya compiler."""
-    pass
+
+    def __init__(self, lineno: int):
+        self.lineno = lineno
+
+    def __str__(self):
+        err_msg = "{0}{1} (line: {2}){3}".format(LyaColor.WARNING,
+                                                 self.class_name,
+                                                 self.lineno,
+                                                 LyaColor.ENDC)
+        message = self.message()
+        if message is not None:
+            err_msg = "{0}: {1}".format(err_msg, message)
+        return err_msg
+
+    @property
+    def class_name(self):
+        return self.__class__.__name__
+
+    def message(self):
+        return None
+
+# fun call err args, wrong number, wrong types
 
 
 class LyaNameError(LyaError):
@@ -37,21 +61,23 @@ class LyaNameError(LyaError):
     Attributes:
         lineno -- The line number where the exception was raised.
         name -- The name that raised the exception.
-        previous_def -- The line where name was previously defined.
+        previous_def -- The SymbolTable entry with the previous declaration.
             Defaults to None if name wasn't defined.
     """
 
-    def __init__(self, lineno: int, name: str, previous_def: int = None):
-        self.lineno = lineno
+    def __init__(self, lineno: int, name: str, previous_def=None):
+        super().__init__(lineno)
         self.name = name
         self.previous_def = previous_def
 
-    def __str__(self):
+    def message(self):
         if self.previous_def is None:
-            return "LyaNameError ({0}): name '{1}' not defined.".format(self.lineno, self.name)
+            return "Name '{0}' not defined.".format(self.name)
         else:
-            return "LyaNameError ({0}): name '{1}' redefinition. " \
-                   "Previous definition at line {2}.".format(self.lineno, self.name, self.previous_def)
+            return "Name '{0}' redefinition. Previously defined as" \
+                   "{1} at line {2}.".format(self.name,
+                                             self.previous_def.raw_type,
+                                             self.previous_def.lineno)
 
 
 class LyaTypeError(LyaError):
@@ -64,16 +90,33 @@ class LyaTypeError(LyaError):
     """
 
     def __init__(self, lineno: int, current_type: LyaType, expected_type: LyaType = None):
-        self.lineno = lineno
+        super().__init__(lineno)
         self.current_type = current_type
         self.expected_type = expected_type
 
-    def __str__(self):
+    def message(self):
         if self.expected_type is None:
-            return "LyaTypeError ({0}): Undefined type '{1}'.".format(self.lineno, self.current_type)
+            return "Undefined type '{0}'.".format(self.current_type)
         else:
-            return "LyaTypeError ({0}): '{1}' received. " \
-                   "Expected '{2}'.".format(self.lineno, self.current_type, self.expected_type)
+            return "Type '{0}' received. Expected '{1}'.".format(self.current_type,
+                                                                 self.expected_type)
+
+
+class LyaAssignmentError(LyaTypeError):
+    """Raised when trying to assign to location with incompatible type.
+
+    Attributes:
+        lineno -- The line number where the exception was raised.
+        current_type -- The actual LyaType that raised the error.
+        expected_type -- The expected LyaType
+    """
+
+    def __init__(self, lineno: int, current_type: LyaType, expected_type: LyaType):
+        super().__init__(lineno, current_type, expected_type)
+
+    def message(self):
+        return "Assigning '{0}' to '{1}'.".format(self.current_type,
+                                                  self.expected_type)
 
 
 class LyaOperationError(LyaError):
@@ -94,18 +137,19 @@ class LyaOperationError(LyaError):
         self.op = op
         self.right_type = right_type
 
-    def __str__(self):
+    def message(self):
         if self.op is None:
             return "Malformed LyaOperationError: missing op."
         if self.left_type is not None and self.right_type is not None:
-            return "LyaOperationError ({0}): Unsupported operation '{1}' between " \
-                   "'{2}' and '{3}'.".format(self.lineno, self.op, self.left_type, self.right_type)
+            return "Unsupported operation '{0}' between " \
+                   "'{1}' and '{2}'.".format(self.op,
+                                             self.left_type, self.right_type)
         if self.right_type is not None:
-            return "LyaOperationError ({0}): Unsupported left operation '{1}' " \
-                   "on '{2}'.".format(self.lineno, self.op, self.right_type)
+            return "Unsupported left operation '{0}' " \
+                   "on '{1}'.".format(self.op, self.right_type)
         if self.left_type is not None:
-            return "LyaOperationError ({0}): Unsupported right operation '{1}'" \
-                   " on '{2}'.".format(self.lineno, self.op, self.left_type)
+            return "Unsupported right operation '{0}'" \
+                   " on '{1}'.".format(self.op, self.left_type)
         return "Malformed LyaOperationError: missing left and right types."
 
 
@@ -118,8 +162,8 @@ class LyaUnknownError(LyaError):
     """
 
     def __init__(self, lineno: int, node: ASTNode):
-        self.lineno = lineno
+        super().__init__(lineno)
         self.node = node
 
-    def __str__(self):
-        return "LyaUnknownError ({0}): Node {1}.".format(self.lineno, self.node.class_name)
+    def message(self):
+        return "Node {1}.".format(self.node.class_name)

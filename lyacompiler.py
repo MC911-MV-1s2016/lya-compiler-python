@@ -51,8 +51,8 @@ class LyaCompiler(object):
 
     @staticmethod
     def _compile(source_code: str):
-        from lyacompiler.lyaparser import LyaParser
-        from lyacompiler.lyavisitor import Visitor
+        from lyacompiler.lya_parser import LyaParser
+        from lyacompiler.lya_visitor import Visitor
 
         print("\n--- Lya Source Code ---\n")
         i = 1

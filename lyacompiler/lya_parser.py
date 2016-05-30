@@ -6,14 +6,14 @@
 # RA094139 - Marcelo Mingatos de Toledo
 # RA093175 - Victor Fernando Pompeo Barbosa
 #
-# lyaparser.py
+# lya_parser.py
 # Parser and AST builder for the Lya scripting language.
 #
 # ------------------------------------------------------------
 
 from .ply import yacc
 
-from .lyalexer import LyaLexer
+from .lya_lexer import LyaLexer
 from .lya_ast import *
 
 
@@ -190,6 +190,7 @@ class LyaParser(object):
     def p_discrete_range_mode(self, p):
         """discrete_range_mode : identifier  LPAREN literal_range RPAREN
                                | discrete_mode LPAREN literal_range RPAREN"""
+        # TODO: identifier case, check like loc if defined
         p[0] = DiscreteRangeMode(p[1], p[3])
 
     def p_mode_name(self, p):
@@ -210,6 +211,7 @@ class LyaParser(object):
 
     def p_reference_mode(self, p):
         """reference_mode : REF mode"""
+        # TODO: check if mode_name is defined
         p[0] = ReferenceMode(p[2])
 
     def p_composite_mode(self, p):
@@ -271,6 +273,7 @@ class LyaParser(object):
                     | array_slice
                     | call_action"""
         p[0] = Location(p[1])
+        # TODO: if location name, check if defined
 
     def p_location_name(self, p):
         """location_name : identifier"""
@@ -282,6 +285,7 @@ class LyaParser(object):
 
     def p_string_element(self, p):
         """string_element : identifier LBRACK start_element RBRACK"""
+        # TODO: Check identifier as location if defined
         p[0] = StringElement(p[1], p[3])
 
     def p_start_element(self, p):
@@ -290,6 +294,7 @@ class LyaParser(object):
 
     def p_string_slice(self, p):
         """string_slice : identifier LBRACK left_element COLON right_element RBRACK"""
+        # TODO: Check identifier as location if defined
         p[0] = StringSlice(p[1], p[3], p[5])
 
     def p_left_element(self, p):
@@ -415,18 +420,17 @@ class LyaParser(object):
         """elsif_expression : ELSIF boolean_expression then_expression"""
         p[0] = ElsifExpression(None, p[2], p[3])
 
-    def p_operand0(self, p):
+    def p_operand0_operand1(self, p):
         """operand0 : operand1"""
         p[0] = p[1]
 
-    def p_operand0_op1(self, p):
-        """operand0 : operand0 operator1 operand1"""
-        p[0] = BinOp(p[1], p[2], p[3])
+    def p_operand0_relational_exp(self, p):
+        """operand0 : operand0 relational_operator operand1"""
+        p[0] = RelationalExpression(p[1], p[2], p[3])
 
-    def p_operator1(self, p):
-        """operator1 : relational_operator
-                     | membership_operator"""
-        p[0] = p[1]
+    def p_operand0_membership_exp(self, p):
+        """operand0 : operand0 membership_operator operand1"""
+        p[0] = MembershipExpression(p[1], p[2], p[3])
 
     def p_relational_operator(self, p):
         """relational_operator : AND
@@ -443,13 +447,13 @@ class LyaParser(object):
         """membership_operator : IN"""
         p[0] = p[1]
 
-    def p_operand1(self, p):
+    def p_operand1_operand2(self, p):
         """operand1 : operand2"""
         p[0] = p[1]
 
     def p_operand1_op2(self, p):
         """operand1 : operand1 operator2 operand2"""
-        p[0] = BinOp(p[1], p[2], p[3])
+        p[0] = BinaryExpression(p[1], p[2], p[3])
 
     def p_operator2(self, p):
         """operator2 : arithmetic_additive_operator
@@ -465,13 +469,13 @@ class LyaParser(object):
         """string_concatenation_operator : CONCAT"""
         p[0] = p[1]
 
-    def p_operand2(self, p):
+    def p_operand2_operand3(self, p):
         """operand2 : operand3"""
         p[0] = p[1]
 
     def p_operand2_op3(self, p):
         """operand2 : operand2 arithmetic_multiplicative_operator operand3"""
-        p[0] = BinOp(p[1], p[2], p[3])
+        p[0] = BinaryExpression(p[1], p[2], p[3])
 
     def p_arithmetic_multiplicative_operator(self, p):
         """arithmetic_multiplicative_operator : TIMES
@@ -481,11 +485,11 @@ class LyaParser(object):
 
     def p_operand3_uminus(self, p):
         """operand3 : MINUS operand4 %prec UMINUS"""
-        p[0] = UnOp(p[1], p[2])
+        p[0] = UnaryExpression(p[1], p[2])
 
     def p_operand3_monadic(self, p):
         """operand3 : NOT operand4"""
-        p[0] = UnOp(p[1], p[2])
+        p[0] = UnaryExpression(p[1], p[2])
 
     def p_operand3(self, p):
         """operand3 : operand4"""
@@ -676,6 +680,7 @@ class LyaParser(object):
 
     def p_procedure_call(self, p):
         """procedure_call : procedure_name LPAREN RPAREN"""
+        # TODO: Check if name defined as procedure
         p[0] = ProcCall(p[1], None)
 
     def p_parameter_list(self, p):
@@ -696,6 +701,7 @@ class LyaParser(object):
 
     def p_exit_action(self, p):
         """exit_action : EXIT label_id"""
+        # TODO: Check if defined as label
         p[0] = ExitAction(p[2])
 
     def p_return_action_result(self, p):

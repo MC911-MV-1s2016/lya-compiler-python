@@ -12,9 +12,9 @@
 
 
 from typing import List
-
 from enum import Enum, unique
-from .lya_builtins import VoidType
+
+from . import LyaColor
 
 
 @unique
@@ -35,12 +35,12 @@ class ASTNode(object):
 
     _fields = []
     _raw_type_field = None
-    _debug_fields = ['name', 'value', 'scope_level', 'offset', 'displacement']
+    _debug_fields = ['raw_type', 'name', 'value', 'scope_level', 'offset', 'displacement']
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
 
-        self.raw_type = VoidType
+        self.raw_type = None
 
         for name, value in zip(self._fields, args):
             setattr(self, name, value)
@@ -52,10 +52,12 @@ class ASTNode(object):
     def __str__(self):
         debug_data = self.debug_data()
 
-        s = self.class_name
+        s = "{0}{1}{2}".format(LyaColor.OKGREEN,
+                               self.class_name,
+                               LyaColor.ENDC)
 
         if debug_data is not None:
-            s = "{0}: {1}".format(self.class_name, debug_data)
+            s = "{0}: {1}".format(s, debug_data)
 
         lineno = getattr(self, "lineno", None)
 
@@ -151,17 +153,26 @@ class ModeDefinition(ASTNode):
 
 
 class Mode(ASTNode):
+    """
+    :type base_mode: Mode
+    """
+    _fields = ['base_mode']
 
-    _fields = ['type']
-
-    def __init__(self, type, *args, **kwargs):
-        super().__init__(type, *args, **kwargs)
-        self.type = type
+    def __init__(self, base_mode, *args, **kwargs):
+        super().__init__(base_mode, *args, **kwargs)
+        self.base_mode = base_mode
         self.memory_size = 1
 
 
 class DiscreteMode(Mode):
+    """
+    :type name: str
+    """
     _fields = ['name']
+
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        self.name = name
 
 
 class DiscreteRangeMode(ASTNode):
@@ -173,7 +184,15 @@ class LiteralRange(ASTNode):
 
 
 class ReferenceMode(Mode):
+    """
+    :type mode: Mode
+    """
+
     _fields = ['mode']
+
+    def __init__(self, mode, **kwargs):
+        super().__init__(mode, **kwargs)
+        self.mode = mode
 
 
 class CompositeMode(Mode):
@@ -296,6 +315,12 @@ class Assignment(ASTNode):
 class Expression(ASTNode):
     _fields = ['sub_expression']
 
+    # ConditionalExpression
+    # Constant
+    # ValueArrayElement
+    # ValueArraySlice
+    # Expression
+
 
 class ConditionalExpression(Expression):
     _fields = ['bool_expr', 'then_expr', 'elsif_expr', 'else_expr']
@@ -321,14 +346,22 @@ class ElsifExpression(Expression):
     _fields = ['elsif_expr', 'bool_expr', 'then_expr']
 
 
-class BinOp(ASTNode):
+class RelationalExpression(Expression):
+    _fields = ['l_value', 'op', 'r_value']
+
+
+class MembershipExpression(Expression):
+    _fields = ['l_value', 'op', 'r_value']
+
+
+class BinaryExpression(Expression):
     _fields = ['l_value', 'op', 'r_value']
 
     def debug_data(self):
         return self.op
 
 
-class UnOp(ASTNode):
+class UnaryExpression(Expression):
     _fields = ['op', 'value']
 
 

@@ -16,6 +16,9 @@ from .lya_builtins import *
 
 
 class Environment(object):
+    """
+    :type current_scope: LyaScope
+    """
     def __init__(self):
         self.current_scope = LyaScope()
         self.current_scope.level = -1
@@ -42,6 +45,7 @@ class Environment(object):
         enclosure.scope = self.current_scope
 
     def end_current_scope(self):
+        self.current_scope.enclosure.offset = self.current_scope.locals_displacement
         self.current_scope = self.current_scope.parent
 
     @property

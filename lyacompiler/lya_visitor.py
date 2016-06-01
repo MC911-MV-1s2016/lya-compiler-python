@@ -91,6 +91,8 @@ class Visitor(ASTNodeVisitor):
             self.visit(statement)
         self.environment.end_current_scope()
 
+    # Statement -------------------------------------------------
+
     def visit_Declaration(self, declaration: Declaration):
         self.visit(declaration.mode)
         self.visit(declaration.init)
@@ -108,8 +110,15 @@ class Visitor(ASTNodeVisitor):
             self.current_scope.add_declaration(identifier, declaration)
 
     def visit_SynonymStatement(self, node):
+        # TODO: Visit/decorate SynonymDef
         for syn in node.synonyms:
             self.visit(syn)
+
+    def visit_NewModeStatement(self, node):
+        for new_mode in node.new_modes:
+            self.visit(new_mode)
+
+    # Procedure ------------------------------------------
 
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
         self.current_scope.add_procedure(procedure.label, procedure)

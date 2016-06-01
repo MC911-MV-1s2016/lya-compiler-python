@@ -13,7 +13,7 @@
 from enum import Enum, unique
 
 from .symboltable import SymbolTable
-from .lya_ast import Identifier, ProcedureStatement, \
+from .lya_ast import ASTNode, Identifier, ProcedureStatement, \
     Declaration, SynonymDefinition, FormalParameter
 from .lya_builtins import *
 from .lya_errors import *
@@ -54,22 +54,27 @@ class SymbolType(Enum):
 
 
 class SymbolEntry(object):
+    """
+    :type symbol_type: SymbolType
+    :type identifier: Identifier
+    :type scope: LyaScope
+    """
 
     @classmethod
-    def declaration(cls, identifier: Identifier):
-        return cls(SymbolType.declaration, identifier)
+    def declaration(cls, identifier: Identifier, declaration: Declaration):
+        return cls(SymbolType.declaration, identifier, declaration)
 
     @classmethod
-    def parameter(cls, identifier: Identifier):
-        return cls(SymbolType.parameter, identifier)
+    def parameter(cls, identifier: Identifier, formal_parameter: FormalParameter):
+        return cls(SymbolType.parameter, identifier, formal_parameter)
 
     @classmethod
-    def synonym(cls, identifier: Identifier):
+    def synonym(cls, identifier: Identifier, synonym: SynonymDefinition):
         return cls(SymbolType.synonym, identifier)
 
     @classmethod
-    def type_definition(cls, identifier: Identifier):
-        return cls(SymbolType.type_definition, identifier)
+    def type_definition(cls, identifier: Identifier, raw_type: LyaType):
+        return cls(SymbolType.type_definition, identifier, raw_type)
 
     @classmethod
     def procedure(cls, identifier: Identifier):
@@ -79,9 +84,10 @@ class SymbolEntry(object):
     def label(cls, identifier: Identifier):
         return cls(SymbolType.label, identifier)
 
-    def __init__(self, symbol_type: SymbolType, identifier: Identifier):
+    def __init__(self, symbol_type: SymbolType, identifier: Identifier, scope: LyaScope):
         self.symbol_type = symbol_type
         self.identifier = identifier
+        self.scope = scope
 
     def __str__(self):
         return "{0} (at line:{1})".format()
@@ -180,7 +186,7 @@ class LyaScope(object):
     # Procedures
 
     def add_procedure(self, identifier: Identifier, procedure: ProcedureStatement):
-        self._add_symbol(identifier.name, SymbolEntry.procedure(identifier))
+        self._add_symbol(identifier.name, SymbolEntry.procedure(identifier), self)
         self.procedures.add(identifier.name, procedure)
 
     # Procedure return
@@ -215,6 +221,14 @@ class LyaScope(object):
         entry = self.entry_lookup(name)
         if entry is not None:
             return entry.raw_type
+        return None
+
+    def procedure_lookup(self, name):
+        entry = self.entry_lookup(name)
+        if entry is not None:
+            if entry.symbol_type != SymbolType.procedure:
+                # Atacar erro
+            return entry.scope.procedures.lookup(name)
         return None
 
     # def _lookup(self, identifier: Identifier, entry: SymbolEntry):

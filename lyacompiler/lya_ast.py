@@ -35,12 +35,13 @@ class ASTNode(object):
 
     _fields = []
     _raw_type_field = None
-    _debug_fields = ['raw_type', 'name', 'value', 'scope_level', 'offset', 'displacement']
+    _debug_fields = ['raw_type', 'ref_type', 'name', 'value', 'scope_level', 'offset', 'displacement']
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
 
         self.raw_type = None
+        self.ref_type = None
 
         for name, value in zip(self._fields, args):
             setattr(self, name, value)
@@ -85,6 +86,9 @@ class ASTNode(object):
             d = None
 
         return d
+
+    def copy_type(self, node):
+        pass
 
 
 class Program(ASTNode):

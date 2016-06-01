@@ -61,30 +61,30 @@ class SymbolEntry(object):
     """
 
     @classmethod
-    def declaration(cls, identifier: Identifier, declaration: Declaration):
-        return cls(SymbolType.declaration, identifier, declaration)
+    def declaration(cls, identifier: Identifier, scope):
+        return cls(SymbolType.declaration, identifier, scope)
 
     @classmethod
-    def parameter(cls, identifier: Identifier, formal_parameter: FormalParameter):
-        return cls(SymbolType.parameter, identifier, formal_parameter)
+    def parameter(cls, identifier: Identifier, scope):
+        return cls(SymbolType.parameter, identifier, scope)
 
     @classmethod
-    def synonym(cls, identifier: Identifier, synonym: SynonymDefinition):
-        return cls(SymbolType.synonym, identifier)
+    def synonym(cls, identifier: Identifier, scope):
+        return cls(SymbolType.synonym, identifier, scope)
 
     @classmethod
-    def type_definition(cls, identifier: Identifier, raw_type: LyaType):
-        return cls(SymbolType.type_definition, identifier, raw_type)
+    def type_definition(cls, identifier: Identifier, scope):
+        return cls(SymbolType.type_definition, identifier, scope)
 
     @classmethod
-    def procedure(cls, identifier: Identifier):
-        return cls(SymbolType.procedure, identifier)
+    def procedure(cls, identifier: Identifier, scope):
+        return cls(SymbolType.procedure, identifier, scope)
 
     @classmethod
-    def label(cls, identifier: Identifier):
-        return cls(SymbolType.label, identifier)
+    def label(cls, identifier: Identifier, scope):
+        return cls(SymbolType.label, identifier, scope)
 
-    def __init__(self, symbol_type: SymbolType, identifier: Identifier, scope: LyaScope):
+    def __init__(self, symbol_type: SymbolType, identifier: Identifier, scope):
         self.symbol_type = symbol_type
         self.identifier = identifier
         self.scope = scope
@@ -158,7 +158,7 @@ class LyaScope(object):
     # Declarations
 
     def add_declaration(self, identifier: Identifier, declaration: Declaration):
-        self._add_symbol(identifier.name, SymbolEntry.declaration(identifier))
+        self._add_symbol(identifier.name, SymbolEntry.declaration(identifier, self))
         self.declarations.add(identifier.name, declaration)
         identifier.displacement = self.locals_displacement
         self.locals_displacement += identifier.memory_size
@@ -166,7 +166,7 @@ class LyaScope(object):
     # Parameter
 
     def add_parameter(self, identifier: Identifier, parameter: FormalParameter):
-        self._add_symbol(identifier.name, SymbolEntry.parameter(identifier))
+        self._add_symbol(identifier.name, SymbolEntry.parameter(identifier, self))
         self.parameters.add(identifier.name, parameter)
         identifier.displacement = self.parameters_displacement
         self.parameters_displacement -= identifier.memory_size
@@ -174,31 +174,31 @@ class LyaScope(object):
     # Synonyms
     # Evaluated constant (int, char, bool, chars) (Array?)
     def add_synonym(self, identifier: Identifier, synonym: SynonymDefinition):
-        self._add_symbol(identifier.name, SymbolEntry.synonym(identifier))
+        self._add_symbol(identifier.name, SymbolEntry.synonym(identifier, self))
         self.synonyms.add(identifier.name, synonym)
 
     # Types
     # TODO: Improve new types management.
     def add_new_type(self, identifier: Identifier, raw_type: LyaType):
-        self._add_symbol(identifier.name, SymbolEntry.type_definition(identifier))
+        self._add_symbol(identifier.name, SymbolEntry.type_definition(identifier, self))
         self.type_definitions.add(identifier.name, raw_type)
 
     # Procedures
 
     def add_procedure(self, identifier: Identifier, procedure: ProcedureStatement):
-        self._add_symbol(identifier.name, SymbolEntry.procedure(identifier), self)
+        self._add_symbol(identifier.name, SymbolEntry.procedure(identifier, self))
         self.procedures.add(identifier.name, procedure)
 
     # Procedure return
 
     def add_return(self, identifier: Identifier):
-        self._add_symbol(identifier.name, SymbolEntry(SymbolType.ret, identifier))
+        self._add_symbol(identifier.name, SymbolEntry(SymbolType.ret, identifier, self))
         self.ret = identifier
 
     # Label
 
     def add_label(self, identifier: Identifier):
-        self._add_symbol(identifier.name, SymbolEntry.procedure(identifier))
+        self._add_symbol(identifier.name, SymbolEntry.procedure(identifier, self))
         self.labels.add(identifier.name, identifier)
 
     # Lookup
@@ -228,6 +228,7 @@ class LyaScope(object):
         if entry is not None:
             if entry.symbol_type != SymbolType.procedure:
                 # Atacar erro
+                pass
             return entry.scope.procedures.lookup(name)
         return None
 

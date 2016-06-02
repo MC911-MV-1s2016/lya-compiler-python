@@ -242,6 +242,7 @@ class LyaParser(object):
     def p_index_mode(self, p):
         """index_mode : discrete_mode
                       | literal_range"""
+        # Só aceitar literal_range
         p[0] = IndexMode(p[1])
 
     def p_element_mode(self, p):

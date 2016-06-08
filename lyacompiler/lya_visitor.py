@@ -219,7 +219,7 @@ class Visitor(ASTNodeVisitor):
         self.visit(expression.sub_expression)
         expression.raw_type = expression.sub_expression.raw_type
 
-    # Constans / Literals
+    # Constants / Literals
 
     def visit_IntegerConstant(self, iconst: IntegerConstant):
         iconst.raw_type = IntType

@@ -107,7 +107,7 @@ class LyaScope(object):
     :type parent: LyaScope
     :type level: int
     :type children: list[LyaScope]
-    :type symbols: dict(str:Identifier)
+    :type symbols: dict(str:SymbolEntry)
     :type declarations: dict(str:Declaration)
     :type synonyms: (str:SynonymDefinition)
     :type type_definitions: (str:LyaType)

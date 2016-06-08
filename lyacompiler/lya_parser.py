@@ -621,19 +621,19 @@ class LyaParser(object):
 
     def p_step_enumeration_stepvalue_down(self, p):
         """step_enumeration : loop_counter ASSIGN start_value step_value DOWN end_value"""
-        p[0] = StepEnumeration(p[1], p[3], p[4], True, p[6])
+        p[0] = StepEnumeration(p[1], p[3], p[4], True, p[6], lineno=p.lineno(2))
 
     def p_step_enumeration_stepvalue(self, p):
         """step_enumeration : loop_counter ASSIGN start_value step_value end_value"""
-        p[0] = StepEnumeration(p[1], p[3], p[4], False, p[5])
+        p[0] = StepEnumeration(p[1], p[3], p[4], False, p[5], lineno=p.lineno(2))
 
     def p_step_enumeration_down(self, p):
         """step_enumeration : loop_counter ASSIGN start_value DOWN end_value"""
-        p[0] = StepEnumeration(p[1], p[3], None, True, p[5])
+        p[0] = StepEnumeration(p[1], p[3], None, True, p[5], lineno=p.lineno(2))
 
     def p_step_enumeration(self, p):
         """step_enumeration : loop_counter ASSIGN start_value end_value"""
-        p[0] = StepEnumeration(p[1], p[3], None, False, p[4])
+        p[0] = StepEnumeration(p[1], p[3], None, False, p[4], lineno=p.lineno(2))
 
     def p_loop_counter(self, p):
         """loop_counter : identifier"""
@@ -665,7 +665,7 @@ class LyaParser(object):
 
     def p_while_control(self, p):
         """while_control : WHILE boolean_expression"""
-        p[0] = WhileControl(p[2])
+        p[0] = WhileControl(p[2], lineno=p.lineno(1))
 
     # Actions ------------------------------------------------------------
 
@@ -680,7 +680,6 @@ class LyaParser(object):
 
     def p_procedure_call(self, p):
         """procedure_call : procedure_name LPAREN RPAREN"""
-        # TODO: Check if name defined as procedure
         p[0] = ProcCall(p[1], list(), lineno=p.lineno(2))
 
     def p_parameter_list(self, p):

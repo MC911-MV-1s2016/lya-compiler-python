@@ -219,6 +219,41 @@ class Visitor(ASTNodeVisitor):
         self.visit(expression.sub_expression)
         expression.raw_type = expression.sub_expression.raw_type
 
+    # Do_Action
+
+    def visit_StepEnumeration(self, step: StepEnumeration):
+        entry = self.current_scope.entry_lookup(step.counter)
+
+        if entry is None:
+            raise LyaNameError(step.lineno, step.counter)
+
+        self.visit(step.start_val)
+        self.visit(step.step_val)
+        self.visit(end_val)
+
+        if step.start_val.raw_type != IntType:
+            raise LyaTypeError(step.lineno, step.start_val.raw_type, IntType)
+
+        if step.step_val.raw_type != IntType:
+            raise LyaTypeError(step.lineno, step.step_val.raw_type, IntType)
+
+        if step.end_val.raw_type != IntType:
+            raise LyaTypeError(step.lineno, step.end_val.raw_type, IntType)
+
+    def visit_RangeEnumeration(self, range_enum: RangeEnumeration):
+        entry = self.current_scope.entry_lookup(range_enum.counter)
+
+        if entry is None:
+            raise LyaNameError(range_enum.lineno, range_enum.counter)
+
+        self.visit(range_enum.mode)
+
+    def visit_WhileControl(self, ctrl : WhileControl):
+        self.visit(ctrl.expr)
+
+        if ctrl.expr.raw_type != BoolType:
+            raise LyaTypeError(ctrl.lineno, ctrl.expr.raw_type, BoolType)
+
     # Constants / Literals
 
     def visit_IntegerConstant(self, iconst: IntegerConstant):

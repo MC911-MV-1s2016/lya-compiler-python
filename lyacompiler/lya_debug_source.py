@@ -230,6 +230,14 @@ lya_source_do2 = """
     do for counter = 3 by 5 down to 8; od;
     """
 
+lya_source_do3 = """
+    dcl var int = 3;
+    do od;
+    do var = 2; od;
+    do while var; od;
+    do while 3; var = 32; od;
+    """
+
 test2_source = """dcl m int = 2, n int = 3;
 p: proc (x int);
   dcl s int;
@@ -238,7 +246,8 @@ end;
 dcl c char = 'c', s chars[20] = "banana", arr array[int] int;
 p(n);
 
-p(s);
+
+
 """
 
 dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""
@@ -247,4 +256,5 @@ dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 1
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test2_source
+# lya_debug_source = test2_source
+lya_debug_source = lya_source_do3

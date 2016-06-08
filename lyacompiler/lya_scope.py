@@ -223,12 +223,11 @@ class LyaScope(object):
             return entry.raw_type
         return None
 
-    def procedure_lookup(self, name):
+    def procedure_lookup(self, name, lineno: int):
         entry = self.entry_lookup(name)
         if entry is not None:
             if entry.symbol_type != SymbolType.procedure:
-                # Atacar erro
-                pass
+                raise LyaProcedureCallError(lineno, name, entry.symbol_type) #wrong type
             return entry.scope.procedures.lookup(name)
         return None
 

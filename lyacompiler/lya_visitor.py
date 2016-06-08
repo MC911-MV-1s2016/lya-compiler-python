@@ -210,7 +210,8 @@ class Visitor(ASTNodeVisitor):
     def visit_Location(self, location: Location):
         self.visit(location.type)
         if isinstance(location.type, Identifier):
-            ident = self._lookup_identifier(location.type)
+            identifier = self._lookup_identifier(location.type)
+
         location.raw_type = location.type.raw_type
 
     # Expression
@@ -234,8 +235,8 @@ class Visitor(ASTNodeVisitor):
         if step.start_val.raw_type != IntType:
             raise LyaTypeError(step.lineno, step.start_val.raw_type, IntType)
 
-        if step.step_val.raw_type != IntType:
-            raise LyaTypeError(step.lineno, step.step_val.raw_type, IntType)
+        if step.step_val.sub_expression.raw_type != IntType:
+            raise LyaTypeError(step.lineno, step.step_val.sub_expression.raw_type, IntType)
 
         if step.end_val.raw_type != IntType:
             raise LyaTypeError(step.lineno, step.end_val.raw_type, IntType)
@@ -248,11 +249,11 @@ class Visitor(ASTNodeVisitor):
 
         self.visit(range_enum.mode)
 
-    def visit_WhileControl(self, ctrl : WhileControl):
+    def visit_WhileControl(self, ctrl: WhileControl):
         self.visit(ctrl.expr)
 
-        if ctrl.expr.raw_type != BoolType:
-            raise LyaTypeError(ctrl.lineno, ctrl.expr.raw_type, BoolType)
+        if ctrl.expr.sub_expression.raw_type != BoolType:
+            raise LyaTypeError(ctrl.lineno, ctrl.expr.sub_expression.raw_type, BoolType)
 
     # Constants / Literals
 

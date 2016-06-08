@@ -458,7 +458,7 @@ class ResultAction(Action):
 
 
 class BuiltinCall(CallAction):
-    _fields = ['name', 'param']
+    _fields = ['name', 'params']
 
 
 class ProcedureDefinition(ASTNode):

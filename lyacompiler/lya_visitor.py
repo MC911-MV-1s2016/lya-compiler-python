@@ -61,6 +61,11 @@ class Visitor(ASTNodeVisitor):
         identifier.qual_type = entry_identifier.qual_type
         return entry_identifier
 
+    def _lookup_procedure(self, proc_call: ProcCall):
+        entry_procedure = self.current_scope.procedure_lookup(proc_call.name, proc_call.lineno)
+        if entry_procedure is None:
+            raise LyaNameError(proc_call.lineno, proc_call.name)
+        return entry_procedure
 
     # def raw_type_unary(self, node, op, val):
     #     if hasattr(val, "check_type"):
@@ -160,6 +165,23 @@ class Visitor(ASTNodeVisitor):
             identifier.memory_size = parameter.spec.mode.memory_size
             identifier.qual_type = parameter.spec.loc
             self.current_scope.add_parameter(identifier, parameter)
+
+    def visit_ProcCall(self, call: ProcCall):
+        for p in call.params:
+            self.visit(p)
+
+        proc_node = self._lookup_procedure(call)
+
+        if len(call.params) != len(proc_node.definition.parameters):
+            raise LyaProcedureCallError(call.lineno, call.name, None, len(call.params), len(proc_node.definition.parameters))
+
+        for i in range(len(call.params)):
+            a = call.params[i]
+            p = proc_node.definition.parameters[i]
+
+            if p.raw_type != a.raw_type:
+                raise LyaArgumentTypeError(call.lineno, call.name, i, a.raw_type, p.raw_type)
+
 
     # Mode
 

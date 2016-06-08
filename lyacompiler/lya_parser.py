@@ -676,12 +676,12 @@ class LyaParser(object):
 
     def p_procedure_call_parameter(self, p):
         """procedure_call : procedure_name LPAREN parameter_list RPAREN"""
-        p[0] = ProcCall(p[1], p[3])
+        p[0] = ProcCall(p[1], p[3], lineno=p.lineno(2))
 
     def p_procedure_call(self, p):
         """procedure_call : procedure_name LPAREN RPAREN"""
         # TODO: Check if name defined as procedure
-        p[0] = ProcCall(p[1], None)
+        p[0] = ProcCall(p[1], list(), lineno=p.lineno(2))
 
     def p_parameter_list(self, p):
         """parameter_list : parameter_list COMMA parameter

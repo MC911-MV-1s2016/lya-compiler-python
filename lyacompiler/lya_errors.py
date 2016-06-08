@@ -18,7 +18,9 @@ from .lya_ast import ASTNode
 __all__ = [
     'LyaError',
     'LyaNameError',
+    'LyaProcedureCallError',
     'LyaTypeError',
+    'LyaArgumentTypeError',
     'LyaAssignmentError',
     'LyaOperationError',
     'LyaUnknownError'
@@ -79,6 +81,32 @@ class LyaNameError(LyaError):
                                              self.previous_def.raw_type,
                                              self.previous_def.lineno)
 
+class LyaProcedureCallError(LyaError):
+    """Raised when something goes wrong with a procedure call.
+
+    Attributes:
+        lineno -- The line number where the exception was raised.
+        name -- Name of the function generating the error.
+        name_type -- When trying to call a procedure with a name already in use for
+                        another object type, 'name_type' holds its type.
+        wrong_num_arg -- The number of arguments of a function call, when it doesn't
+                        match the expected number of arguments.
+        right_num_arg -- The number of arguments expected when calling this function.
+    """
+
+    def __init__(self, lineno: int, name: str, name_type=None, wrong_num_arg=None, right_num_arg=None):
+        super().__init__(lineno)
+        self.name = name
+        self.name_type = name_type
+        self.wrong_num_arg = wrong_num_arg
+        self.right_num_arg = right_num_arg
+
+    def message(self):
+        if self.name_type is not None:
+            return "'{0}' object is not callable.".format(self.name)
+        if self.wrong_num_arg is not None:
+            return "Function '{0}' called with {1} arguments, while expecting {2} arguments.".format(self.name, self.wrong_num_arg, self.right_num_arg)
+
 
 class LyaTypeError(LyaError):
     """Raised when an operation or function is applied to an object of inappropriate type.
@@ -100,6 +128,32 @@ class LyaTypeError(LyaError):
         else:
             return "Type '{0}' received. Expected '{1}'.".format(self.current_type,
                                                                  self.expected_type)
+
+
+class LyaArgumentTypeError(LyaTypeError):
+    """Raised when a function argument doesn't match its expected type.
+
+    Attributes:
+        lineno -- The line number where the exception was raised.
+        name -- Name of the function generating the error.
+        current_type -- The actual LyaType that raised the error.
+        expected_type -- The expected LyaType
+    """
+
+    def __init__(self, lineno: int, name: str, pos: int,  current_type: LyaType, expected_type: LyaType = None):
+        super().__init__(lineno, current_type, expected_type)
+        self.name = name
+        self.position = pos
+        self.current_type = current_type
+        self.expected_type = expected_type
+
+    def message(self):
+        if self.expected_type is None:
+            return "Undefined type '{0}'.".format(self.current_type)
+        else:
+            return "When calling function '{0}', " \
+                   "argument {1} has type '{2}'. " \
+                   "Expected '{3}'.".format(self.name, self.position, self.current_type, self.expected_type)
 
 
 class LyaAssignmentError(LyaTypeError):

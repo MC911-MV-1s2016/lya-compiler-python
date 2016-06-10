@@ -349,15 +349,7 @@ class BooleanConstant(Constant):
 
 
 class CharacterConstant(Constant):
-    """
-    :type value: str
-    """
-
-    def __init__(self, value: str, **kwargs):
-        super().__init__(value, **kwargs)
-        self.raw_value = value[1:-1]        # Remove ""
-        self.length = len(self.raw_value)
-        self.heap_position = None
+    pass
 
 
 class EmptyConstant(Constant):
@@ -373,8 +365,7 @@ class StringConstant(Constant):
 
     def __init__(self, value: str, **kwargs):
         super().__init__(value, **kwargs)
-        self.raw_value = value[1:-1]        # Remove ""
-        self.length = len(self.raw_value)
+        self.length = len(value)
         self.heap_position = None
 
 

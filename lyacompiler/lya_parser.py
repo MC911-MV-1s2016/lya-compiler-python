@@ -352,7 +352,7 @@ class LyaParser(object):
 
     def p_character_literal(self, p):
         """character_literal : CCONST """
-        p[0] = CharacterConstant(p[1])
+        p[0] = CharacterConstant(p[1][1:-1])      # Removing ''
 
     def p_empty_literal(self, p):
         """empty_literal : NULL"""
@@ -360,7 +360,7 @@ class LyaParser(object):
 
     def p_character_string_literal_char(self, p):
         """character_string_literal : SCONST"""
-        p[0] = StringConstant(p[1])
+        p[0] = StringConstant(p[1][1:-1])   # Removing ""
 
     # Array
 

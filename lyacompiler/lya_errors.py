@@ -23,7 +23,7 @@ __all__ = [
     'LyaArgumentTypeError',
     'LyaAssignmentError',
     'LyaOperationError',
-    'LyaUnknownError'
+    'LyaGenericError'
 ]
 
 # Index Out Of Range
@@ -206,7 +206,7 @@ class LyaOperationError(LyaError):
         return "Malformed LyaOperationError: missing left and right types."
 
 
-class LyaUnknownError(LyaError):
+class LyaGenericError(LyaError):
     """Raised when an unknown exception was caught while visiting an ASTNode.
 
     Attributes:

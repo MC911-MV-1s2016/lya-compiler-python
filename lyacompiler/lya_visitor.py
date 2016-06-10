@@ -109,8 +109,7 @@ class Visitor(ASTNodeVisitor):
                                          declaration.mode.raw_type)
             if isinstance(declaration.mode.raw_type, LyaStringType):
                 if declaration.mode.raw_type.memory_size < declaration.init.raw_type.memory_size:
-                    # TODO: Raise Exception - Initialization doesn't fit.
-                    raise LyaUnknownError(declaration.ids[0].lineno,
+                    raise LyaGenericError(declaration.ids[0].lineno,
                                           declaration,
                                           "Initializing chars[{0}] "
                                           "with string[{1}] {2}.".format(declaration.mode.raw_type.memory_size,
@@ -228,14 +227,6 @@ class Visitor(ASTNodeVisitor):
         self.visit(reference_mode.mode)
         # TODO: Improve Reference Mode management (Ref RawType + Mode RaType)
 
-    # def visit_CompositeMode(self, composite_mode: CompositeMode):
-    #     self.visit(composite_mode.mode)
-    #     # TODO: Improve Array/String Type (size and raw type)
-    #     if isinstance(composite_mode.mode, StringMode):
-    #         composite_mode.raw_type = LTF.string_type()
-    #     elif isinstance(composite_mode.mode, ArrayMode):
-    #         composite_mode.raw_type = ArrayType
-
     def visit_StringMode(self, string_mode: StringMode):
         string_mode.raw_type = LTF.string_type(string_mode.length.value)
 
@@ -248,39 +239,45 @@ class Visitor(ASTNodeVisitor):
             self.visit(index_mode)
             if isinstance(index_mode, IntegerConstant):
                 if index_mode <= 0:
-                    # TODO: Throw Invalid Array Size Exception
-                    pass
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. "
+                                          "Array size must be greater than zero.")
                 array_ranges.append((0, index_mode.value - 1))
             elif isinstance(index_mode, LiteralRange):
-                # array[1:10] int
-
                 if index_mode.lower_bound.exp_value is None:
-                    # TODO: Accept expressions between iconsts and identifiers that are synonyms to ints.
-                    # TODO: Raise (IndexError) unsuported range lower bound - int value must be known at compile time
-                    pass
-
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. "
+                                          "Could not infer range lower bound integer value at compilation time.")
                 if index_mode.lower_bound.raw_type != LTF.int_type():
-                    # TODO: Raise (IndexError) - must be int
-                    pass
-
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. Invalid range lower bound type. "
+                                          "Received '{0}'. Expected '{1}'.".format(index_mode.lower_bound.raw_type,
+                                                                                   LTF.int_type()))
                 lb = index_mode.lower_bound.exp_value
 
                 if index_mode.upper_bound.exp_value is None:
-                    # TODO: Accept expressions between iconsts and identifiers that are synonyms to ints.
-                    # TODO: Raise unsuported range upper bound - int value must be known at compile time
-                    pass
-
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. "
+                                          "Could not infer range upper bound integer value at compilation time.")
                 if index_mode.upper_bound.raw_type != LTF.int_type():
-                    # TODO: Raise (IndexError) - must be int
-                    pass
-
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. Invalid range upper bound type. "
+                                          "Received '{0}'. Expected '{1}'.".format(index_mode.lower_bound.raw_type,
+                                                                                   LTF.int_type()))
                 ub = index_mode.upper_bound.exp_value
-                # array_ranges.append((lb, ub))
-                # TODO: Fix
-                array_ranges.append((1, 10))
+
+                # TODO: Validate lb and ub. (Size > 0. lb can be bigger than ub??)
+
+                array_ranges.append((lb, ub))
             else:
-                # TODO: Throw unsuported Array Index_Mode
-                pass
+                raise LyaGenericError(array_mode.lineno,
+                                      array_mode,
+                                      "Invalid array index_mode {0}.".format(array_mode.index_modes));
 
         array_mode.raw_type = LTF.array_type(array_mode.element_mode.raw_type, array_ranges)
 

@@ -244,7 +244,7 @@ p: proc (x int);
   s = m * x;
 end;
 p(n);
-dcl arr array[1:5] int;
+dcl arr array[1:12] int;
 
 dcl s chars[6] = "banana";
 """

@@ -258,6 +258,7 @@ class ArrayMode(CompositeMode):
     _fields = ['index_modes']
 
     def __init__(self, index_modes, element_mode: Mode, **kwargs):
+        self.lineno = None
         super().__init__(index_modes, **kwargs)
         self.index_modes = index_modes
         self.element_mode = element_mode

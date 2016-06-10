@@ -244,9 +244,11 @@ p: proc (x int);
   s = m * x;
 end;
 p(n);
-dcl arr array[1:12] int;
+dcl arr array[1:10] int;
 
 dcl s chars[6] = "banana";
+
+dcl b bool = true;
 """
 
 dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""

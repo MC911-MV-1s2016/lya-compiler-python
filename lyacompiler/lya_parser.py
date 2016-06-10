@@ -14,6 +14,7 @@
 from .ply import yacc
 
 from .lya_lexer import LyaLexer
+from .lya_errors import LyaSyntaxError
 from .lya_ast import *
 
 
@@ -818,7 +819,8 @@ class LyaParser(object):
 
     def p_error(self, p):
         try:
-            print("Syntax error at '%s'" % p.value)
-            print("Line: %d" % p.lineno)
-        except:
-            print("Syntax error")
+            print("\n" + LyaColor.WARNING + str(LyaSyntaxError(p.lineno, p.value)) + LyaColor.ENDC)
+        except Exception as err:
+            print("\n" + LyaColor.WARNING + str(LyaSyntaxError(None, p)) + LyaColor.ENDC)
+        finally:
+            exit()

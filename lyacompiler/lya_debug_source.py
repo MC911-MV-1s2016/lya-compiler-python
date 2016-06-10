@@ -239,18 +239,11 @@ lya_source_do3 = """
     """
 
 test2_source = """dcl m int = 2, n int = 3;
-p: proc (x int) returns (char);
+p: proc (x int);
   dcl s int;
   s = m * x;
-
-    dcl y bool;
-  result y;
 end;
-dcl c char = 'c', s chars[20] = "banana", arr array[int] int;
 p(n);
-
-
-
 """
 
 dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""

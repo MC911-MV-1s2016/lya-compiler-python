@@ -173,7 +173,10 @@ class LyaParser(object):
                          | boolean_mode
                          | character_mode
                          | discrete_range_mode"""
-        p[0] = DiscreteMode(p[1])
+        if isinstance(p[1], DiscreteRangeMode):
+            p[0] = p[1]
+        else:
+            p[0] = DiscreteMode(p[1])
 
     def p_integer_mode(self, p):
         """integer_mode : INT"""
@@ -217,7 +220,7 @@ class LyaParser(object):
     def p_composite_mode(self, p):
         """composite_mode : string_mode
                           | array_mode"""
-        p[0] = CompositeMode(p[1])
+        p[0] = p[1]
 
     def p_string_mode(self, p):
         """string_mode : CHARS LBRACK string_length RBRACK"""
@@ -225,11 +228,13 @@ class LyaParser(object):
 
     def p_string_length(self, p):
         """string_length : integer_literal"""
-        p[0] = StringLength(p[1])
+        p[0] = p[1]
 
     def p_array_mode(self, p):
         """array_mode : ARRAY LBRACK index_mode_list RBRACK element_mode"""
-        p[0] = ArrayMode(p[3], p[5])
+        p[0] = ArrayMode(p[3], p[5], lineno=p.lineno(1))
+
+    # To support array[10], add new rule ARRAY LBRACK integer_literal
 
     def p_index_mode_list(self, p):
         """index_mode_list : index_mode_list COMMA index_mode
@@ -240,13 +245,15 @@ class LyaParser(object):
             p[0] = p[1] + [p[3]]
 
     def p_index_mode(self, p):
-        """index_mode : discrete_mode
-                      | literal_range"""
-        p[0] = IndexMode(p[1])
+        """index_mode : literal_range"""
+        # """index_mode : discrete_mode
+        #               | literal_range"""
+        p[0] = p[1]
+        # Só aceitar literal_range com const_exp e iconst
 
     def p_element_mode(self, p):
         """element_mode : mode"""
-        p[0] = ElementMode(p[1])
+        p[0] = p[1]
 
     # Identifier ----------------------------------------------------
 
@@ -676,11 +683,12 @@ class LyaParser(object):
 
     def p_procedure_call_parameter(self, p):
         """procedure_call : procedure_name LPAREN parameter_list RPAREN"""
-        p[0] = ProcCall(p[1], p[3], lineno=p.lineno(2))
+        p[0] = ProcedureCall(p[1], p[3], lineno=p.lineno(2))
 
     def p_procedure_call(self, p):
         """procedure_call : procedure_name LPAREN RPAREN"""
-        p[0] = ProcCall(p[1], list(), lineno=p.lineno(2))
+        # TODO: Check if name defined as procedure
+        p[0] = ProcedureCall(p[1], list(), lineno=p.lineno(2))
 
     def p_parameter_list(self, p):
         """parameter_list : parameter_list COMMA parameter
@@ -696,7 +704,7 @@ class LyaParser(object):
 
     def p_procedure_name(self, p):
         """procedure_name : identifier"""
-        p[0] = p[1].name
+        p[0] = p[1]
 
     def p_exit_action(self, p):
         """exit_action : EXIT label_id"""

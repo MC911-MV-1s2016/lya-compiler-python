@@ -202,7 +202,6 @@ class LyaScope(object):
         if self.ret.raw_type != res.raw_type:
             raise LyaTypeError(res.lineno, res.result.raw_type, self.ret.raw_type)
 
-
     # Label
 
     def add_label(self, identifier: Identifier):
@@ -235,7 +234,7 @@ class LyaScope(object):
         entry = self.entry_lookup(name)
         if entry is not None:
             if entry.symbol_type != SymbolType.procedure:
-                raise LyaProcedureCallError(lineno, name, entry.symbol_type) #wrong type
+                raise LyaProcedureCallError(lineno, name, entry.symbol_type)
             return entry.scope.procedures.lookup(name)
         return None
 

@@ -78,8 +78,9 @@ class LyaNameError(LyaError):
         else:
             return "Name '{0}' redefinition. Previously defined as " \
                    "'{1}' at line {2}.".format(self.name,
-                                             self.previous_def.raw_type,
-                                             self.previous_def.lineno)
+                                               self.previous_def.raw_type,
+                                               self.previous_def.lineno)
+
 
 class LyaProcedureCallError(LyaError):
     """Raised when something goes wrong with a procedure call.
@@ -88,9 +89,9 @@ class LyaProcedureCallError(LyaError):
         lineno -- The line number where the exception was raised.
         name -- Name of the function generating the error.
         name_type -- When trying to call a procedure with a name already in use for
-                        another object type, 'name_type' holds its type.
+                     another object type, 'name_type' holds its type.
         wrong_num_arg -- The number of arguments of a function call, when it doesn't
-                        match the expected number of arguments.
+                         match the expected number of arguments.
         right_num_arg -- The number of arguments expected when calling this function.
     """
 

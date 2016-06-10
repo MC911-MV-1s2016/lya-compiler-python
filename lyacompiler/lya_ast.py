@@ -169,6 +169,8 @@ class SynonymDefinition(ASTNode):
         self.ids = ids
         self.mode = mode
         self.expr = expr
+
+
 # Visitar SynonymDefinition
     #Visita Expression e garantir q eh const (tem exp_value)
     #Visitar Mode, se existir
@@ -179,6 +181,8 @@ class SynonymDefinition(ASTNode):
         # Adicionar ao escopo
 
 # Visitar Expression.
+
+# Assign to define or type -> ilegal operation.
 
 class ModeDefinition(ASTNode):
     _fields = ['ids', 'mode']

@@ -261,18 +261,17 @@ class LyaTypeFactory(object):
 
 LTF = LyaTypeFactory
 
-# 0 - Parar em erro de sintaxe
+# 0 - Parar em erro de sintaxe - OK
 # 1 - Arrumar ASTNode para ter apenas um lya_type (no lugar do raw_type) - OK
 # 2 - Refatorar visitação para pegar tipos da factory (LTF) - OK
-# 3 - Adicionar inferred_val em ids (Inferidos de inicialização, defines...) -
 # 4 - Eval de expressions, se operandos forem números,
 #     vai jogando resultado parcial para cima, junto com tipo.
 #     Se encontrar location -> id -> int, ver se id tem inferred val, se não tiver
 #     não joga nenhum resultado parcial para cima, só tipo. ConstExpress não podem
 #     ter var no meio. Arrays tem q ter tamanho conhecido em tempo de compilação.
-# 5 - Visitar sinonimos (guardar inffere)
+# 5 - Visitar sinonimos (guardar syn_val)
 # 6 - Visitar Exps
-# 7 - Visitar Array: garantir range
+# 7 - Visitar Array: garantir range - OK
 # 8 - String - OK
 # 9 - Visitar typedefs
 # 10 - Visitar Locs

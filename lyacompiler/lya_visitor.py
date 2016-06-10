@@ -141,7 +141,7 @@ class Visitor(ASTNodeVisitor):
         if result is not None:
             self.visit(result)
             ret.raw_type = result.raw_type
-            ret.qual_type = result.qual_type
+            ret.qual_type = result.loc
 
         self.current_scope.add_return(ret)
 
@@ -182,6 +182,21 @@ class Visitor(ASTNodeVisitor):
             if p.raw_type != a.raw_type:
                 raise LyaArgumentTypeError(call.lineno, call.name, i, a.raw_type, p.raw_type)
 
+    def visit_ResultSpec(self, spec: ResultSpec):
+        self.visit(spec.mode)
+
+        spec.raw_type = spec.mode.raw_type
+
+    def visit_ReturnAction(self, ret: ReturnAction):
+        self.visit(ret.result)
+
+        self.current_scope.add_result(ret)
+
+
+    def visit_ResultAction(self, ret: ResultAction):
+        self.visit(ret.result)
+
+        self.current_scope.add_result(ret)
 
     # Mode
 
@@ -230,7 +245,7 @@ class Visitor(ASTNodeVisitor):
 
         self.visit(step.start_val)
         self.visit(step.step_val)
-        self.visit(end_val)
+        self.visit(step.end_val)
 
         if step.start_val.raw_type != IntType:
             raise LyaTypeError(step.lineno, step.start_val.raw_type, IntType)

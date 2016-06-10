@@ -162,7 +162,7 @@ class LyaScope(object):
         self._add_symbol(identifier.name, SymbolEntry.declaration(identifier, self))
         self.declarations.add(identifier.name, declaration)
         identifier.displacement = self.locals_displacement
-        self.locals_displacement += identifier.memory_size
+        self.locals_displacement += identifier.raw_type.memory_size
 
     # Parameter
 
@@ -170,7 +170,7 @@ class LyaScope(object):
         self._add_symbol(identifier.name, SymbolEntry.parameter(identifier, self))
         self.parameters.add(identifier.name, parameter)
         identifier.displacement = self.parameters_displacement
-        self.parameters_displacement -= identifier.memory_size
+        self.parameters_displacement -= identifier.raw_type.memory_size
 
     # Synonyms
     # Evaluated constant (int, char, bool, chars) (Array?)

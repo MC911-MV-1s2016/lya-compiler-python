@@ -63,7 +63,7 @@ class LyaCompiler(object):
         print("\n--- Lya Source Code EOF ---\n")
 
         # Generating AST
-        print("Parsing source code...")
+        print("Parsing source code...\n")
         parser = LyaParser()
         ast = parser.parse(source_code)
 

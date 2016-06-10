@@ -257,9 +257,9 @@ class LyaTypeFactory(object):
 LTF = LyaTypeFactory
 
 
-# 1 - Arrumar ASTNode para ter apenas um lya_type (no lugar do raw_type)
-# 2 - Refatorar visitação para pegar tipos da factory (LTF)
-# 3 - Adicionar inferred_val em ids (Inferidos de inicialização, defines...)
+# 1 - Arrumar ASTNode para ter apenas um lya_type (no lugar do raw_type) - OK
+# 2 - Refatorar visitação para pegar tipos da factory (LTF) - OK
+# 3 - Adicionar inferred_val em ids (Inferidos de inicialização, defines...) -
 # 4 - Eval de expressions, se operandos forem números,
 #     vai jogando resultado parcial para cima, junto com tipo.
 #     Se encontrar location -> id -> int, ver se id tem inferred val, se não tiver

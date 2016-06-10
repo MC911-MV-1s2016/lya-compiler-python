@@ -18,10 +18,9 @@ from . import LyaColor
 
 
 @unique
-class IDQualType(Enum):
+class QualifierType(Enum):
     none = 0
-    loc = 1
-    ref = 2
+    location = 1
 
 
 class ASTNode(object):
@@ -34,7 +33,14 @@ class ASTNode(object):
     """
 
     _fields = []
-    _debug_fields = ['raw_type', 'name', "exp_value", 'value', 'scope_level', 'offset', 'displacement']
+    _debug_fields = ['raw_type',        # LyaType: created or inherited
+                     'name',            # Node name
+                     'value',           # Value, usually on constant nodes
+                     "exp_value",       # When possible, expressions pre-computations
+                     'synonym_value',   # Identifier synonym value (assign, synonym)
+                     'scope_level',     # Node's scope depth.
+                     'offset',          # Memory 'slots' from scope base register
+                     'displacement']    # Displacement form base register
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
@@ -257,7 +263,7 @@ class Identifier(ASTNode):
     :type displacement: int
     :type start: int
     :type stop: int
-    :type qual_type: IDQualType
+    :type qual_type: QualifierType
     """
 
     _fields = ['name']
@@ -271,7 +277,7 @@ class Identifier(ASTNode):
         self.displacement = None
         self.start = None
         self.stop = None
-        self.qual_type = IDQualType.none
+        self.qual_type = QualifierType.none
 
 
 class Location(ASTNode):
@@ -541,7 +547,7 @@ class FormalParameter(ASTNode):
 class ParameterSpec(ASTNode):
     """
     :type mode: Mode
-    :type loc: IDQualType
+    :type loc: QualifierType
     """
 
     _fields = ['mode', 'loc']
@@ -555,7 +561,7 @@ class ParameterSpec(ASTNode):
 class ResultSpec(ASTNode):
     """
     :type mode: Mode
-    :type loc: IDQualType
+    :type loc: QualifierType
     """
 
     _fields = ['mode', 'loc']

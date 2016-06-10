@@ -137,7 +137,7 @@ class Visitor(ASTNodeVisitor):
 
         ret = Identifier("_ret")
         ret.raw_type = LTF.void_type()
-        ret.qual_type = IDQualType.none
+        ret.qual_type = QualifierType.none
 
         if result is not None:
             self.visit(result)

@@ -59,7 +59,7 @@ class Visitor(ASTNodeVisitor):
         identifier.displacement = entry_identifier.displacement
         identifier.start = entry_identifier.start
         identifier.stop = entry_identifier.stop
-        identifier.qual_type = entry_identifier.qual_type
+        identifier.qualifier = entry_identifier.qualifier
         return entry_identifier
 
     def _lookup_procedure(self, proc_call: ProcedureCall):
@@ -107,11 +107,20 @@ class Visitor(ASTNodeVisitor):
                 raise LyaAssignmentError(declaration.ids[0].lineno,
                                          declaration.init.raw_type,
                                          declaration.mode.raw_type)
-        # TODO: Check if string init fits.
+            if isinstance(declaration.mode.raw_type, LyaStringType):
+                if declaration.mode.raw_type.memory_size < declaration.init.raw_type.memory_size:
+                    # TODO: Raise Exception - Initialization doesn't fit.
+                    raise LyaUnknownError(declaration.ids[0].lineno,
+                                          declaration,
+                                          "Initializing chars[{0}] "
+                                          "with string[{1}] {2}.".format(declaration.mode.raw_type.memory_size,
+                                                                         declaration.init.raw_type.memory_size,
+                                                                         declaration.init.exp_value))
+
+            # TODO: Array Initialization?
+
         for identifier in declaration.ids:
             identifier.raw_type = declaration.mode.raw_type
-            # TODO: Calculate string/array size.
-            # Can init array/string? Check mem size.
             identifier.memory_size = declaration.mode.memory_size
             self.current_scope.add_declaration(identifier, declaration)
 
@@ -137,12 +146,12 @@ class Visitor(ASTNodeVisitor):
 
         ret = Identifier("_ret")
         ret.raw_type = LTF.void_type()
-        ret.qual_type = QualifierType.none
+        ret.qualifier = QualifierType.none
 
         if result is not None:
             self.visit(result)
             ret.raw_type = result.raw_type
-            ret.qual_type = result.loc
+            ret.qualifier = result.loc
 
         self.current_scope.add_return(ret)
 
@@ -164,7 +173,7 @@ class Visitor(ASTNodeVisitor):
             identifier.raw_type = parameter.spec.mode.raw_type
             # TODO: Calculate memory size for string/arrays
             identifier.memory_size = parameter.spec.mode.memory_size
-            identifier.qual_type = parameter.spec.loc
+            identifier.qualifier = parameter.spec.loc
             self.current_scope.add_parameter(identifier, parameter)
 
     def visit_ProcedureCall(self, call: ProcedureCall):
@@ -289,6 +298,8 @@ class Visitor(ASTNodeVisitor):
     def visit_Expression(self, expression: Expression):
         self.visit(expression.sub_expression)
         expression.raw_type = expression.sub_expression.raw_type
+        if isinstance(expression.sub_expression, Constant):
+            expression.exp_value = expression.sub_expression.value
 
     # Do_Action
 

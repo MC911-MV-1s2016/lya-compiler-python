@@ -15,7 +15,7 @@ from typing import List
 from enum import Enum, unique
 
 from . import LyaColor
-
+from .lya_builtins import LyaType
 
 @unique
 class QualifierType(Enum):
@@ -36,8 +36,9 @@ class ASTNode(object):
     _debug_fields = ['raw_type',        # LyaType: created or inherited
                      'name',            # Node name
                      'value',           # Value, usually on constant nodes
-                     "exp_value",       # When possible, expressions pre-computations
+                     'exp_value',       # When possible, expressions pre-computations
                      'synonym_value',   # Identifier synonym value (assign, synonym)
+                     'heap_position',   # String constant position on string heap
                      'scope_level',     # Node's scope depth.
                      'offset',          # Memory 'slots' from scope base register
                      'displacement']    # Displacement form base register
@@ -45,7 +46,7 @@ class ASTNode(object):
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
 
-        self.raw_type = None
+        self.raw_type = None    # type: LyaType
         self.exp_value = None
 
         for name, value in zip(self._fields, args):
@@ -83,10 +84,7 @@ class ASTNode(object):
             value = getattr(self, field, None)
             if value is not None:
                 if d is None:
-                    try:
-                        d = "{0}={1}".format(field, value)
-                    except Exception as err:
-                        print(err)
+                    d = "{0}={1}".format(field, value)
                 else:
                     d = "{0}, {1}={2}".format(d, field, value)
 
@@ -158,8 +156,29 @@ class Declaration(ASTNode):
 
 
 class SynonymDefinition(ASTNode):
+    """
+    :type ids: list[Identifier]
+    :type mode: Mode
+    :type init: Expression
+    """
+
     _fields = ['ids', 'mode', 'expr']
 
+    def __init__(self, ids, mode, expr, **kwargs):
+        super().__init__(ids, mode, expr, **kwargs)
+        self.ids = ids
+        self.mode = mode
+        self.expr = expr
+# Visitar SynonymDefinition
+    #Visita Expression e garantir q eh const (tem exp_value)
+    #Visitar Mode, se existir
+        #Bater raw_types
+    #Visitar identifiers
+        # Setar raw_type
+        # Setar synonym_value
+        # Adicionar ao escopo
+
+# Visitar Expression.
 
 class ModeDefinition(ASTNode):
     _fields = ['ids', 'mode']
@@ -263,7 +282,8 @@ class Identifier(ASTNode):
     :type displacement: int
     :type start: int
     :type stop: int
-    :type qual_type: QualifierType
+    :type qualifier: QualifierType
+    :type synonym_value: int, str, bool
     """
 
     _fields = ['name']
@@ -272,12 +292,12 @@ class Identifier(ASTNode):
         self.lineno = None
         super().__init__(name, **kwargs)
         self.name = name
-        self.memory_size = 1
         self.scope_level = None
         self.displacement = None
-        self.start = None
+        self.start = None #range
         self.stop = None
-        self.qual_type = QualifierType.none
+        self.qualifier = QualifierType.none
+        self.synonym_value = None
 
 
 class Location(ASTNode):
@@ -329,7 +349,15 @@ class BooleanConstant(Constant):
 
 
 class CharacterConstant(Constant):
-    pass
+    """
+    :type value: str
+    """
+
+    def __init__(self, value: str, **kwargs):
+        super().__init__(value, **kwargs)
+        self.raw_value = value[1:-1]        # Remove ""
+        self.length = len(self.raw_value)
+        self.heap_position = None
 
 
 class EmptyConstant(Constant):
@@ -345,7 +373,8 @@ class StringConstant(Constant):
 
     def __init__(self, value: str, **kwargs):
         super().__init__(value, **kwargs)
-        self.length = len(value)
+        self.raw_value = value[1:-1]        # Remove ""
+        self.length = len(self.raw_value)
         self.heap_position = None
 
 
@@ -372,6 +401,10 @@ class Expression(ASTNode):
     # ValueArrayElement
     # ValueArraySlice
     # Expression
+
+    # def __init__(self, sub_expression, **kwargs):
+    #     super().__init__(sub_expression, **kwargs)
+    #     self.sub_expression = sub_expression
 
 
 class ConditionalExpression(Expression):
@@ -414,6 +447,9 @@ class BinaryExpression(Expression):
 
 
 class UnaryExpression(Expression):
+    """
+
+    """
     _fields = ['op', 'value']
 
 

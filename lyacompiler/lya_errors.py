@@ -214,9 +214,12 @@ class LyaUnknownError(LyaError):
         node - The ASTNode whose visitor raised an unhandled exception.
     """
 
-    def __init__(self, lineno: int, node: ASTNode):
+    def __init__(self, lineno: int, node: ASTNode, msg=None):
         super().__init__(lineno)
         self.node = node
+        self.msg = msg
 
     def message(self):
-        return "Node {1}.".format(self.node.class_name)
+        if self.msg is not None:
+            return "Node {0}. {1}".format(self.node.class_name, self.msg)
+        return "Node {0}.".format(self.node.class_name)

@@ -75,6 +75,7 @@ class LyaBaseType(LyaType):
             cls._instance = cls()
         return cls._instance
 
+    @property
     def memory_size(self):
         return 1
 
@@ -87,6 +88,7 @@ class LyaVoidType(LyaBaseType):
 
     _instance = None
 
+    @property
     def memory_size(self):
         return 0
 
@@ -159,6 +161,7 @@ class LyaRefType(LyaType):
     def name(self):
         return "{0} {1}".format(self._name, self.referenced_type.name)
 
+    @property
     def memory_size(self):
         return self.referenced_type.memory_size
 
@@ -185,9 +188,10 @@ class LyaArrayType(LyaRefType):
         super().__init__(element_type)
         self.index_range = index_range
         self.length = index_range[1] - index_range[0] + 1
-        self._memory_size = self.length * self.referenced_type.memory_size()
+        self._memory_size = self.length * self.referenced_type.memory_size
         pass
 
+    @property
     def memory_size(self):
         return self._memory_size
 
@@ -208,6 +212,7 @@ class LyaStringType(LyaType):
         super().__init__()
         self.length = length
 
+    @property
     def memory_size(self):
         return self.length
 
@@ -256,7 +261,7 @@ class LyaTypeFactory(object):
 
 LTF = LyaTypeFactory
 
-
+# 0 - Parar em erro de sintaxe
 # 1 - Arrumar ASTNode para ter apenas um lya_type (no lugar do raw_type) - OK
 # 2 - Refatorar visitação para pegar tipos da factory (LTF) - OK
 # 3 - Adicionar inferred_val em ids (Inferidos de inicialização, defines...) -
@@ -268,5 +273,9 @@ LTF = LyaTypeFactory
 # 5 - Visitar sinonimos (guardar inffere)
 # 6 - Visitar Exps
 # 7 - Visitar Array: garantir range
-# 8 - String
+# 8 - String - OK
 # 9 - Visitar typedefs
+# 10 - Visitar Locs
+# 11 - Visitar Assigns
+# 12 - Visitar Slices
+# 13 - Visitar

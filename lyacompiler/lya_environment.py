@@ -45,6 +45,10 @@ class Environment(object):
         enclosure.scope = self.current_scope
 
     def end_current_scope(self):
+        if self.current_scope.ret is not None:
+            if self.current_scope.result is None:
+                pass#raise LyaReturnError() #TODO
+
         self.current_scope.enclosure.offset = self.current_scope.locals_displacement
         self.current_scope = self.current_scope.parent
 

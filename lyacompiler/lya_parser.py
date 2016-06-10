@@ -705,15 +705,15 @@ class LyaParser(object):
 
     def p_return_action_result(self, p):
         """return_action : RETURN result"""
-        p[0] = ReturnAction(p[2])
+        p[0] = ReturnAction(p[2], lineno=p.lineno(1))
 
     def p_return_action(self, p):
         """return_action : RETURN"""
-        p[0] = ReturnAction(None)
+        p[0] = ReturnAction(None, lineno=p.lineno(1))
 
     def p_result_action(self, p):
         """result_action : RESULT result"""
-        p[0] = ResultAction(p[2])
+        p[0] = ResultAction(p[2], lineno=p.lineno(1))
 
     def p_result(self, p):
         """result : expression"""

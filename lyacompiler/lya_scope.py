@@ -143,6 +143,7 @@ class LyaScope(object):
             SymbolType.label: self.labels
         }
         self.ret = None
+        self.result = None #holds a node of the return call
 
     def add_child(self, scope):
         scope.parent = self
@@ -194,6 +195,13 @@ class LyaScope(object):
     def add_return(self, identifier: Identifier):
         self._add_symbol(identifier.name, SymbolEntry(SymbolType.ret, identifier, self))
         self.ret = identifier
+
+    def add_result(self, res: ASTNode):
+        self.result = res
+
+        if self.ret.raw_type != res.raw_type:
+            raise LyaTypeError(res.lineno, res.result.raw_type, self.ret.raw_type)
+
 
     # Label
 

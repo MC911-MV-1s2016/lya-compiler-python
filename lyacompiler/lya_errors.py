@@ -135,7 +135,6 @@ class LyaArgumentTypeError(LyaTypeError):
 
     Attributes:
         lineno -- The line number where the exception was raised.
-        name -- Name of the function generating the error.
         current_type -- The actual LyaType that raised the error.
         expected_type -- The expected LyaType
     """
@@ -151,9 +150,8 @@ class LyaArgumentTypeError(LyaTypeError):
         if self.expected_type is None:
             return "Undefined type '{0}'.".format(self.current_type)
         else:
-            return "When calling function '{0}', " \
-                   "argument {1} has type '{2}'. " \
-                   "Expected '{3}'.".format(self.name, self.position, self.current_type, self.expected_type)
+            return "Argument {0} has type '{1}'. " \
+                   "Expected '{2}'.".format(self.name, self.position, self.current_type, self.expected_type)
 
 
 class LyaAssignmentError(LyaTypeError):

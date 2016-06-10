@@ -16,6 +16,7 @@ from .lya_ast import *
 from .lya_errors import *
 from .lya_builtins import *
 
+
 class Visitor(ASTNodeVisitor):
     """
     Program Visitor class. This class uses the visitor pattern as
@@ -61,10 +62,10 @@ class Visitor(ASTNodeVisitor):
         identifier.qual_type = entry_identifier.qual_type
         return entry_identifier
 
-    def _lookup_procedure(self, proc_call: ProcCall):
-        entry_procedure = self.current_scope.procedure_lookup(proc_call.name, proc_call.lineno)
+    def _lookup_procedure(self, proc_call: ProcedureCall):
+        entry_procedure = self.current_scope.procedure_lookup(proc_call.identifier, proc_call.lineno)
         if entry_procedure is None:
-            raise LyaNameError(proc_call.lineno, proc_call.name)
+            raise LyaNameError(proc_call.lineno, proc_call.identifier.name)
         return entry_procedure
 
     # def raw_type_unary(self, node, op, val):
@@ -135,13 +136,13 @@ class Visitor(ASTNodeVisitor):
         statements = definition.statements
 
         ret = Identifier("_ret")
-        ret.raw_type = VoidType
+        ret.raw_type = LTF.void_type()
         ret.qual_type = IDQualType.none
 
         if result is not None:
             self.visit(result)
             ret.raw_type = result.raw_type
-            ret.qual_type = result.qual_type
+            ret.qual_type = result.loc
 
         self.current_scope.add_return(ret)
 
@@ -166,21 +167,25 @@ class Visitor(ASTNodeVisitor):
             identifier.qual_type = parameter.spec.loc
             self.current_scope.add_parameter(identifier, parameter)
 
-    def visit_ProcCall(self, call: ProcCall):
-        for p in call.params:
-            self.visit(p)
+    def visit_ProcedureCall(self, call: ProcedureCall):
 
-        proc_node = self._lookup_procedure(call)
+        for parameter in call.expressions:
+            self.visit(parameter)
 
-        if len(call.params) != len(proc_node.definition.parameters):
-            raise LyaProcedureCallError(call.lineno, call.name, None, len(call.params), len(proc_node.definition.parameters))
+        procedure_definition = self._lookup_procedure(call).definition
 
-        for i in range(len(call.params)):
-            a = call.params[i]
-            p = proc_node.definition.parameters[i]
+        n_procedure_parameters = len(procedure_definition.parameters)
+        n_call_parameters = len(call.expressions)
 
-            if p.raw_type != a.raw_type:
-                raise LyaArgumentTypeError(call.lineno, call.name, i, a.raw_type, p.raw_type)
+        if n_procedure_parameters != n_call_parameters:
+            raise LyaProcedureCallError(call.lineno, call.identifier.name, None, n_call_parameters, n_procedure_parameters)
+
+        for i in range(n_call_parameters):
+            expression = call.expressions[i]
+            parameter = procedure_definition.parameters[i]
+
+            if parameter.raw_type != expression.raw_type:
+                raise LyaArgumentTypeError(call.lineno, call.identifier.name, i, expression.raw_type, parameter.raw_type)
 
 
     # Mode
@@ -191,19 +196,69 @@ class Visitor(ASTNodeVisitor):
         mode.raw_type = mode.base_mode.raw_type
 
     def visit_DiscreteMode(self, discrete_mode: DiscreteMode):
-        discrete_mode.raw_type = LyaType.from_string(discrete_mode.name)
+        discrete_mode.raw_type = LTF.base_type_from_string(discrete_mode.name)
+
+    # TODO: Visit discrete range mode
 
     def visit_ReferenceMode(self, reference_mode: ReferenceMode):
         self.visit(reference_mode.mode)
         # TODO: Improve Reference Mode management (Ref RawType + Mode RaType)
 
-    def visit_CompositeMode(self, composite_mode: CompositeMode):
-        self.visit(composite_mode.mode)
-        # TODO: Improve Array/String Type (size and raw type)
-        if isinstance(composite_mode.mode, StringMode):
-            composite_mode.raw_type = StringType
-        elif isinstance(composite_mode.mode, ArrayMode):
-            composite_mode.raw_type = ArrayType
+    # def visit_CompositeMode(self, composite_mode: CompositeMode):
+    #     self.visit(composite_mode.mode)
+    #     # TODO: Improve Array/String Type (size and raw type)
+    #     if isinstance(composite_mode.mode, StringMode):
+    #         composite_mode.raw_type = LTF.string_type()
+    #     elif isinstance(composite_mode.mode, ArrayMode):
+    #         composite_mode.raw_type = ArrayType
+
+    def visit_StringMode(self, string_mode: StringMode):
+        string_mode.raw_type = LTF.string_type(string_mode.length.value)
+
+    def visit_ArrayMode(self, array_mode: ArrayMode):
+        array_ranges = []
+        self.visit(array_mode.element_mode)
+
+        for index_mode in array_mode.index_modes:
+            # array[10]
+            self.visit(index_mode)
+            if isinstance(index_mode, IntegerConstant):
+                if index_mode <= 0:
+                    # TODO: Throw Invalid Array Size Exception
+                    pass
+                array_ranges.append((0, index_mode.value - 1))
+            elif isinstance(index_mode, LiteralRange):
+                # array[1:10] int
+
+                if index_mode.lower_bound.exp_value is None:
+                    # TODO: Accept expressions between iconsts and identifiers that are synonyms to ints.
+                    # TODO: Raise (IndexError) unsuported range lower bound - int value must be known at compile time
+                    pass
+
+                if index_mode.lower_bound.raw_type != LTF.int_type():
+                    # TODO: Raise (IndexError) - must be int
+                    pass
+
+                lb = index_mode.lower_bound.exp_value
+
+                if index_mode.upper_bound.exp_value is None:
+                    # TODO: Accept expressions between iconsts and identifiers that are synonyms to ints.
+                    # TODO: Raise unsuported range upper bound - int value must be known at compile time
+                    pass
+
+                if index_mode.upper_bound.raw_type != LTF.int_type():
+                    # TODO: Raise (IndexError) - must be int
+                    pass
+
+                ub = index_mode.upper_bound.exp_value
+                # array_ranges.append((lb, ub))
+                # TODO: Fix
+                array_ranges.append((1, 10))
+            else:
+                # TODO: Throw unsuported Array Index_Mode
+                pass
+
+        array_mode.raw_type = LTF.array_type(array_mode.element_mode.raw_type, array_ranges)
 
     # Location
 
@@ -222,19 +277,20 @@ class Visitor(ASTNodeVisitor):
     # Constans / Literals
 
     def visit_IntegerConstant(self, iconst: IntegerConstant):
-        iconst.raw_type = IntType
+        iconst.raw_type = LTF.int_type()
 
     def visit_BooleanConstant(self, bconst: BooleanConstant):
-        bconst.raw_type = BoolType
+        bconst.raw_type = LTF.bool_type()
 
     def visit_CharacterConstant(self, cconst: CharacterConstant):
-        cconst.raw_type = CharType
+        cconst.raw_type = LTF.char_type()
 
     def visit_EmptyConstant(self, econst: EmptyConstant):
-        econst.raw_type = VoidType
+        econst.raw_type = LTF.void_type()
 
     def visit_StringConstant(self, sconst: StringConstant):
-        sconst.raw_type = StringType
+        sconst.heap_position = self.environment.store_string_constant(sconst.value)
+        sconst.raw_type = LTF.string_type(sconst.length)
 
     # def visit_UnaryExpr(self, node):
     #     self.visit(node.expr)

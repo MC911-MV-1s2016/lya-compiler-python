@@ -15,13 +15,13 @@ __all__ = [
     'LTF',
     'LyaTypeFactory',
     'LyaType',
-    'IntType',
-    'BoolType',
-    'CharType',
-    'StringType',
-    'ArrayType',
-    'VoidType',
-    'RefType'
+    'LyaIntType',
+    'LyaBoolType',
+    'LyaCharType',
+    'LyaStringType',
+    'LyaArrayType',
+    'LyaVoidType',
+    'LyaRefType'
 ]
 
 
@@ -151,10 +151,11 @@ class LyaRefType(LyaType):
     def __init__(self, referenced_type: LyaType):
         super().__init__()
         # TODO: Bloquear referenced_types não permitidos (como outro Ref)
-        self.referenced_type = referenced_type
+        self.referenced_type = referenced_type  # type : LyaType
 
     # TODO: Can assign <- other
 
+    @property
     def name(self):
         return "{0} {1}".format(self._name, self.referenced_type.name)
 
@@ -183,14 +184,15 @@ class LyaArrayType(LyaRefType):
             index_range = index_ranges[0]
         super().__init__(element_type)
         self.index_range = index_range
-        self.length = index_range[0] - index_range[1] + 1
-        self._memory_size = self.length * self.referenced_type.memory_size
+        self.length = index_range[1] - index_range[0] + 1
+        self._memory_size = self.length * self.referenced_type.memory_size()
+        pass
 
     def memory_size(self):
         return self._memory_size
 
 
-class LyaStringType(LyaArrayType):
+class LyaStringType(LyaType):
     """Lya Type that represents a string.
     """
 
@@ -202,12 +204,12 @@ class LyaStringType(LyaArrayType):
     _binary_opcodes = {}
     _rel_opcodes = {}
 
-    def __init__(self, length):
-        super().__init__(LyaCharType.get_instance())
+    def __init__(self, length: int):
+        super().__init__()
         self.length = length
 
     def memory_size(self):
-        return self.length * self.referenced_type.memory_size
+        return self.length
 
 
 class LyaTypeFactory(object):
@@ -215,32 +217,42 @@ class LyaTypeFactory(object):
     """
 
     @staticmethod
-    def void_type():
+    def void_type() -> LyaVoidType:
         return LyaVoidType.get_instance()
 
     @staticmethod
-    def int_type():
+    def int_type() -> LyaIntType:
         return LyaIntType.get_instance()
 
     @staticmethod
-    def bool_type():
+    def bool_type() -> LyaBoolType:
         return LyaBoolType.get_instance()
 
     @staticmethod
-    def char_type():
+    def char_type() -> LyaCharType:
         return LyaCharType.get_instance()
 
     @staticmethod
-    def ref_type(referenced_type: LyaType):
+    def ref_type(referenced_type: LyaType) -> LyaRefType:
         return LyaRefType(referenced_type)
 
     @staticmethod
-    def array_type(referenced_type: LyaType, index_ranges):
+    def array_type(referenced_type: LyaType, index_ranges) -> LyaArrayType:
         return LyaArrayType(referenced_type, index_ranges)
 
     @staticmethod
-    def string_type(length):
+    def string_type(length) -> LyaStringType:
         return LyaStringType(length)
+
+    @staticmethod
+    def base_type_from_string(name: str) -> LyaBaseType:
+        if name == LTF.int_type().name:
+            return LTF.int_type()
+        if name == LTF.bool_type().name:
+            return LTF.bool_type()
+        if name == LTF.char_type().name:
+            return LTF.char_type()
+        return None
 
 LTF = LyaTypeFactory
 

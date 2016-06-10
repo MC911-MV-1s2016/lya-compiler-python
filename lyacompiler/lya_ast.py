@@ -34,14 +34,13 @@ class ASTNode(object):
     """
 
     _fields = []
-    _raw_type_field = None
-    _debug_fields = ['raw_type', 'ref_type', 'name', 'value', 'scope_level', 'offset', 'displacement']
+    _debug_fields = ['raw_type', 'name', "exp_value", 'value', 'scope_level', 'offset', 'displacement']
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
 
         self.raw_type = None
-        self.ref_type = None
+        self.exp_value = None
 
         for name, value in zip(self._fields, args):
             setattr(self, name, value)
@@ -78,7 +77,10 @@ class ASTNode(object):
             value = getattr(self, field, None)
             if value is not None:
                 if d is None:
-                    d = "{0}={1}".format(field, value)
+                    try:
+                        d = "{0}={1}".format(field, value)
+                    except Exception as err:
+                        print(err)
                 else:
                     d = "{0}, {1}={2}".format(d, field, value)
 
@@ -148,6 +150,7 @@ class Declaration(ASTNode):
         self.mode = mode
         self.init = init
 
+
 class SynonymDefinition(ASTNode):
     _fields = ['ids', 'mode', 'expr']
 
@@ -157,13 +160,10 @@ class ModeDefinition(ASTNode):
 
 
 class Mode(ASTNode):
-    """
-    :type base_mode: Mode
-    """
     _fields = ['base_mode']
 
-    def __init__(self, base_mode, *args, **kwargs):
-        super().__init__(base_mode, *args, **kwargs)
+    def __init__(self, base_mode, **kwargs):
+        super().__init__(base_mode, **kwargs)
         self.base_mode = base_mode
         self.memory_size = 1
 
@@ -179,12 +179,21 @@ class DiscreteMode(Mode):
         self.name = name
 
 
-class DiscreteRangeMode(ASTNode):
-    _fields = ['var', 'lit_range']
+class DiscreteRangeMode(Mode):
+    _fields = ['name', 'literal_range']
 
 
 class LiteralRange(ASTNode):
-    _fields = ['lbound', 'ubound']
+    """
+    :type lower_bound: Expression
+    :type upper_bound: Expression
+    """
+    _fields = ['lower_bound', 'upper_bound']
+
+    def __init__(self, lower_bound: 'Expression', upper_bound: 'Expression', **kwargs):
+        super().__init__(lower_bound, upper_bound, **kwargs)
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
 
 
 class ReferenceMode(Mode):
@@ -200,23 +209,39 @@ class ReferenceMode(Mode):
 
 
 class CompositeMode(Mode):
-    _fields = ['mode']
+    pass
 
 
 class StringMode(CompositeMode):
-    _fields = ['strlen']
+    """
+    :type length: IntegerConstant
+    """
 
+    _fields = ['length']
 
-class StringLength(ASTNode):
-    _fields = ['len']
+    def __init__(self, length: 'IntegerConstant', **kwargs):
+        super().__init__(length, **kwargs)
+        self.length = length
 
 
 class ArrayMode(CompositeMode):
-    _fields = ['ids', 'mode']
+    """
+    :type index_modes: [LiteralRange]
+    :type element_mode: Mode
+    """
+
+    _fields = ['index_modes']
+
+    def __init__(self, index_modes, element_mode: Mode, **kwargs):
+        super().__init__(index_modes, **kwargs)
+        self.index_modes = index_modes
+        self.element_mode = element_mode
 
 
-class IndexMode(ASTNode):
-    _fields = ['mode']
+# class IndexMode(ASTNode):
+#     _fields = ['literal_range']
+#
+#     def __init__(self, literal_range):
 
 
 class ElementMode(ASTNode):
@@ -284,6 +309,10 @@ class ArraySlice(ASTNode):
 class Constant(ASTNode):
     _fields = ['value']
 
+    def __int__(self, value, **kwargs):
+        super().__init__(value, **kwargs)
+        self.value = value
+
 
 class IntegerConstant(Constant):
     pass
@@ -302,7 +331,16 @@ class EmptyConstant(Constant):
 
 
 class StringConstant(Constant):
-    pass
+    """
+    :type value: str
+    :type length: int
+    :type heap_position: int
+    """
+
+    def __init__(self, value: str, **kwargs):
+        super().__init__(value, **kwargs)
+        self.length = len(value)
+        self.heap_position = None
 
 
 class ValueArrayElement(ASTNode):
@@ -437,12 +475,18 @@ class CallAction(Action):
     pass
 
 
-class ProcCall(CallAction):
-    _fields = ['name', 'params']
+class ProcedureCall(CallAction):
+    """
+    :type identifier: Identifier
+    :type expressions: list[Expression]
+    """
+    _fields = ['name', 'expressions']
 
-
-# class Parameter(ASTNode):
-#     _fields = ['value']
+    def __init__(self, identifier, expressions, **kwargs):
+        self.lineno = None
+        super().__init__(identifier, expressions, **kwargs)
+        self.identifier = identifier
+        self.expressions = expressions
 
 
 class ExitAction(Action):

@@ -59,7 +59,7 @@ class Visitor(ASTNodeVisitor):
         identifier.displacement = entry_identifier.displacement
         identifier.start = entry_identifier.start
         identifier.stop = entry_identifier.stop
-        identifier.qual_type = entry_identifier.qual_type
+        identifier.qualifier = entry_identifier.qualifier
         return entry_identifier
 
     def _lookup_procedure(self, proc_call: ProcedureCall):
@@ -107,11 +107,19 @@ class Visitor(ASTNodeVisitor):
                 raise LyaAssignmentError(declaration.ids[0].lineno,
                                          declaration.init.raw_type,
                                          declaration.mode.raw_type)
-        # TODO: Check if string init fits.
+            if isinstance(declaration.mode.raw_type, LyaStringType):
+                if declaration.mode.raw_type.memory_size < declaration.init.raw_type.memory_size:
+                    raise LyaGenericError(declaration.ids[0].lineno,
+                                          declaration,
+                                          "Initializing chars[{0}] "
+                                          "with string[{1}] {2}.".format(declaration.mode.raw_type.memory_size,
+                                                                         declaration.init.raw_type.memory_size,
+                                                                         declaration.init.exp_value))
+
+            # TODO: Array Initialization?
+
         for identifier in declaration.ids:
             identifier.raw_type = declaration.mode.raw_type
-            # TODO: Calculate string/array size.
-            # Can init array/string? Check mem size.
             identifier.memory_size = declaration.mode.memory_size
             self.current_scope.add_declaration(identifier, declaration)
 
@@ -137,12 +145,12 @@ class Visitor(ASTNodeVisitor):
 
         ret = Identifier("_ret")
         ret.raw_type = LTF.void_type()
-        ret.qual_type = IDQualType.none
+        ret.qualifier = QualifierType.none
 
         if result is not None:
             self.visit(result)
             ret.raw_type = result.raw_type
-            ret.qual_type = result.loc
+            ret.qualifier = result.loc
 
         self.current_scope.add_return(ret)
 
@@ -164,7 +172,7 @@ class Visitor(ASTNodeVisitor):
             identifier.raw_type = parameter.spec.mode.raw_type
             # TODO: Calculate memory size for string/arrays
             identifier.memory_size = parameter.spec.mode.memory_size
-            identifier.qual_type = parameter.spec.loc
+            identifier.qualifier = parameter.spec.loc
             self.current_scope.add_parameter(identifier, parameter)
 
     def visit_ProcedureCall(self, call: ProcedureCall):
@@ -219,14 +227,6 @@ class Visitor(ASTNodeVisitor):
         self.visit(reference_mode.mode)
         # TODO: Improve Reference Mode management (Ref RawType + Mode RaType)
 
-    # def visit_CompositeMode(self, composite_mode: CompositeMode):
-    #     self.visit(composite_mode.mode)
-    #     # TODO: Improve Array/String Type (size and raw type)
-    #     if isinstance(composite_mode.mode, StringMode):
-    #         composite_mode.raw_type = LTF.string_type()
-    #     elif isinstance(composite_mode.mode, ArrayMode):
-    #         composite_mode.raw_type = ArrayType
-
     def visit_StringMode(self, string_mode: StringMode):
         string_mode.raw_type = LTF.string_type(string_mode.length.value)
 
@@ -239,39 +239,45 @@ class Visitor(ASTNodeVisitor):
             self.visit(index_mode)
             if isinstance(index_mode, IntegerConstant):
                 if index_mode <= 0:
-                    # TODO: Throw Invalid Array Size Exception
-                    pass
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. "
+                                          "Array size must be greater than zero.")
                 array_ranges.append((0, index_mode.value - 1))
             elif isinstance(index_mode, LiteralRange):
-                # array[1:10] int
-
                 if index_mode.lower_bound.exp_value is None:
-                    # TODO: Accept expressions between iconsts and identifiers that are synonyms to ints.
-                    # TODO: Raise (IndexError) unsuported range lower bound - int value must be known at compile time
-                    pass
-
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. "
+                                          "Could not infer range lower bound integer value at compilation time.")
                 if index_mode.lower_bound.raw_type != LTF.int_type():
-                    # TODO: Raise (IndexError) - must be int
-                    pass
-
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. Invalid range lower bound type. "
+                                          "Received '{0}'. Expected '{1}'.".format(index_mode.lower_bound.raw_type,
+                                                                                   LTF.int_type()))
                 lb = index_mode.lower_bound.exp_value
 
                 if index_mode.upper_bound.exp_value is None:
-                    # TODO: Accept expressions between iconsts and identifiers that are synonyms to ints.
-                    # TODO: Raise unsuported range upper bound - int value must be known at compile time
-                    pass
-
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. "
+                                          "Could not infer range upper bound integer value at compilation time.")
                 if index_mode.upper_bound.raw_type != LTF.int_type():
-                    # TODO: Raise (IndexError) - must be int
-                    pass
-
+                    raise LyaGenericError(array_mode.lineno,
+                                          array_mode,
+                                          "Invalid array mode. Invalid range upper bound type. "
+                                          "Received '{0}'. Expected '{1}'.".format(index_mode.lower_bound.raw_type,
+                                                                                   LTF.int_type()))
                 ub = index_mode.upper_bound.exp_value
-                # array_ranges.append((lb, ub))
-                # TODO: Fix
-                array_ranges.append((1, 10))
+
+                # TODO: Validate lb and ub. (Size > 0. lb can be bigger than ub??)
+
+                array_ranges.append((lb, ub))
             else:
-                # TODO: Throw unsuported Array Index_Mode
-                pass
+                raise LyaGenericError(array_mode.lineno,
+                                      array_mode,
+                                      "Invalid array index_mode {0}.".format(array_mode.index_modes));
 
         array_mode.raw_type = LTF.array_type(array_mode.element_mode.raw_type, array_ranges)
 
@@ -289,6 +295,8 @@ class Visitor(ASTNodeVisitor):
     def visit_Expression(self, expression: Expression):
         self.visit(expression.sub_expression)
         expression.raw_type = expression.sub_expression.raw_type
+        if isinstance(expression.sub_expression, Constant):
+            expression.exp_value = expression.sub_expression.value
 
     # Do_Action
 

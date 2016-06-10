@@ -15,13 +15,12 @@ from typing import List
 from enum import Enum, unique
 
 from . import LyaColor
-
+from .lya_builtins import LyaType
 
 @unique
-class IDQualType(Enum):
+class QualifierType(Enum):
     none = 0
-    loc = 1
-    ref = 2
+    location = 1
 
 
 class ASTNode(object):
@@ -34,12 +33,20 @@ class ASTNode(object):
     """
 
     _fields = []
-    _debug_fields = ['raw_type', 'name', "exp_value", 'value', 'scope_level', 'offset', 'displacement']
+    _debug_fields = ['raw_type',        # LyaType: created or inherited
+                     'name',            # Node name
+                     'value',           # Value, usually on constant nodes
+                     'exp_value',       # When possible, expressions pre-computations
+                     'synonym_value',   # Identifier synonym value (assign, synonym)
+                     'heap_position',   # String constant position on string heap
+                     'scope_level',     # Node's scope depth.
+                     'offset',          # Memory 'slots' from scope base register
+                     'displacement']    # Displacement form base register
 
     def __init__(self, *args, **kwargs):
         assert len(args) == len(self._fields)
 
-        self.raw_type = None
+        self.raw_type = None    # type: LyaType
         self.exp_value = None
 
         for name, value in zip(self._fields, args):
@@ -77,10 +84,7 @@ class ASTNode(object):
             value = getattr(self, field, None)
             if value is not None:
                 if d is None:
-                    try:
-                        d = "{0}={1}".format(field, value)
-                    except Exception as err:
-                        print(err)
+                    d = "{0}={1}".format(field, value)
                 else:
                     d = "{0}, {1}={2}".format(d, field, value)
 
@@ -152,8 +156,29 @@ class Declaration(ASTNode):
 
 
 class SynonymDefinition(ASTNode):
+    """
+    :type ids: list[Identifier]
+    :type mode: Mode
+    :type init: Expression
+    """
+
     _fields = ['ids', 'mode', 'expr']
 
+    def __init__(self, ids, mode, expr, **kwargs):
+        super().__init__(ids, mode, expr, **kwargs)
+        self.ids = ids
+        self.mode = mode
+        self.expr = expr
+# Visitar SynonymDefinition
+    #Visita Expression e garantir q eh const (tem exp_value)
+    #Visitar Mode, se existir
+        #Bater raw_types
+    #Visitar identifiers
+        # Setar raw_type
+        # Setar synonym_value
+        # Adicionar ao escopo
+
+# Visitar Expression.
 
 class ModeDefinition(ASTNode):
     _fields = ['ids', 'mode']
@@ -233,6 +258,7 @@ class ArrayMode(CompositeMode):
     _fields = ['index_modes']
 
     def __init__(self, index_modes, element_mode: Mode, **kwargs):
+        self.lineno = None
         super().__init__(index_modes, **kwargs)
         self.index_modes = index_modes
         self.element_mode = element_mode
@@ -257,7 +283,8 @@ class Identifier(ASTNode):
     :type displacement: int
     :type start: int
     :type stop: int
-    :type qual_type: IDQualType
+    :type qualifier: QualifierType
+    :type synonym_value: int, str, bool
     """
 
     _fields = ['name']
@@ -266,12 +293,12 @@ class Identifier(ASTNode):
         self.lineno = None
         super().__init__(name, **kwargs)
         self.name = name
-        self.memory_size = 1
         self.scope_level = None
         self.displacement = None
-        self.start = None
+        self.start = None #range
         self.stop = None
-        self.qual_type = IDQualType.none
+        self.qualifier = QualifierType.none
+        self.synonym_value = None
 
 
 class Location(ASTNode):
@@ -367,6 +394,10 @@ class Expression(ASTNode):
     # ValueArraySlice
     # Expression
 
+    # def __init__(self, sub_expression, **kwargs):
+    #     super().__init__(sub_expression, **kwargs)
+    #     self.sub_expression = sub_expression
+
 
 class ConditionalExpression(Expression):
     _fields = ['bool_expr', 'then_expr', 'elsif_expr', 'else_expr']
@@ -408,6 +439,9 @@ class BinaryExpression(Expression):
 
 
 class UnaryExpression(Expression):
+    """
+
+    """
     _fields = ['op', 'value']
 
 
@@ -541,7 +575,7 @@ class FormalParameter(ASTNode):
 class ParameterSpec(ASTNode):
     """
     :type mode: Mode
-    :type loc: IDQualType
+    :type loc: QualifierType
     """
 
     _fields = ['mode', 'loc']
@@ -555,7 +589,7 @@ class ParameterSpec(ASTNode):
 class ResultSpec(ASTNode):
     """
     :type mode: Mode
-    :type loc: IDQualType
+    :type loc: QualifierType
     """
 
     _fields = ['mode', 'loc']

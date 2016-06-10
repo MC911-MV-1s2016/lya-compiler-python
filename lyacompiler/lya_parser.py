@@ -14,6 +14,7 @@
 from .ply import yacc
 
 from .lya_lexer import LyaLexer
+from .lya_errors import LyaSyntaxError
 from .lya_ast import *
 
 
@@ -352,7 +353,7 @@ class LyaParser(object):
 
     def p_character_literal(self, p):
         """character_literal : CCONST """
-        p[0] = CharacterConstant(p[1])
+        p[0] = CharacterConstant(p[1][1:-1])      # Removing ''
 
     def p_empty_literal(self, p):
         """empty_literal : NULL"""
@@ -360,7 +361,7 @@ class LyaParser(object):
 
     def p_character_string_literal_char(self, p):
         """character_string_literal : SCONST"""
-        p[0] = StringConstant(p[1])
+        p[0] = StringConstant(p[1][1:-1])   # Removing ""
 
     # Array
 
@@ -796,17 +797,17 @@ class LyaParser(object):
         """parameter_spec : mode LOC
                           | mode"""
         if len(p) == 2:
-            p[0] = ParameterSpec(p[1], IDQualType.none)
+            p[0] = ParameterSpec(p[1], QualifierType.none)
         else:
-            p[0] = ParameterSpec(p[1], IDQualType.loc)
+            p[0] = ParameterSpec(p[1], QualifierType.location)
 
     def p_result_spec_attr(self, p):
         """result_spec : RETURNS LPAREN mode LOC RPAREN"""
-        p[0] = ResultSpec(p[3], IDQualType.loc)
+        p[0] = ResultSpec(p[3], QualifierType.location)
 
     def p_result_spec(self, p):
         """result_spec : RETURNS LPAREN mode RPAREN"""
-        p[0] = ResultSpec(p[3], IDQualType.none)
+        p[0] = ResultSpec(p[3], QualifierType.none)
 
     # Empty
 
@@ -818,7 +819,8 @@ class LyaParser(object):
 
     def p_error(self, p):
         try:
-            print("Syntax error at '%s'" % p.value)
-            print("Line: %d" % p.lineno)
-        except:
-            print("Syntax error")
+            print("\n" + LyaColor.WARNING + str(LyaSyntaxError(p.lineno, p.value)) + LyaColor.ENDC)
+        except Exception as err:
+            print("\n" + LyaColor.WARNING + str(LyaSyntaxError(None, p)) + LyaColor.ENDC)
+        finally:
+            exit()

@@ -23,7 +23,8 @@ __all__ = [
     'LyaArgumentTypeError',
     'LyaAssignmentError',
     'LyaOperationError',
-    'LyaUnknownError'
+    'LyaGenericError',
+    'LyaSyntaxError'
 ]
 
 # Index Out Of Range
@@ -38,9 +39,12 @@ class LyaError(Exception):
         self.lineno = lineno
 
     def __str__(self):
+        line = self.lineno
+        if self.lineno is None:
+            line = 'Unidentified'
         err_msg = "{0}{1} (line: {2}){3}".format(LyaColor.WARNING,
                                                  self.class_name,
-                                                 self.lineno,
+                                                 line,
                                                  LyaColor.ENDC)
         message = self.message()
         if message is not None:
@@ -206,17 +210,38 @@ class LyaOperationError(LyaError):
         return "Malformed LyaOperationError: missing left and right types."
 
 
-class LyaUnknownError(LyaError):
+class LyaGenericError(LyaError):
     """Raised when an unknown exception was caught while visiting an ASTNode.
 
     Attributes:
         lineno -- The line number where the exception was raised.
-        node - The ASTNode whose visitor raised an unhandled exception.
+        node -- The ASTNode whose visitor raised an unhandled exception.
     """
 
-    def __init__(self, lineno: int, node: ASTNode):
+    def __init__(self, lineno: int, node: ASTNode, msg=None):
         super().__init__(lineno)
         self.node = node
+        self.msg = msg
 
     def message(self):
-        return "Node {1}.".format(self.node.class_name)
+        if self.msg is not None:
+            return "Node {0}. {1}".format(self.node.class_name, self.msg)
+        return "Node {0}.".format(self.node.class_name)
+
+
+class LyaSyntaxError(LyaError):
+    """Raised when a syntax error was caught while parsing the lya source code.
+
+    Attributes:
+        lineno -- The line number where the exception was raised.
+        value -- The value, or production, that caused syntax error.
+    """
+
+    def __init__(self, lineno: int, value):
+        super().__init__(lineno)
+        self.value = value
+
+    def message(self):
+        if self.value is not None:
+            return "At '{0}'.".format(self.value)
+        return "Production p={0}".format(self.value)

@@ -35,6 +35,7 @@ class ASTNode(object):
     _fields = []
     _debug_fields = ['raw_type',        # LyaType: created or inherited
                      'name',            # Node name
+                     'operation',       # Un/Binary Expression Operation
                      'value',           # Value, usually on constant nodes
                      'exp_value',       # When possible, expressions pre-computations
                      'synonym_value',   # Identifier synonym value (assign, synonym)
@@ -157,18 +158,18 @@ class Declaration(ASTNode):
 
 class SynonymDefinition(ASTNode):
     """
-    :type ids: list[Identifier]
+    :type identifiers: list[Identifier]
     :type mode: Mode
-    :type init: Expression
+    :type initialization: Expression
     """
 
-    _fields = ['ids', 'mode', 'expr']
+    _fields = ['identifiers', 'mode', 'expression']
 
-    def __init__(self, ids, mode, expr, **kwargs):
-        super().__init__(ids, mode, expr, **kwargs)
-        self.ids = ids
+    def __init__(self, identifiers, mode, expression, **kwargs):
+        super().__init__(identifiers, mode, expression, **kwargs)
+        self.identifiers = identifiers
         self.mode = mode
-        self.expr = expr
+        self.expression = expression
 
 
 # Visitar SynonymDefinition
@@ -436,10 +437,19 @@ class MembershipExpression(Expression):
 
 
 class BinaryExpression(Expression):
-    _fields = ['l_value', 'op', 'r_value']
+    """
+    """
+    _fields = ['left', 'operation', 'right']
 
-    def debug_data(self):
-        return self.op
+    def __init__(self, left, operation, right, **kwargs):
+        self.lineno = None
+        super().__init__(left, operation, right, **kwargs)
+        self.left = left
+        self.operation = operation
+        self.right = right
+
+    # def debug_data(self):
+    #     return self.operation
 
 
 class UnaryExpression(Expression):
@@ -532,11 +542,27 @@ class ExitAction(Action):
 
 
 class ReturnAction(Action):
-    _fields = ['result']
+    """
+    :type result: Expression
+    """
+    _fields = ['expression']
+
+    def __init__(self, expression, **kwargs):
+        self.lineno = None
+        super().__init__(expression, **kwargs)
+        self.expression = expression
 
 
 class ResultAction(Action):
-    _fields = ['result']
+    """
+    :type result: Expression
+    """
+    _fields = ['expression']
+
+    def __init__(self, expression, **kwargs):
+        self.lineno = None
+        super().__init__(expression, **kwargs)
+        self.expression = expression
 
 
 class BuiltinCall(CallAction):

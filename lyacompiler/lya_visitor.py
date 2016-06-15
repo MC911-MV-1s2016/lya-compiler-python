@@ -54,12 +54,13 @@ class Visitor(ASTNodeVisitor):
         if entry_identifier is None:
             raise LyaNameError(identifier.lineno, identifier.name)
         identifier.raw_type = entry_identifier.raw_type
-        identifier.memory_size = entry_identifier.memory_size
+        # identifier.memory_size = entry_identifier.memory_size
         identifier.scope_level = entry_identifier.scope_level
         identifier.displacement = entry_identifier.displacement
         identifier.start = entry_identifier.start
         identifier.stop = entry_identifier.stop
         identifier.qualifier = entry_identifier.qualifier
+        identifier.synonym_value = entry_identifier.synonym_value
         return entry_identifier
 
     def _lookup_procedure(self, proc_call: ProcedureCall):
@@ -74,7 +75,36 @@ class Visitor(ASTNodeVisitor):
     #             self.error(node.lineno,
     #                   "Unary operator {} not supported".format(op))
     #         return val.check_type
-    #
+
+    def _get_binary_integer_side_value(self, side):
+        if isinstance(side, IntegerConstant):
+            return side.value
+        if isinstance(side, Location):
+            if isinstance(side.type, Identifier):
+                return side.type.synonym_value
+        return None
+
+    def _evaluate_binary_expression(self, operation, left, right):
+        """If possible, computes the binary expression.
+        Assumes semantic analysis was made
+        :param operation:
+        :param left:
+        :param right:
+        :return:
+        """
+        raw_type = left.raw_type
+        exp_value = None
+
+        if isinstance(raw_type, LyaIntType):
+            left_val = self._get_binary_integer_side_value(left)
+            right_val = self._get_binary_integer_side_value(right)
+            if left_val is not None and right_val is not None:
+                exp_value = eval("{0}{1}{2}".format(left_val, operation, right_val))
+
+        # TODO: Ref binary op.
+
+        return raw_type, exp_value
+
     # def raw_type_binary(self, node, op, left, right):
     #     if hasattr(left, "check_type") and hasattr(right, "check_type"):
     #         if left.check_type != right.check_type:
@@ -90,6 +120,8 @@ class Visitor(ASTNodeVisitor):
     #             self.error(node.lineno,
     #                   "Binary operator {} not supported on {} of expression".format(op, errside))
     #     return left.check_type
+
+    # Visitation ------------------------------------------------
 
     def visit_Program(self, program: Program):
         self.environment.start_new_scope(program)
@@ -120,13 +152,34 @@ class Visitor(ASTNodeVisitor):
 
         for identifier in declaration.ids:
             identifier.raw_type = declaration.mode.raw_type
-            identifier.memory_size = declaration.mode.memory_size
+            # identifier.memory_size = declaration.mode.memory_size
             self.current_scope.add_declaration(identifier, declaration)
 
     def visit_SynonymStatement(self, node):
-        # TODO: Visit/decorate SynonymDef
         for syn in node.synonyms:
             self.visit(syn)
+
+    def visit_SynonymDefinition(self, synonym: SynonymDefinition):
+        self.visit(synonym.expression)
+
+        if synonym.expression.exp_value is None:
+            raise LyaGenericError(synonym.identifiers[0].lineno,
+                                  synonym, "Unable to resolve synonym definition expression at compile time.")
+
+        if synonym.mode is not None:
+            self.visit(synonym.mode)
+            if synonym.mode.raw_type != synonym.expression.raw_type:
+                raise LyaAssignmentError(synonym.identifiers[0].lineno,
+                                         synonym.expression.raw_type,
+                                         synonym.mode.raw_type)
+
+        synonym.raw_type = synonym.expression.raw_type
+
+        for identifier in synonym.identifiers:
+            identifier.raw_type = synonym.raw_type
+            identifier.synonym_value = synonym.expression.exp_value
+            # identifier.memory_size = synonym.mode.memory_size
+            self.current_scope.add_synonym(identifier, synonym)
 
     def visit_NewModeStatement(self, node):
         for new_mode in node.new_modes:
@@ -197,18 +250,16 @@ class Visitor(ASTNodeVisitor):
 
     def visit_ResultSpec(self, spec: ResultSpec):
         self.visit(spec.mode)
-
         spec.raw_type = spec.mode.raw_type
 
     def visit_ReturnAction(self, ret: ReturnAction):
-        self.visit(ret.result)
-
+        self.visit(ret.expression)
+        ret.exp_value = ret.expression.exp_value
         self.current_scope.add_result(ret)
 
-
     def visit_ResultAction(self, ret: ResultAction):
-        self.visit(ret.result)
-
+        self.visit(ret.expression)
+        ret.exp_value = ret.expression.exp_value
         self.current_scope.add_result(ret)
 
     # Mode
@@ -286,7 +337,8 @@ class Visitor(ASTNodeVisitor):
     def visit_Location(self, location: Location):
         self.visit(location.type)
         if isinstance(location.type, Identifier):
-            identifier = self._lookup_identifier(location.type)
+            self._lookup_identifier(location.type)
+            # identifier = self._lookup_identifier(location.type)
 
         location.raw_type = location.type.raw_type
 
@@ -297,6 +349,45 @@ class Visitor(ASTNodeVisitor):
         expression.raw_type = expression.sub_expression.raw_type
         if isinstance(expression.sub_expression, Constant):
             expression.exp_value = expression.sub_expression.value
+        if isinstance(expression.sub_expression, Expression):
+            expression.exp_value = expression.sub_expression.exp_value
+        if isinstance(expression.sub_expression, Location):
+            if isinstance(expression.sub_expression.type, Identifier):
+                expression.exp_value = expression.sub_expression.type.synonym_value
+
+    def visit_BinaryExpression(self, binary_expression: BinaryExpression):
+        self.visit(binary_expression.left)
+        self.visit(binary_expression.right)
+
+        op = binary_expression.operation
+        left = binary_expression.left
+        right = binary_expression.right
+
+        if left.raw_type != right.raw_type:
+            # TODO: Binop lineno?
+            raise LyaOperationError(1, op, left.raw_type, right.raw_type)
+
+        if op not in left.raw_type.binary_ops:
+            # TODO: Binop lineno?
+            raise LyaOperationError(1, op, left_type=left.raw_type)
+
+        if op not in right.raw_type.binary_ops:
+            # TODO: Binop lineno?
+            raise LyaOperationError(1, op, right_type=right.raw_type)
+
+        raw_type, exp_value = self._evaluate_binary_expression(op, left, right)
+        binary_expression.raw_type = raw_type
+        binary_expression.exp_value = exp_value
+
+    # def visit_UnaryExpr(self, node):
+    #     self.visit(node.expr)
+    #     # Make sure that the operation is supported by the type
+    #     raw_type = self.raw_type_unary(node, node.op, node.expr)
+    #     # Set the result type to the same as the operand
+    #     node.raw_type = raw_type
+
+
+
 
     # Do_Action
 
@@ -350,19 +441,3 @@ class Visitor(ASTNodeVisitor):
     def visit_StringConstant(self, sconst: StringConstant):
         sconst.heap_position = self.environment.store_string_constant(sconst.value)
         sconst.raw_type = LTF.string_type(sconst.length)
-
-    # def visit_UnaryExpr(self, node):
-    #     self.visit(node.expr)
-    #     # Make sure that the operation is supported by the type
-    #     raw_type = self.raw_type_unary(node, node.op, node.expr)
-    #     # Set the result type to the same as the operand
-    #     node.raw_type = raw_type
-
-    # def visit_BinaryExpr(self,node):
-    #     # Make sure left and right operands have the same type
-    #     # Make sure the operation is supported
-    #     self.visit(node.left)
-    #     self.visit(node.right)
-    #     raw_type = self.raw_type_binary(node, node.op, node.left, node.right)
-    #     # Assign the result type
-    #     node.raw_type = raw_type

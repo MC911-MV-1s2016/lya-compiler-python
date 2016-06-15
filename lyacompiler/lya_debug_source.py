@@ -251,6 +251,7 @@ syn sy2 char = 'c';
 syn sy3 bool = true;
 syn sy4 int = 1 + sy1;"""
 
+
 dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""
 dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 10 + 5 * (10 - 20);"""
 

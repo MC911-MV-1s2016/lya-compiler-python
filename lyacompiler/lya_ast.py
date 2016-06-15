@@ -532,11 +532,27 @@ class ExitAction(Action):
 
 
 class ReturnAction(Action):
-    _fields = ['result']
+    """
+    :type result: Expression
+    """
+    _fields = ['expression']
+
+    def __init__(self, expression, **kwargs):
+        self.lineno = None
+        super().__init__(expression, **kwargs)
+        self.expression = expression
 
 
 class ResultAction(Action):
-    _fields = ['result']
+    """
+    :type result: Expression
+    """
+    _fields = ['expression']
+
+    def __init__(self, expression, **kwargs):
+        self.lineno = None
+        super().__init__(expression, **kwargs)
+        self.expression = expression
 
 
 class BuiltinCall(CallAction):

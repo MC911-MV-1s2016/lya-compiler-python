@@ -197,18 +197,16 @@ class Visitor(ASTNodeVisitor):
 
     def visit_ResultSpec(self, spec: ResultSpec):
         self.visit(spec.mode)
-
         spec.raw_type = spec.mode.raw_type
 
     def visit_ReturnAction(self, ret: ReturnAction):
-        self.visit(ret.result)
-
+        self.visit(ret.expression)
+        ret.exp_value = ret.expression.exp_value
         self.current_scope.add_result(ret)
 
-
     def visit_ResultAction(self, ret: ResultAction):
-        self.visit(ret.result)
-
+        self.visit(ret.expression)
+        ret.exp_value = ret.expression.exp_value
         self.current_scope.add_result(ret)
 
     # Mode

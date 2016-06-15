@@ -51,8 +51,11 @@ class LyaCompiler(object):
 
     @staticmethod
     def _compile(source_code: str):
+        from pprint import PrettyPrinter
+
         from lyacompiler.lya_parser import LyaParser
         from lyacompiler.lya_visitor import Visitor
+        from lyacompiler.lya_codegen import CodeGenerator
 
         print("\n--- Lya Source Code ---\n")
         i = 1
@@ -75,7 +78,16 @@ class LyaCompiler(object):
         semantic_visitor.show(ast)
         print("\n--- Decorated AST END ---\n")
 
-        # TODO: Code Generation Visitor
+        print("\nGenerating code...")
+        code_generator = CodeGenerator()
+        code_generator.environment = ast.environment
+        code_generator.visit(ast)
+        print("\n--- Generated Code ---\n")
+        for i in range(len(code_generator.instructions)):
+            instruction = code_generator.instructions[i]
+            print("{0}:\t{1}".format(i, str(instruction)))
+        print("\n--- Generated Code END ---\n")
+
 
     def _debug_mode(self, args):
         from lyacompiler.lya_debug_source import lya_debug_source

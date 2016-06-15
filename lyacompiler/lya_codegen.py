@@ -44,12 +44,10 @@ class CodeGenerator(ASTNodeVisitor):
     def current_scope(self):
         return self.environment.current_scope
 
-
     def _add_instruction(self, instruction: LyaInstruction):
         self.instructions.append(instruction)
 
     # ----
-
 
     def visit_Program(self, program: Program):
         self._add_instruction(STP())

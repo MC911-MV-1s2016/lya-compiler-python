@@ -157,18 +157,18 @@ class Declaration(ASTNode):
 
 class SynonymDefinition(ASTNode):
     """
-    :type ids: list[Identifier]
+    :type identifiers: list[Identifier]
     :type mode: Mode
-    :type init: Expression
+    :type initialization: Expression
     """
 
-    _fields = ['ids', 'mode', 'expr']
+    _fields = ['identifiers', 'mode', 'expression']
 
-    def __init__(self, ids, mode, expr, **kwargs):
-        super().__init__(ids, mode, expr, **kwargs)
-        self.ids = ids
+    def __init__(self, identifiers, mode, expression, **kwargs):
+        super().__init__(identifiers, mode, expression, **kwargs)
+        self.identifiers = identifiers
         self.mode = mode
-        self.expr = expr
+        self.expression = expression
 
 
 # Visitar SynonymDefinition

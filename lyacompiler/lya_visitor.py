@@ -54,7 +54,7 @@ class Visitor(ASTNodeVisitor):
         if entry_identifier is None:
             raise LyaNameError(identifier.lineno, identifier.name)
         identifier.raw_type = entry_identifier.raw_type
-        identifier.memory_size = entry_identifier.memory_size
+        # identifier.memory_size = entry_identifier.memory_size
         identifier.scope_level = entry_identifier.scope_level
         identifier.displacement = entry_identifier.displacement
         identifier.start = entry_identifier.start
@@ -120,13 +120,33 @@ class Visitor(ASTNodeVisitor):
 
         for identifier in declaration.ids:
             identifier.raw_type = declaration.mode.raw_type
-            identifier.memory_size = declaration.mode.memory_size
+            # identifier.memory_size = declaration.mode.memory_size
             self.current_scope.add_declaration(identifier, declaration)
 
     def visit_SynonymStatement(self, node):
-        # TODO: Visit/decorate SynonymDef
         for syn in node.synonyms:
             self.visit(syn)
+
+    def visit_SynonymDefinition(self, synonym: SynonymDefinition):
+        self.visit(synonym.expression)
+        if synonym.expression.exp_value is None:
+            raise LyaGenericError(synonym.identifiers[0].lineno,
+                                  synonym, "Unable to resolve synonym definition expression at compile time.")
+
+        if synonym.mode is not None:
+            self.visit(synonym.mode)
+            if synonym.mode.raw_type != synonym.expression.raw_type:
+                raise LyaAssignmentError(synonym.identifiers[0].lineno,
+                                         synonym.expression.raw_type,
+                                         synonym.mode.raw_type)
+
+        synonym.raw_type = synonym.expression.raw_type
+
+        for identifier in synonym.identifiers:
+            identifier.raw_type = synonym.raw_type
+            identifier.synonym_value = synonym.expression.exp_value
+            # identifier.memory_size = synonym.mode.memory_size
+            self.current_scope.add_synonym(identifier, synonym)
 
     def visit_NewModeStatement(self, node):
         for new_mode in node.new_modes:

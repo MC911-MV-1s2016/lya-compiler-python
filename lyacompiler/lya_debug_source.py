@@ -243,20 +243,13 @@ p: proc (x int);
   dcl s int;
   s = m * x;
 end;
-p(n);
-dcl arr array[1:10] int;
-
-dcl s chars[6] = "banana";
-
-dcl b bool = true;
-"""
+p(n);"""
 
 test3_source = """syn sy1 = 20;
+syn sy6 = sy1;
 syn sy2 char = 'c';
 syn sy3 bool = true;
-syn sy4 int = 1 + sy1;
-syn sy5 = true + 2;
-"""
+syn sy4 int = 1 + sy1;"""
 
 dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""
 dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 10 + 5 * (10 - 20);"""
@@ -264,5 +257,5 @@ dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 1
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test3_source
+lya_debug_source = test2_source
 #lya_debug_source = lya_source_do3

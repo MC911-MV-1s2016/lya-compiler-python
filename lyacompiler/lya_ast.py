@@ -35,6 +35,7 @@ class ASTNode(object):
     _fields = []
     _debug_fields = ['raw_type',        # LyaType: created or inherited
                      'name',            # Node name
+                     'operation',       # Un/Binary Expression Operation
                      'value',           # Value, usually on constant nodes
                      'exp_value',       # When possible, expressions pre-computations
                      'synonym_value',   # Identifier synonym value (assign, synonym)
@@ -436,10 +437,19 @@ class MembershipExpression(Expression):
 
 
 class BinaryExpression(Expression):
-    _fields = ['l_value', 'op', 'r_value']
+    """
+    """
+    _fields = ['left', 'operation', 'right']
 
-    def debug_data(self):
-        return self.op
+    def __init__(self, left, operation, right, **kwargs):
+        self.lineno = None
+        super().__init__(left, operation, right, **kwargs)
+        self.left = left
+        self.operation = operation
+        self.right = right
+
+    # def debug_data(self):
+    #     return self.operation
 
 
 class UnaryExpression(Expression):

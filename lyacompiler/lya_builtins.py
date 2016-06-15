@@ -60,6 +60,10 @@ class LyaType(object):
     def memory_size(self) -> int:
         return None
 
+    @property
+    def binary_ops(self):
+        return self._binary_ops
+
 
 class LyaBaseType(LyaType):
     """Class that represents a lya base type.
@@ -266,7 +270,7 @@ LTF = LyaTypeFactory
 # 2 - Refatorar visitação para pegar tipos da factory (LTF) - OK
 # 4 - Eval de expressions, se operandos forem números,
 #     vai jogando resultado parcial para cima, junto com tipo.
-#     Se encontrar location -> id -> int, ver se id tem inferred val, se não tiver
+#     Se encontrar location -> id -> int, ver se id tem exp_val, se não tiver
 #     não joga nenhum resultado parcial para cima, só tipo. ConstExpress não podem
 #     ter var no meio. Arrays tem q ter tamanho conhecido em tempo de compilação.
 # 5 - Visitar sinonimos (guardar syn_val)

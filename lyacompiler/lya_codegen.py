@@ -15,7 +15,7 @@ from .lya_ast import *
 from .lya_errors import *
 from .lya_builtins import *
 from .lya_lvminstruction import *
-
+from .lya_scope import LyaScope
 
 class CodeGenerator(ASTNodeVisitor):
     """
@@ -23,8 +23,16 @@ class CodeGenerator(ASTNodeVisitor):
     def __init__(self):
         super().__init__()
         self.environment = None
+        self.current_scope = None   # type: LyaScope
         self.instructions = []
         self.errors = []
+        self.labels_map = {}
+
+    def _add_label(self, name):
+        self.labels_map[name] = len(self.labels_map) + 1
+
+    def _lookup_label(self, name):
+        return self.labels_map.get(name, None)
 
     def visit(self, node):
         try:
@@ -40,11 +48,6 @@ class CodeGenerator(ASTNodeVisitor):
             # Called always.
             pass
 
-    @property
-    def current_scope(self):
-        return self.environment.current_scope
-
-
     def _add_instruction(self, instruction: LyaInstruction):
         self.instructions.append(instruction)
 
@@ -52,8 +55,10 @@ class CodeGenerator(ASTNodeVisitor):
 
 
     def visit_Program(self, program: Program):
+        self.current_scope = program.scope
         self._add_instruction(STP())
-        self._add_instruction(LBL(1))
+        self._add_instruction(ALC(self.current_scope.level, ))
+
 
         # for statement in program.statements:
         #     self.visit(statement)
@@ -61,29 +66,16 @@ class CodeGenerator(ASTNodeVisitor):
 
     # # Statement -------------------------------------------------
     #
-    # def visit_Declaration(self, declaration: Declaration):
-    #     self.visit(declaration.mode)
-    #     self.visit(declaration.init)
-    #     if declaration.init is not None:
-    #         if declaration.mode.raw_type != declaration.init.raw_type:
-    #             raise LyaAssignmentError(declaration.ids[0].lineno,
-    #                                      declaration.init.raw_type,
-    #                                      declaration.mode.raw_type)
-    #         if isinstance(declaration.mode.raw_type, LyaStringType):
-    #             if declaration.mode.raw_type.memory_size < declaration.init.raw_type.memory_size:
-    #                 raise LyaGenericError(declaration.ids[0].lineno,
-    #                                       declaration,
-    #                                       "Initializing chars[{0}] "
-    #                                       "with string[{1}] {2}.".format(declaration.mode.raw_type.memory_size,
-    #                                                                      declaration.init.raw_type.memory_size,
-    #                                                                      declaration.init.exp_value))
-    #
-    #         # TODO: Array Initialization?
-    #
-    #     for identifier in declaration.ids:
-    #         identifier.raw_type = declaration.mode.raw_type
-    #         identifier.memory_size = declaration.mode.memory_size
-    #         self.current_scope.add_declaration(identifier, declaration)
+    def visit_Declaration(self, declaration: Declaration):
+
+        if declaration.init is not None:
+            if declaration.init.exp_value is None:
+                self.visit(declaration.init)
+
+            self._add_instruction(LDC(declaration.init.exp_value))
+
+            for identifier in declaration.ids:
+                self._add_instruction(STV(self.current_scope.level, identifier.displacement))
     #
     # def visit_SynonymStatement(self, node):
     #     # TODO: Visit/decorate SynonymDef
@@ -96,36 +88,15 @@ class CodeGenerator(ASTNodeVisitor):
     #
     # # Procedure ------------------------------------------
     #
-    # def visit_ProcedureStatement(self, procedure: ProcedureStatement):
-    #     self.current_scope.add_procedure(procedure.label, procedure)
-    #     self.environment.start_new_scope(procedure)
-    #
-    #     definition = procedure.definition
-    #     parameters = definition.parameters
-    #     result = definition.result
-    #     statements = definition.statements
-    #
-    #     ret = Identifier("_ret")
-    #     ret.raw_type = LTF.void_type()
-    #     ret.qualifier = QualifierType.none
-    #
-    #     if result is not None:
-    #         self.visit(result)
-    #         ret.raw_type = result.raw_type
-    #         ret.qualifier = result.loc
-    #
-    #     self.current_scope.add_return(ret)
-    #
-    #     procedure.label.raw_type = ret.raw_type
-    #
-    #     for p in parameters:
-    #         self.visit(p)
-    #     for s in statements:
-    #         self.visit(s)
-    #
-    #     ret.displacement = self.current_scope.parameters_displacement
-    #
-    #     self.environment.end_current_scope()
+    def visit_ProcedureStatement(self, procedure: ProcedureStatement):
+        self.current_scope = procedure.scope
+        self._add_label(procedure.label.name)
+
+        self.visit(procedure.definition)
+
+        #TODO
+
+        self.current_scope = self.current_scope.parent
     #
     # def visit_FormalParameter(self, parameter: FormalParameter):
     #     self.visit(parameter.spec)

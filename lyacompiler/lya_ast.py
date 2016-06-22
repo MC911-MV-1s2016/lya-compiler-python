@@ -561,7 +561,17 @@ class ResultAction(Action):
 
 
 class BuiltinCall(CallAction):
-    _fields = ['name', 'params']
+    """
+    :type name: str
+    :type expressions: List[Expression]
+    """
+    _fields = ['name', 'expressions']
+
+    def __init__(self, name: str, expressions: List['Expression'], **kwargs):
+        self.lineno = None
+        super().__init__(name, expressions, **kwargs)
+        self.name = name
+        self.expressions = expressions
 
 
 class ProcedureDefinition(ASTNode):

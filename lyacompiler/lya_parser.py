@@ -696,7 +696,7 @@ class LyaParser(object):
     def p_call_action(self, p):
         """call_action : procedure_call
                        | builtin_call"""
-        p[0] = CallAction(p[1])
+        p[0] = p[1]
 
     def p_procedure_call_parameter(self, p):
         """procedure_call : procedure_name LPAREN parameter_list RPAREN"""
@@ -746,11 +746,13 @@ class LyaParser(object):
 
     def p_builtin_call_parameter(self, p):
         """builtin_call : builtin_name LPAREN parameter_list RPAREN"""
-        p[0] = BuiltinCall(p[1], p[3])
+        name, lineno = p[1]
+        p[0] = BuiltinCall(name, p[3], lineno=lineno)
 
     def p_builtin_call(self, p):
         """builtin_call : builtin_name LPAREN RPAREN"""
-        p[0] = BuiltinCall(p[1], None)
+        name, lineno = p[1]
+        p[0] = BuiltinCall(name, [], lineno=lineno)
 
     def p_builtin_name(self, p):
         """builtin_name : NUM
@@ -761,7 +763,7 @@ class LyaParser(object):
                         | LENGTH
                         | READ
                         | PRINT"""
-        p[0] = p[1]
+        p[0] = (p[1], p.lineno(1))
 
     # Procedure -----------------------------------------------------------------
 

@@ -24,6 +24,13 @@ class Environment(object):
         self.current_scope.level = -1
         self._define_builtins()
         self.string_constant_heap = list()
+        self.labels_map = {}
+
+    def _add_label(self, name):
+        self.labels_map[name] = len(self.labels_map) + 1
+
+    def _lookup_label(self, name):
+        return self.labels_map.get(name, None)
 
     def _define_builtins(self):
         # self.current_scope.add_new_type(self._identifier_from_type(IntType), IntType)

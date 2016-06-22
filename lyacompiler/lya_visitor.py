@@ -29,6 +29,7 @@ class Visitor(ASTNodeVisitor):
         super().__init__()
         self.environment = Environment()
         self.errors = []
+        self.label_count = 1
 
     def visit(self, node):
         # TODO: Can try to bypass error to continue compilation.
@@ -190,6 +191,10 @@ class Visitor(ASTNodeVisitor):
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
         self.current_scope.add_procedure(procedure.label, procedure)
         self.environment.start_new_scope(procedure)
+
+        self.environment._add_label(procedure.label.name)
+        procedure.label_start = len(self.environment.labels_map)
+        procedure.label_end = len(self.environment.labels_map)+1
 
         definition = procedure.definition
         parameters = definition.parameters

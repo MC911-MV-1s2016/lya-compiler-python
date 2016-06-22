@@ -290,6 +290,7 @@ class Identifier(ASTNode):
     :type stop: int
     :type qualifier: QualifierType
     :type synonym_value: int, str, bool
+    :type label_value: int
     """
 
     _fields = ['name']
@@ -304,6 +305,7 @@ class Identifier(ASTNode):
         self.stop = None
         self.qualifier = QualifierType.none
         self.synonym_value = None
+        self.label_value = None
 
 
 class Location(ASTNode):

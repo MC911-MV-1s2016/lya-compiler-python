@@ -9,6 +9,7 @@
 # Lya Decorated AST Code Generator
 #
 # ------------------------------------------------------------
+from distlib._backport.tarfile import _BZ2Proxy
 
 from .astnodevisitor import ASTNodeVisitor
 from .lya_ast import *
@@ -26,13 +27,13 @@ class CodeGenerator(ASTNodeVisitor):
         self.current_scope = None   # type: LyaScope
         self.instructions = []
         self.errors = []
-        self.labels_map = {}
-
-    def _add_label(self, name):
-        self.labels_map[name] = len(self.labels_map) + 1
-
-    def _lookup_label(self, name):
-        return self.labels_map.get(name, None)
+    #     self.labels_map = {}
+    #
+    # def _add_label(self, name):
+    #     self.labels_map[name] = len(self.labels_map) + 1
+    #
+    # def _lookup_label(self, name):
+    #     return self.labels_map.get(name, None)
 
     def visit(self, node):
         try:
@@ -56,8 +57,10 @@ class CodeGenerator(ASTNodeVisitor):
     def visit_Program(self, program: Program):
         self.current_scope = program.scope
         self._add_instruction(STP())
-        self._add_instruction(ALC(self.current_scope.level, ))
+        self._add_instruction(ALC(program.offset))
 
+        for stmts in program.statements:
+            self.visit(stmts)
 
         # for statement in program.statements:
         #     self.visit(statement)
@@ -89,12 +92,17 @@ class CodeGenerator(ASTNodeVisitor):
     #
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
         self.current_scope = procedure.scope
-        self._add_label(procedure.label.name)
+        self.environment._add_label(procedure.label.name)
+        self._add_instruction(JMP(procedure.label_end))
+        self._add_instruction(LBL(procedure.label_start))
+        self._add_instruction(ENF(self.current_scope.level))
+        self._add_instruction(ALC(procedure.offset))
 
         self.visit(procedure.definition)
 
         #TODO
 
+        self._add_instruction(LBL(procedure.label_end))
         self.current_scope = self.current_scope.parent
     #
     # def visit_FormalParameter(self, parameter: FormalParameter):

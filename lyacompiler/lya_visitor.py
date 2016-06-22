@@ -361,7 +361,6 @@ class Visitor(ASTNodeVisitor):
             if isinstance(expression.sub_expression.type, Identifier):
                 expression.exp_value = expression.sub_expression.type.synonym_value
 
-    def visit_BinaryExpression(self, binary_expression: BinaryExpression):
         self.visit(binary_expression.left)
         self.visit(binary_expression.right)
 

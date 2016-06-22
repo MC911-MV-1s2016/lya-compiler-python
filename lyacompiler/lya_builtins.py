@@ -152,7 +152,8 @@ class LyaRefType(LyaType):
     _rel_ops = {"==", "!="}
     _unary_opcodes = {"->": "ldr"}
     _binary_opcodes = {},
-    _rel_opcodes = {"==": "equ", "!=": "neq"}
+    _rel_opcodes = {"==": "equ",
+                    "!=": "neq"}
 
     def __init__(self, referenced_type: LyaType):
         super().__init__()

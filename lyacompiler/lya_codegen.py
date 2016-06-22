@@ -61,6 +61,10 @@ class CodeGenerator(ASTNodeVisitor):
         for stmts in program.statements:
             self.visit(stmts)
 
+        self._add_instruction(DLC(program.offset))
+        self._add_instruction(END())
+
+
         # for statement in program.statements:
         #     self.visit(statement)
         # self.environment.end_current_scope()
@@ -101,6 +105,15 @@ class CodeGenerator(ASTNodeVisitor):
 
         #TODO
 
+        # calculating the number of parameters received
+        par = procedure.definition.parameters
+        n_pars = 0
+        for p in par:
+            for i in p.ids:
+                n_pars += 1
+
+        self._add_instruction(DLC(procedure.offset))
+        self._add_instruction(RET(self.current_scope.level, n_pars))
         self._add_instruction(LBL(procedure.label_end))
         self.current_scope = self.current_scope.parent
     #
@@ -297,11 +310,31 @@ class CodeGenerator(ASTNodeVisitor):
     # #     # Set the result type to the same as the operand
     # #     node.raw_type = raw_type
     #
-    # # def visit_BinaryExpr(self,node):
-    # #     # Make sure left and right operands have the same type
-    # #     # Make sure the operation is supported
-    # #     self.visit(node.left)
-    # #     self.visit(node.right)
-    # #     raw_type = self.raw_type_binary(node, node.op, node.left, node.right)
-    # #     # Assign the result type
-    # #     node.raw_type = raw_type
+    def visit_BinaryExpression(self, binary_expression: BinaryExpression):
+        # Make sure left and right operands have the same type
+        # Make sure the operation is supported
+
+        left = binary_expression.left
+        right = binary_expression.right
+
+        if isinstance(left, Location):
+            if isinstance(left.type, Identifier):
+                self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+
+        if isinstance(right, Location):
+            if isinstance(right.type, Identifier):
+                self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
+
+        if left.exp_value is not None:
+            self.visit(left)
+
+        if right.exp_value is not None:
+            self.visit(right)
+
+        if binary_expression.operation is '*':
+            self._add_instruction(MUL())
+
+        #TODO rest of expressions
+
+
+

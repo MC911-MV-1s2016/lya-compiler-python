@@ -38,7 +38,7 @@ class Visitor(ASTNodeVisitor):
         except LyaError as err:
             print(LyaColor.WARNING + str(err) + LyaColor.ENDC)
             self.errors.append(err)
-            # exit()
+            exit()
         else:
             # Called if no errors raised.
             pass
@@ -297,12 +297,20 @@ class Visitor(ASTNodeVisitor):
         spec.raw_type = spec.mode.raw_type
 
     def visit_ReturnAction(self, return_action: ReturnAction):
+        if return_action.expression is not None and self.current_scope.ret.raw_type != LTF.void_type():
+            # TODO: Returning on void function
+            pass
         self.visit(return_action.expression)
         self.current_scope.add_result(return_action.lineno, return_action.expression)
+        return_action.displacement = self.current_scope.parameters_displacement
 
     def visit_ResultAction(self, result: ResultAction):
+        if self.current_scope.ret.raw_type == LTF.void_type():
+            # TODO: Error setting result on void return function.
+            pass
         self.visit(result.expression)
         self.current_scope.add_result(result.expression, result.lineno)
+        result.displacement = self.current_scope.parameters_displacement
 
     def visit_BuiltinCall(self, builtin_call: BuiltinCall):
         n = len(builtin_call.expressions)
@@ -530,10 +538,16 @@ class Visitor(ASTNodeVisitor):
 
     # Do_Action
 
-    def visit_ForControl(self, for_control: ForControl):
-        for_control.start_label = self.environment.generate_label()
-        for_control.end_label = self.environment.generate_label()
-        self.visit(for_control.iteration)
+    def visit_DoAction(self, do_action: DoAction):
+        do_action.start_label = self.environment.generate_label()
+        self.visit(do_action.control)
+        if do_action.control.while_control is not None:
+            do_action.end_label = self.environment.generate_label()
+        for action in do_action.actions:
+            self.visit(action)
+
+    # def visit_ForControl(self, for_control: ForControl):
+    #     self.visit(for_control.iteration)
 
     def visit_StepEnumeration(self, step: StepEnumeration):
         self._lookup_identifier(step.identifier)
@@ -563,9 +577,6 @@ class Visitor(ASTNodeVisitor):
         self.visit(range_enum.mode)
 
     def visit_WhileControl(self, while_control: WhileControl):
-        while_control.start_label = self.environment.generate_label()
-        while_control.end_label = self.environment.generate_label()
-
         self.visit(while_control.boolean_expression)
         if while_control.boolean_expression.sub_expression.raw_type != LTF.bool_type():
             raise LyaTypeError(while_control.lineno,

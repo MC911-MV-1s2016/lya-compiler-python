@@ -682,6 +682,7 @@ class ExitAction(Action):
 class ReturnAction(Action):
     """
     :type result: Expression
+    :type displacement: int
     """
     _fields = ['expression']
 
@@ -689,11 +690,13 @@ class ReturnAction(Action):
         self.lineno = None
         super().__init__(expression, **kwargs)
         self.expression = expression
+        self.displacement = None
 
 
 class ResultAction(Action):
     """
     :type result: Expression
+    :type displacement: int     @nullable
     """
     _fields = ['expression']
 
@@ -701,6 +704,7 @@ class ResultAction(Action):
         self.lineno = None
         super().__init__(expression, **kwargs)
         self.expression = expression
+        self.displacement = None
 
 
 class BuiltinCall(CallAction):

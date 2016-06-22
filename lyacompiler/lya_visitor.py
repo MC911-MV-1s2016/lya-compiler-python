@@ -38,7 +38,7 @@ class Visitor(ASTNodeVisitor):
         except LyaError as err:
             print(LyaColor.WARNING + str(err) + LyaColor.ENDC)
             self.errors.append(err)
-            exit()
+            # exit()
         else:
             # Called if no errors raised.
             pass
@@ -55,7 +55,6 @@ class Visitor(ASTNodeVisitor):
         if entry_identifier is None:
             raise LyaNameError(identifier.lineno, identifier.name)
         identifier.raw_type = entry_identifier.raw_type
-        # identifier.memory_size = entry_identifier.memory_size
         identifier.scope_level = entry_identifier.scope_level
         identifier.displacement = entry_identifier.displacement
         identifier.start = entry_identifier.start
@@ -531,24 +530,29 @@ class Visitor(ASTNodeVisitor):
 
     # Do_Action
 
+    def visit_ForControl(self, for_control: ForControl):
+        for_control.start_label = self.environment.generate_label()
+        for_control.end_label = self.environment.generate_label()
+        self.visit(for_control.iteration)
+
     def visit_StepEnumeration(self, step: StepEnumeration):
-        entry = self.current_scope.entry_lookup(step.counter)
+        self._lookup_identifier(step.identifier)
 
-        if entry is None:
-            raise LyaNameError(step.lineno, step.counter)
+        if step.identifier.raw_type != LTF.int_type():
+            raise LyaTypeError(step.lineno, step.identifier.raw_type, LTF.int_type())
 
-        self.visit(step.start_val)
-        self.visit(step.step_val)
-        self.visit(step.end_val)
+        self.visit(step.start_expression)
+        if step.start_expression.raw_type != LTF.int_type():
+            raise LyaTypeError(step.lineno, step.start_expression.raw_type, LTF.int_type())
 
-        if step.start_val.raw_type != LTF.int_type():
-            raise LyaTypeError(step.lineno, step.start_val.raw_type, LTF.int_type())
+        if step.step_expression is not None:
+            self.visit(step.step_expression)
+            if step.step_expression.sub_expression.raw_type != LTF.int_type():
+                raise LyaTypeError(step.lineno, step.step_expression.sub_expression.raw_type, LTF.int_type())
 
-        if step.step_val.sub_expression.raw_type != LTF.int_type():
-            raise LyaTypeError(step.lineno, step.step_val.sub_expression.raw_type, LTF.int_type())
-
-        if step.end_val.raw_type != LTF.int_type():
-            raise LyaTypeError(step.lineno, step.end_val.raw_type, LTF.int_type())
+        self.visit(step.end_expression)
+        if step.end_expression.raw_type != LTF.int_type():
+            raise LyaTypeError(step.lineno, step.end_expression.raw_type, LTF.int_type())
 
     def visit_RangeEnumeration(self, range_enum: RangeEnumeration):
         entry = self.current_scope.entry_lookup(range_enum.counter)

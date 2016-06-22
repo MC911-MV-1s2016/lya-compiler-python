@@ -38,7 +38,12 @@ class ASTNode(object):
                      'operation',       # Un/Binary Expression Operation
                      'value',           # Value, usually on constant nodes
                      'exp_value',       # When possible, expressions pre-computations
-                     'synonym_value',   # Identifier synonym value (assign, synonym)
+                     'synonym_value',   # Identifier synonym value
+                     'label',           # Label value
+                     'start_label',     # Procedure start label
+                     'end_label',       # Procedure end label
+                     'next_label',      # IfThenElse next label (If -> Then -> Else)
+                     'exit_label',      # IfThenElse exit label
                      'heap_position',   # String constant position on string heap
                      'scope_level',     # Node's scope depth.
                      'offset',          # Memory 'slots' from scope base register
@@ -129,15 +134,19 @@ class NewModeStatement(Statement):
 
 class ProcedureStatement(Statement):
     """
-    :type label: Identifier
+    :type identifier: Identifier
     :type definition: ProcedureDefinition
+    :type start_label: int
+    :type end_label: int
     """
-    _fields = ['label', 'definition']
+    _fields = ['identifier', 'definition']
 
     def __init__(self, label, definition, **kwargs):
         super().__init__(label, definition, **kwargs)
-        self.label = label
+        self.identifier = label
         self.definition = definition
+        self.start_label = None
+        self.end_label = None
 
 
 class Declaration(ASTNode):
@@ -495,30 +504,25 @@ class IfAction(Action):
 class ThenClause(ASTNode):
     """
     :type actions: List[Action]
-    :type exit_label: int
-    :type next_label: int
     """
     _fields = ['actions']
 
     def __init__(self, actions: List['Action'], **kwargs):
         super().__init__(actions, **kwargs)
         self.actions = actions
-        self.exit_label = None
-        self.next_label = None
 
 
 class ElseClause(ASTNode):
     """
     :type actions: List[Action]
-    :type exit_label: int
-    :type next_label: int
+    :type label: int
     """
     _fields = ['actions']
 
     def __init__(self, actions: List['Action'], **kwargs):
         super().__init__(actions, **kwargs)
         self.actions = actions
-        self.exit_label = None
+        self.label = None
 
 
 class ElsIfClause(ASTNode):
@@ -526,6 +530,7 @@ class ElsIfClause(ASTNode):
     :type boolean_expression: BooleanExpression
     :type then_clause: ThenClause
     :type else_clause:
+    :type label: int
     :type exit_label: int
     :type next_label: int
     """
@@ -536,6 +541,7 @@ class ElsIfClause(ASTNode):
         self.boolean_expression = boolean_expression
         self.then_clause = then_clause
         self.else_clause = else_clause
+        self.label = None
         self.exit_label = None
         self.next_label = None
 

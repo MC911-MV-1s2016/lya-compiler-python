@@ -95,9 +95,8 @@ class CodeGenerator(ASTNodeVisitor):
     #
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
         self.current_scope = procedure.scope
-        self.environment._add_label(procedure.label.name)
-        self._add_instruction(JMP(procedure.label_end))
-        self._add_instruction(LBL(procedure.label_start))
+        self._add_instruction(JMP(procedure.end_label))
+        self._add_instruction(LBL(procedure.start_label))
         self._add_instruction(ENF(self.current_scope.level))
         self._add_instruction(ALC(procedure.offset))
 
@@ -114,7 +113,7 @@ class CodeGenerator(ASTNodeVisitor):
 
         self._add_instruction(DLC(procedure.offset))
         self._add_instruction(RET(self.current_scope.level, n_pars))
-        self._add_instruction(LBL(procedure.label_end))
+        self._add_instruction(LBL(procedure.end_label))
         self.current_scope = self.current_scope.parent
     #
     # def visit_FormalParameter(self, parameter: FormalParameter):

@@ -25,13 +25,8 @@ class Environment(object):
         self.current_scope.level = -1
         self._define_builtins()
         self.string_constant_heap = list()
-        self.labels_map = {}
-
-    def _add_label(self, name):
-        self.labels_map[name] = len(self.labels_map) + 1
-
-    def _lookup_label(self, name):
-        return self.labels_map.get(name, None)
+        self._labels_map = {}
+        self._current_label = 0
 
     def _define_builtins(self):
         # self.current_scope.add_new_type(self._identifier_from_type(IntType), IntType)
@@ -75,3 +70,13 @@ class Environment(object):
             prev_sconst_pos = self.string_constant_heap.index(string_constant)
         finally:
             return prev_sconst_pos
+
+    def add_label(self, name):
+        self._labels_map[name] = self.generate_label()
+
+    def lookup_label(self, name):
+        return self._labels_map.get(name, None)
+
+    def generate_label(self):
+        self._current_label += 1
+        return self._current_label

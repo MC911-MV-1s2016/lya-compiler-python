@@ -189,12 +189,11 @@ class Visitor(ASTNodeVisitor):
     # Procedure --------------------------------------------------------------------------------------------------------
 
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
-        self.current_scope.add_procedure(procedure.label, procedure)
+        self.current_scope.add_procedure(procedure.identifier, procedure)
         self.environment.start_new_scope(procedure)
 
-        self.environment._add_label(procedure.label.name)
-        procedure.label_start = len(self.environment.labels_map)
-        procedure.label_end = len(self.environment.labels_map)+1
+        procedure.start_label = self.environment.generate_label()
+        procedure.end_label = self.environment.generate_label()
 
         definition = procedure.definition
         parameters = definition.parameters
@@ -212,7 +211,8 @@ class Visitor(ASTNodeVisitor):
 
         self.current_scope.add_return(ret)
 
-        procedure.label.raw_type = ret.raw_type
+        procedure.identifier.raw_type = ret.raw_type
+        procedure.identifier.qualifier = ret.qualifier
 
         for p in parameters:
             self.visit(p)
@@ -237,8 +237,11 @@ class Visitor(ASTNodeVisitor):
         for parameter in call.expressions:
             self.visit(parameter)
 
-        procedure_definition = self._lookup_procedure(call).definition
-        call.raw_type = procedure_definition.result.raw_type
+        procedure = self._lookup_procedure(call)
+        procedure_definition = procedure.definition
+        call.raw_type = procedure.identifier.raw_type
+
+        # TODO: E loc?
 
         procedure_parameters_ids = []
         for p in procedure_definition.parameters:
@@ -437,6 +440,27 @@ class Visitor(ASTNodeVisitor):
 
         # TODO: Checar se cabe no location (mem_size)
         # TODO: Checar ranges respeitados? FAz sentido?
+
+    # IfAction ---------------------------------------------------------------------------------------------------------
+
+    def visit_IfAction(self, if_action: IfAction):
+        if_action.next_label = self.environment.generate_label()
+        if_action.exit_label = self.environment.generate_label()
+        self.visit(if_action.then_clause)
+        if if_action.else_clause is not None:
+            if isinstance(if_action.else_clause, ElsIfClause):
+                if_action.else_clause.exit_label = if_action.exit_label
+            if_action.else_clause.label = if_action.next_label
+            self.visit(if_action.else_clause)
+
+    def visit_ElsIfClause(self, else_if_clause: ElsIfClause):
+        else_if_clause.next_label = self.environment.generate_label()
+        self.visit(else_if_clause.then_clause)
+        if else_if_clause.else_clause is not None:
+            if isinstance(else_if_clause.else_clause, ElsIfClause):
+                else_if_clause.else_clause.exit_label = else_if_clause.exit_label
+            else_if_clause.else_clause.label = else_if_clause.next_label
+            self.visit(else_if_clause.else_clause)
 
     # Do_Action
 

@@ -281,7 +281,7 @@ syn sy4 int = 1 + sy1;"""
 dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""
 dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 10 + 5 * (10 - 20);"""
 
-test4_source = """dcl m bool = false, n bool = false;
+test_rel_exp_source = """dcl m bool = false, n bool = false;
 p: proc (x bool);
   dcl s bool;
   s = m >= x;

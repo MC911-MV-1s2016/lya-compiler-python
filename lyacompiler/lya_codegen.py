@@ -9,7 +9,6 @@
 # Lya Decorated AST Code Generator
 #
 # ------------------------------------------------------------
-from distlib._backport.tarfile import _BZ2Proxy
 
 from .astnodevisitor import ASTNodeVisitor
 from .lya_ast import *

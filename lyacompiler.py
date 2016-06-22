@@ -78,7 +78,7 @@ class LyaCompiler(object):
         semantic_visitor.show(ast)
         print("\n--- Decorated AST END ---\n")
 
-        print("\nGenerating code...")
+        print("Generating code...")
         code_generator = CodeGenerator()
         code_generator.environment = ast.environment
         code_generator.visit(ast)

@@ -26,13 +26,6 @@ class CodeGenerator(ASTNodeVisitor):
         self.current_scope = None   # type: LyaScope
         self.instructions = []
         self.errors = []
-    #     self.labels_map = {}
-    #
-    # def _add_label(self, name):
-    #     self.labels_map[name] = len(self.labels_map) + 1
-    #
-    # def _lookup_label(self, name):
-    #     return self.labels_map.get(name, None)
 
     def visit(self, node):
         try:
@@ -64,35 +57,17 @@ class CodeGenerator(ASTNodeVisitor):
         self._add_instruction(DLC(program.offset))
         self._add_instruction(END())
 
+    # Statement -------------------------------------------------
 
-        # for statement in program.statements:
-        #     self.visit(statement)
-        # self.environment.end_current_scope()
-
-    # # Statement -------------------------------------------------
-    #
     def visit_Declaration(self, declaration: Declaration):
-
         if declaration.init is not None:
-            if declaration.init.exp_value is None:
-                self.visit(declaration.init)
-
-            self._add_instruction(LDC(declaration.init.exp_value))
-
+            # TODO: Load string constant
             for identifier in declaration.ids:
+                self._add_instruction(LDC(declaration.init.exp_value))
                 self._add_instruction(STV(self.current_scope.level, identifier.displacement))
-    #
-    # def visit_SynonymStatement(self, node):
-    #     # TODO: Visit/decorate SynonymDef
-    #     for syn in node.synonyms:
-    #         self.visit(syn)
-    #
-    # def visit_NewModeStatement(self, node):
-    #     for new_mode in node.new_modes:
-    #         self.visit(new_mode)
-    #
-    # # Procedure ------------------------------------------
-    #
+
+    # Procedure ------------------------------------------
+
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
         self.current_scope = procedure.scope
         self._add_instruction(JMP(procedure.end_label))
@@ -101,51 +76,36 @@ class CodeGenerator(ASTNodeVisitor):
         self._add_instruction(ALC(procedure.offset))
 
         self.visit(procedure.definition)
-
         #TODO
 
         # calculating the number of parameters received
-        par = procedure.definition.parameters
-        n_pars = 0
-        for p in par:
-            for i in p.ids:
-                n_pars += 1
+        n_params = 0
+        for p in procedure.definition.parameters:
+            n_params += len(p.ids)
 
         self._add_instruction(DLC(procedure.offset))
-        self._add_instruction(RET(self.current_scope.level, n_pars))
+        self._add_instruction(RET(self.current_scope.level, n_params))
         self._add_instruction(LBL(procedure.end_label))
         self.current_scope = self.current_scope.parent
-    #
-    # def visit_FormalParameter(self, parameter: FormalParameter):
-    #     self.visit(parameter.spec)
-    #     parameter.raw_type = parameter.spec.mode.raw_type
-    #     for identifier in parameter.ids:
-    #         identifier.raw_type = parameter.spec.mode.raw_type
-    #         # TODO: Calculate memory size for string/arrays
-    #         identifier.memory_size = parameter.spec.mode.memory_size
-    #         identifier.qualifier = parameter.spec.loc
-    #         self.current_scope.add_parameter(identifier, parameter)
-    #
-    # def visit_ProcedureCall(self, call: ProcedureCall):
-    #
-    #     for parameter in call.expressions:
-    #         self.visit(parameter)
-    #
-    #     procedure_definition = self._lookup_procedure(call).definition
-    #
-    #     n_procedure_parameters = len(procedure_definition.parameters)
-    #     n_call_parameters = len(call.expressions)
-    #
-    #     if n_procedure_parameters != n_call_parameters:
-    #         raise LyaProcedureCallError(call.lineno, call.identifier.name, None, n_call_parameters, n_procedure_parameters)
-    #
-    #     for i in range(n_call_parameters):
-    #         expression = call.expressions[i]
-    #         parameter = procedure_definition.parameters[i]
-    #
-    #         if parameter.raw_type != expression.raw_type:
-    #             raise LyaArgumentTypeError(call.lineno, call.identifier.name, i, expression.raw_type, parameter.raw_type)
-    #
+
+    def visit_ProcedureCall(self, call: ProcedureCall):
+
+        for expression in reversed(call.expressions):
+            exp = expression.sub_expression
+            if isinstance(exp, Location):
+                if isinstance(exp.type, Identifier):
+                    self._add_instruction(LDV(exp.type.scope_level, exp.type.displacement))
+            elif isinstance(exp, Expression):
+                if exp.exp_value:
+                    # TODO: Otimização - carregar str cte
+                    self._add_instruction(LDC(exp.exp_value))
+                    pass
+            else:
+                self.visit(exp)
+
+        self._add_instruction(CFU(call.scope_level))
+
+
     # def visit_ResultSpec(self, spec: ResultSpec):
     #     self.visit(spec.mode)
     #
@@ -319,15 +279,23 @@ class CodeGenerator(ASTNodeVisitor):
         if isinstance(left, Location):
             if isinstance(left.type, Identifier):
                 self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+        elif isinstance(left, Expression):
+            if left.exp_value:
+                # TODO: Otimização - carregar str cte
+                self._add_instruction(LDC(left.exp_value))
+                pass
+        else:
+            self.visit(left)
 
         if isinstance(right, Location):
             if isinstance(right.type, Identifier):
                 self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
-
-        if left.exp_value is not None:
-            self.visit(left)
-
-        if right.exp_value is not None:
+        elif isinstance(left, Expression):
+            if right.exp_value:
+                # TODO: Otimização - carregar cte
+                self._add_instruction(LDC(right.exp_value))
+                pass
+        else:
             self.visit(right)
 
         if binary_expression.operation is '*':
@@ -335,5 +303,13 @@ class CodeGenerator(ASTNodeVisitor):
 
         #TODO rest of expressions
 
+    # Action -----------------------------------------------------------------------------------------------------------
 
+    # def visit_Action(self, action: Action):
 
+    # def visit_BracketedAction(self, bracketed_action: BracketedAction):
+
+    def visit_AssignmentAction(self, assignment: AssignmentAction):
+        self.visit(assignment.expression)
+        if isinstance(assignment.location.type, Identifier):
+            self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))

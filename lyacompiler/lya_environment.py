@@ -72,7 +72,9 @@ class Environment(object):
             return prev_sconst_pos
 
     def add_label(self, name):
-        self._labels_map[name] = self.generate_label()
+        label = self.generate_label()
+        self._labels_map[name] = label
+        return label
 
     def lookup_label(self, name):
         return self._labels_map.get(name, None)

@@ -457,7 +457,19 @@ class ReferencedLocation(ASTNode):
 
 
 class LabeledAction(Statement):
-    _fields = ['label', 'action']
+    """
+    :type name: str
+    :type action: Action
+    :type label: int
+    """
+    _fields = ['name', 'action']
+
+    def __init__(self, name: str, action: 'Action', **kwargs):
+        self.lineno = None
+        super().__init__(name, action, **kwargs)
+        self.name = name
+        self.action = action
+        self.label = None
 
 
 class Action(ASTNode):
@@ -546,13 +558,32 @@ class ElsIfClause(ASTNode):
         self.next_label = None
 
 
+# TODO: Marcar o que é nullable nos nós
+
 class DoAction(Action):
-    _fields = ['ctrl', 'stmt']
+    """
+    :type control: DoControl
+    :type actions: List[Action]
+    """
+    _fields = ['control', 'actions']
+
+    def __init__(self, control: 'DoControl', actions: List['Action'], **kwargs):
+        super().__init__(control, actions, **kwargs)
+        self.control = control
+        self.actions = actions
 
 
 class DoControl(ASTNode):
-    _fields = ['for_ctrl', 'while_ctrl']
+    """
+    :type for_control: ForControl
+    :type while_control: WhileControl
+    """
+    _fields = ["for_control", "while_control"]
 
+    def __init__(self, for_control: 'ForControl', while_control: 'WhileControl', **kwargs):
+        super().__init__(for_control, while_control, **kwargs)
+        self.for_control = for_control
+        self.while_control = while_control
 
 class ForControl(ASTNode):
     _fields = ['enum']
@@ -567,7 +598,19 @@ class RangeEnumeration(ASTNode):
 
 
 class WhileControl(ASTNode):
-    _fields = ['expr']
+    """
+    :type boolean_expression: BooleanExpression
+    :type start_label: int
+    :type end_label: int
+    """
+    _fields = ['boolean_expression']
+
+    def __init__(self, boolean_expression: 'BooleanExpression', **kwargs):
+        self.lineno = None
+        super().__init__(boolean_expression, **kwargs)
+        self.boolean_expression = boolean_expression
+        self.start_label = None
+        self.end_label = None
 
 
 class CallAction(Action):
@@ -589,7 +632,17 @@ class ProcedureCall(CallAction):
 
 
 class ExitAction(Action):
-    _fields = ['label']
+    """
+    :type name: str
+    :type exit_label: int
+    """
+    _fields = ['name']
+
+    def __init__(self, name: str, **kwargs):
+        self.lineno = None
+        super().__init__(name, **kwargs)
+        self.name = name
+        self.exit_label = None
 
 
 class ReturnAction(Action):

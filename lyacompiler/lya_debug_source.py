@@ -260,6 +260,17 @@ dcl b bool;
 read (b);
 print (p(m, n, b));"""
 
+test4_source = """dcl i int, b bool = true;
+x:
+  do while b;
+        read (i);
+        if i <= 0 then
+            exit x;
+        fi;
+        print (i*i);
+  od;
+print (0);"""
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';
@@ -273,5 +284,5 @@ dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 1
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test3_source
+lya_debug_source = test4_source
 #lya_debug_source = lya_source_do3

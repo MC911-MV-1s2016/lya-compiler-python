@@ -1,0 +1,92 @@
+// Example with "do while", labeled and exit actions
+// https://groups.google.com/forum/#!topic/mc911-1s2016/VsJb-DVRF3Y
+
+dcl i int, b bool = true;
+x:
+  do while b;
+        read (i);
+        if i <= 0 then
+            exit x;
+        fi;
+        print (i*i);
+  od;
+print (0); 
+
+//[
+//  ('stp'),
+//  ('alc', 2),
+//  ('ldc', true),
+//  ('stv', 0, 1),
+//  ('lbl', 2),
+//  ('ldv', 0, 1),
+//  ('jof', 3),
+//  ('rdv'),
+//  ('stv', 0, 0),
+//  ('ldv', 0, 0),
+//  ('ldc', 0),
+//  ('leq'),
+//  ('jof', 4),
+//  ('jmp', 1),
+//  ('lbl', 4),
+//  ('ldv', 0, 0),
+//  ('ldv', 0, 0),
+//  ('mul'),
+//  ('prv'),
+//  ('jmp', 2),
+//  ('lbl', 3),
+//  ('lbl', 1),
+//  ('ldc', 0),
+//  ('prv'),
+//  ('dlc', 2),
+//  ('end'),
+//]
+//
+//Program: offset=2
+//  DeclStmt:
+//    Decl:
+//      ID: name=i, scope=0, value=0 (at line :1)
+//      Mode:
+//        DiscreteMode: name=int (at line :1)
+//    Decl:
+//      ID: name=b, scope=0, value=1 (at line :1)
+//      Mode:
+//        DiscreteMode: name=bool (at line :1)
+//      Expr:
+//        Constant: value=true (at line :1)
+//          DiscreteMode: name=bool
+//  LabeledAction:
+//    ID: name=x, value=1 (at line :2)
+//    Action:
+//      DoAction: label_init=2, label_end=3
+//        DoControl:
+//          While:
+//            BoolExpr:
+//              Expr:
+//                ID: name=b, scope=0, value=1 (at line :3)
+//        Action:
+//          BuiltinCall: name=read (at line :0)
+//            Expr:
+//              ID: name=i, scope=0, value=0 (at line :4)
+//        Action:
+//          IfAction:
+//            BoolExpr:
+//              Expr:
+//                RelationalExpr: op=<= (at line :5)
+//                  ID: name=i, scope=0, value=0 (at line :5)
+//                  Constant: value=0 (at line :5)
+//                    DiscreteMode: name=int
+//            ThenClause:
+//              Action:
+//                Exit:  (at line :6)
+//                  ID: name=x (at line :6)
+//        Action:
+//          BuiltinCall: name=print (at line :8)
+//            Expr:
+//              BinaryExpr: op=* (at line :8)
+//                ID: name=i, scope=0, value=0 (at line :8)
+//                ID: name=i, scope=0, value=0 (at line :8)
+//  Action:
+//    BuiltinCall: name=print (at line :10)
+//      Expr:
+//        Constant: value=0 (at line :10)
+//          DiscreteMode: name=int

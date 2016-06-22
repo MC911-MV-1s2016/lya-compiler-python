@@ -136,6 +136,10 @@ class Visitor(ASTNodeVisitor):
         self.visit(declaration.mode)
         self.visit(declaration.init)
         if declaration.init is not None:
+            if declaration.init.exp_value is None:
+                raise LyaGenericError(declaration.ids[0].lineno,
+                                      declaration, "Unable to resolve declaration "
+                                                   "initialization expression at compile time.")
             if declaration.mode.raw_type != declaration.init.raw_type:
                 raise LyaAssignmentError(declaration.ids[0].lineno,
                                          declaration.init.raw_type,
@@ -240,6 +244,7 @@ class Visitor(ASTNodeVisitor):
         procedure = self._lookup_procedure(call)
         procedure_definition = procedure.definition
         call.raw_type = procedure.identifier.raw_type
+        call.scope_level = procedure.scope.level
 
         # TODO: E loc?
 

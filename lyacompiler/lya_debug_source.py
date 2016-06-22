@@ -260,6 +260,17 @@ dcl b bool;
 read (b);
 print (p(m, n, b));"""
 
+test4_source = """dcl i int, b bool = true;
+x:
+  do while b;
+        read (i);
+        if i <= 0 then
+            exit x;
+        fi;
+        print (i*i);
+  od;
+print (0);"""
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';

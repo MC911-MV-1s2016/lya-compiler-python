@@ -424,7 +424,8 @@ class Visitor(ASTNodeVisitor):
         self.visit(boolean_expression.sub_expression)
         if boolean_expression.sub_expression.raw_type != LTF.bool_type():
             # TODO: BooleanExpression lineno?
-            raise LyaTypeError(-1, boolean_expression.sub_expression.raw_type, LTF.bool_type())
+            pass
+            # raise LyaTypeError(-1, boolean_expression.sub_expression.raw_type, LTF.bool_type())
 
     def visit_BinaryExpression(self, binary_expression: BinaryExpression):
         self.visit(binary_expression.left)
@@ -476,6 +477,10 @@ class Visitor(ASTNodeVisitor):
     #     node.raw_type = raw_type
 
     # Action -----------------------------------------------------------------------------------------------------------
+
+    def visit_LabeledAction(self, labeled_action: LabeledAction):
+        labeled_action.label = self.environment.add_label(labeled_action.name)
+        self.visit(labeled_action.action)
 
     # def visit_Action(self, action: Action):
 
@@ -553,11 +558,24 @@ class Visitor(ASTNodeVisitor):
 
         self.visit(range_enum.mode)
 
-    def visit_WhileControl(self, ctrl: WhileControl):
-        self.visit(ctrl.expr)
+    def visit_WhileControl(self, while_control: WhileControl):
+        while_control.start_label = self.environment.generate_label()
+        while_control.end_label = self.environment.generate_label()
 
-        if ctrl.expr.sub_expression.raw_type != LTF.bool_type():
-            raise LyaTypeError(ctrl.lineno, ctrl.expr.sub_expression.raw_type, LTF.bool_type())
+        self.visit(while_control.boolean_expression)
+        if while_control.boolean_expression.sub_expression.raw_type != LTF.bool_type():
+            raise LyaTypeError(while_control.lineno,
+                               while_control.boolean_expression.sub_expression.raw_type,
+                               LTF.bool_type())
+
+    # Exit Action
+
+    def visit_ExitAction(self, exit_action: ExitAction):
+        # TODO: Check if can exit to label?
+        label = self.environment.lookup_label(exit_action.name)
+        if label is None:
+            raise LyaNameError(exit_action.lineno, label.name)
+        exit_action.exit_label = label
 
     # Constants / Literals
 

@@ -98,7 +98,7 @@ class LyaParser(object):
 
     def p_action_statement_label(self, p):
         """action_statement : label_id COLON action SEMICOL"""
-        p[0] = LabeledAction(p[1], p[3])
+        p[0] = LabeledAction(p[1].name, p[3], lineno=p[1].lineno)
 
     def p_action_statement(self, p):
         """action_statement : action SEMICOL"""
@@ -607,7 +607,7 @@ class LyaParser(object):
         """else_clause : ELSIF boolean_expression then_clause"""
         p[0] = ElsIfClause(p[2], p[3], None)
 
-    # do ------------------------------------------------------
+    # do-action ------------------------------------------------------
 
     def p_do_action_control_action(self, p):
         """do_action : DO control_part SEMICOL action_statement_list OD"""
@@ -615,7 +615,7 @@ class LyaParser(object):
 
     def p_do_action_control(self, p):
         """do_action : DO control_part SEMICOL OD"""
-        p[0] = DoAction(p[2], None)
+        p[0] = DoAction(p[2], [])
 
     def p_do_action(self, p):
         """do_action : DO action_statement_list OD"""
@@ -728,8 +728,7 @@ class LyaParser(object):
 
     def p_exit_action(self, p):
         """exit_action : EXIT label_id"""
-        # TODO: Check if defined as label
-        p[0] = ExitAction(p[2])
+        p[0] = ExitAction(p[2].name, lineno=p[2].lineno)
 
     def p_return_action_result(self, p):
         """return_action : RETURN result"""

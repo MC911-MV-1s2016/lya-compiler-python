@@ -14,7 +14,7 @@ from enum import Enum, unique
 
 from .symboltable import SymbolTable
 from .lya_ast import ASTNode, Identifier, ProcedureStatement, \
-    Declaration, SynonymDefinition, FormalParameter
+    Declaration, SynonymDefinition, FormalParameter, Expression
 from .lya_builtins import *
 from .lya_errors import *
 
@@ -196,11 +196,10 @@ class LyaScope(object):
         self._add_symbol(identifier.name, SymbolEntry(SymbolType.ret, identifier, self))
         self.ret = identifier
 
-    def add_result(self, res: ASTNode):
-        self.result = res
-
-        if self.ret.raw_type != res.raw_type:
-            raise LyaTypeError(res.lineno, res.result.raw_type, self.ret.raw_type)
+    def add_result(self, expression: Expression, lineno: int):
+        self.result = expression
+        if self.ret.raw_type != expression.raw_type:
+            raise LyaTypeError(lineno, expression.raw_type, self.ret.raw_type)
 
     # Label
 

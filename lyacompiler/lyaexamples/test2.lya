@@ -1,3 +1,6 @@
+// Decorated AST and LVM code example
+// https://groups.google.com/forum/#!topic/mc911-1s2016/ibmfI4rmIAY
+
 dcl m int = 2, n int = 3;
 p: proc (x int);
   dcl s int;
@@ -5,7 +8,32 @@ p: proc (x int);
 end;
 p(n);
 
-
+//The generated code is:
+//
+//[
+//  ('stp'),
+//  ('alc', 2),
+//  ('ldc', 2),
+//  ('stv', 0, 0),
+//  ('ldc', 3),
+//  ('stv', 0, 1),
+//  ('jmp', 2),
+//  ('lbl', 1),
+//  ('enf', 1),
+//  ('alc', 1),
+//  ('ldv', 0, 0),
+//  ('ldv', 1, -3),
+//  ('mul'),
+//  ('stv', 1, 0),
+//  ('dlc', 1),
+//  ('ret', 1, 1),
+//  ('lbl', 2),
+//  ('ldv', 0, 1),
+//  ('cfu', 1),
+//  ('dlc', 2),
+//  ('end'),
+//]
+//
 //The decorated AST is:
 //
 //Program: offset=2

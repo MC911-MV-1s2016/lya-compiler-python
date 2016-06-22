@@ -245,7 +245,22 @@ p: proc (x int);
 end;
 p(n);"""
 
-test3_source = """syn sy1 = 20;
+test3_source = """dcl m int = 2, n int = 3;
+p: proc (x, y int, b bool) returns (int);
+    dcl s int = x;
+    if b then
+        s += y;
+        result s;
+    else
+        result y;
+    fi;
+end;
+
+dcl b bool;
+read (b);
+print (p(m, n, b));"""
+
+syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';
 syn sy3 bool = true;

@@ -235,7 +235,10 @@ class Visitor(ASTNodeVisitor):
 
         procedure_definition = self._lookup_procedure(call).definition
 
-        n_procedure_parameters = len(procedure_definition.parameters)
+        n_procedure_parameters = 0
+        for p in procedure_definition.parameters:
+            n_procedure_parameters += len(p.ids)
+
         n_call_parameters = len(call.expressions)
 
         if n_procedure_parameters != n_call_parameters:
@@ -252,15 +255,13 @@ class Visitor(ASTNodeVisitor):
         self.visit(spec.mode)
         spec.raw_type = spec.mode.raw_type
 
-    def visit_ReturnAction(self, ret: ReturnAction):
-        self.visit(ret.expression)
-        ret.exp_value = ret.expression.exp_value
-        self.current_scope.add_result(ret)
+    def visit_ReturnAction(self, return_action: ReturnAction):
+        self.visit(return_action.expression)
+        self.current_scope.add_result(return_action.lineno, return_action.expression)
 
-    def visit_ResultAction(self, ret: ResultAction):
-        self.visit(ret.expression)
-        ret.exp_value = ret.expression.exp_value
-        self.current_scope.add_result(ret)
+    def visit_ResultAction(self, result: ResultAction):
+        self.visit(result.expression)
+        self.current_scope.add_result(result.expression, result.lineno)
 
     # Mode -------------------------------------------------------------------------------------------------------------
 

@@ -329,5 +329,5 @@ print (s);"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test_elsif_source
+lya_debug_source = test3_source
 #lya_debug_source = lya_source_do3

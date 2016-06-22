@@ -588,7 +588,7 @@ class LyaParser(object):
 
     def p_then_clause_empty(self, p):
         """then_clause : THEN empty"""
-        p[0] = ThenClause(None)
+        p[0] = ThenClause([])
 
     def p_else_clause(self, p):
         """else_clause : ELSE action_statement_list"""
@@ -596,15 +596,17 @@ class LyaParser(object):
 
     def p_else_clause_empty(self, p):
         """else_clause : ELSE empty"""
-        p[0] = ElseClause(None)
+        p[0] = ElseClause([])
 
     def p_else_clause_if_else(self, p):
         """else_clause : ELSIF boolean_expression then_clause else_clause"""
-        p[0] = ElsifClause(p[2], p[3], p[4])
+        p[0] = ElsIfClause(p[2], p[3], p[4])
 
     def p_else_clause_if(self, p):
         """else_clause : ELSIF boolean_expression then_clause"""
-        p[0] = ElsifClause(p[2], p[3], None)
+        p[0] = ElsIfClause(p[2], p[3], None)
+
+    # do ------------------------------------------------------
 
     def p_do_action_control_action(self, p):
         """do_action : DO control_part SEMICOL action_statement_list OD"""

@@ -473,21 +473,71 @@ class AssignmentAction(Action):
         self.expression = expression
 
 
-
 class IfAction(Action):
-    _fields = ['bool_expr', 'then_clause', 'else_clause']
+    """
+    :type boolean_expression: BooleanExpression
+    :type then_clause: ThenClause
+    :type else_clause:
+    :type exit_label: int
+    :type next_label: int
+    """
+    _fields = ['boolean_expression', 'then_clause', 'else_clause']
+
+    def __init__(self, boolean_expression: 'BooleanExpression', then_clause: 'ThenClause', else_clause, **kwargs):
+        super().__init__(boolean_expression, then_clause, else_clause, **kwargs)
+        self.boolean_expression = boolean_expression
+        self.then_clause = then_clause
+        self.else_clause = else_clause
+        self.exit_label = None
+        self.next_label = None
 
 
 class ThenClause(ASTNode):
-    _fields = ['stmt']
+    """
+    :type actions: List[Action]
+    :type exit_label: int
+    :type next_label: int
+    """
+    _fields = ['actions']
+
+    def __init__(self, actions: List['Action'], **kwargs):
+        super().__init__(actions, **kwargs)
+        self.actions = actions
+        self.exit_label = None
+        self.next_label = None
 
 
 class ElseClause(ASTNode):
-    _fields = ['stmt']
+    """
+    :type actions: List[Action]
+    :type exit_label: int
+    :type next_label: int
+    """
+    _fields = ['actions']
+
+    def __init__(self, actions: List['Action'], **kwargs):
+        super().__init__(actions, **kwargs)
+        self.actions = actions
+        self.exit_label = None
 
 
-class ElsifClause(ASTNode):
-    _fields = ['bool_expr', 'then_clause', 'else_clause']
+class ElsIfClause(ASTNode):
+    """
+    :type boolean_expression: BooleanExpression
+    :type then_clause: ThenClause
+    :type else_clause:
+    :type exit_label: int
+    :type next_label: int
+    """
+    _fields = ['boolean_expression', 'then_clause', 'else_clause']
+
+    def __init__(self, boolean_expression: BooleanExpression, then_clause: ThenClause, else_clause, **kwargs):
+        super().__init__(boolean_expression, then_clause, else_clause, **kwargs)
+        self.boolean_expression = boolean_expression
+        self.then_clause = then_clause
+        self.else_clause = else_clause
+        self.exit_label = None
+        self.next_label = None
 
 
 class DoAction(Action):

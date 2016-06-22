@@ -506,15 +506,6 @@ class Visitor(ASTNodeVisitor):
 
     # IfAction ---------------------------------------------------------------------------------------------------------
 
-
-    # TODO: CodeGen If compare
-    # TODO: CodeGen If labels
-    # TODO: CodeGen BinaryExp all ops
-    # TODO: CodeGen result
-    # TODO: CodeGen Builtin read
-    # TODO: CodeGen Builtin print
-
-
     def visit_IfAction(self, if_action: IfAction):
         self.visit(if_action.boolean_expression)
         if_action.next_label = self.environment.generate_label()
@@ -528,6 +519,8 @@ class Visitor(ASTNodeVisitor):
 
     def visit_ElsIfClause(self, else_if_clause: ElsIfClause):
         else_if_clause.next_label = self.environment.generate_label()
+
+        self.visit(else_if_clause.boolean_expression)
         self.visit(else_if_clause.then_clause)
         if else_if_clause.else_clause is not None:
             if isinstance(else_if_clause.else_clause, ElsIfClause):

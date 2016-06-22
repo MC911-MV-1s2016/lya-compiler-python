@@ -375,3 +375,40 @@ class CodeGenerator(ASTNodeVisitor):
 
     # IfAction ---------------------------------------------------------------------------------------------------------
 
+    # TODO: CodeGen If compare
+    # TODO: CodeGen If labels
+    # TODO: CodeGen BinaryExp all ops
+    # TODO: CodeGen result
+    # TODO: CodeGen Builtin read
+    # TODO: CodeGen Builtin print
+
+
+    def visit_IfAction(self, if_action: IfAction):
+        # IfAction
+        self.visit(if_action.boolean_expression)
+        self._add_instruction(JOF(if_action.next_label))
+
+        # ThenClause
+        self.visit(if_action.then_clause)
+        self._add_instruction(JMP(if_action.exit_label))
+
+        # ElseClause
+        if if_action.else_clause is not None:
+            self._add_instruction(LBL(if_action.next_label))
+            self.visit(if_action.else_clause)
+
+        self._add_instruction(LBL(if_action.exit_label))
+
+    def visit_ElsIfClause(self, else_if_clause: ElsIfClause):
+        # If
+        self.visit(else_if_clause.boolean_expression)
+        self._add_instruction(JOF(else_if_clause.next_label))
+
+        # Then
+        self.visit(else_if_clause.then_clause)
+        self._add_instruction(JMP(else_if_clause.exit_label))
+
+        # Else
+        if else_if_clause.else_clause is not None:
+            self._add_instruction(LBL(else_if_clause.next_label))
+            self.visit(else_if_clause.else_clause)

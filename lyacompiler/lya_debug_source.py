@@ -303,8 +303,20 @@ p: proc (x int);
 end;
 p(n);"""
 
+test_elsif_source = """dcl m int = 2, n int = 3, y, s int, b bool = true;
+    if b then
+        s += y;
+    elsif b then
+        s = y;
+    else
+        s = 3;
+    fi;
+
+print (s);"""
+
+
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test3_source
+lya_debug_source = test_elsif_source
 #lya_debug_source = lya_source_do3

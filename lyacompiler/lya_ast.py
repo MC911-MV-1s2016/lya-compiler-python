@@ -38,7 +38,11 @@ class ASTNode(object):
                      'operation',       # Un/Binary Expression Operation
                      'value',           # Value, usually on constant nodes
                      'exp_value',       # When possible, expressions pre-computations
-                     'synonym_value',   # Identifier synonym value (assign, synonym)
+                     'synonym_value',   # Identifier synonym value
+                     'start_label',     # Procedure start label
+                     'end_label',       # Procedure end label
+                     'next_label',      # IfThenElse next label (If -> Then -> Else)
+                     'exit_label',      # IfThenElse exit label
                      'heap_position',   # String constant position on string heap
                      'scope_level',     # Node's scope depth.
                      'offset',          # Memory 'slots' from scope base register
@@ -131,6 +135,8 @@ class ProcedureStatement(Statement):
     """
     :type label: Identifier
     :type definition: ProcedureDefinition
+    :type start_label: int
+    :type end_label: int
     """
     _fields = ['label', 'definition']
 
@@ -138,6 +144,8 @@ class ProcedureStatement(Statement):
         super().__init__(label, definition, **kwargs)
         self.label = label
         self.definition = definition
+        self.start_label = None
+        self.end_label = None
 
 
 class Declaration(ASTNode):

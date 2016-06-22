@@ -192,9 +192,8 @@ class Visitor(ASTNodeVisitor):
         self.current_scope.add_procedure(procedure.label, procedure)
         self.environment.start_new_scope(procedure)
 
-        self.environment._add_label(procedure.label.name)
-        procedure.label_start = len(self.environment.labels_map)
-        procedure.label_end = len(self.environment.labels_map)+1
+        procedure.start_label = self.environment.generate_label()
+        procedure.end_label = self.environment.generate_label()
 
         definition = procedure.definition
         parameters = definition.parameters

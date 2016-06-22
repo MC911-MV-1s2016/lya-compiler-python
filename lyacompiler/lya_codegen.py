@@ -286,6 +286,7 @@ class CodeGenerator(ASTNodeVisitor):
 
         left = binary_expression.left
         right = binary_expression.right
+        op = binary_expression.operation
 
         if isinstance(left, Location):
             if isinstance(left.type, Identifier):
@@ -309,10 +310,39 @@ class CodeGenerator(ASTNodeVisitor):
         else:
             self.visit(right)
 
-        if binary_expression.operation is '*':
-            self._add_instruction(MUL())
+        self._add_instruction(left.raw_type.get_binary_instruction(op))
 
-        #TODO rest of expressions
+    def visit_RelationalExpression(self, relational_expression: RelationalExpression):
+        # Make sure left and right operands have the same type
+        # Make sure the operation is supported
+
+        left = relational_expression.l_value
+        right = relational_expression.r_value
+        op = relational_expression.op
+
+        if isinstance(left, Location):
+            if isinstance(left.type, Identifier):
+                self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+        elif isinstance(left, Expression):
+            if left.exp_value:
+                # TODO: Otimização - carregar str cte
+                self._add_instruction(LDC(left.exp_value))
+                pass
+        else:
+            self.visit(left)
+
+        if isinstance(right, Location):
+            if isinstance(right.type, Identifier):
+                self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
+        elif isinstance(left, Expression):
+            if right.exp_value:
+                # TODO: Otimização - carregar cte
+                self._add_instruction(LDC(right.exp_value))
+                pass
+        else:
+            self.visit(right)
+
+        self._add_instruction(left.raw_type.get_relational_instruction(op))
 
     # Action -----------------------------------------------------------------------------------------------------------
 

@@ -10,6 +10,8 @@
 #
 # ------------------------------------------------------------
 
+from .lya_errors import *
+from .lya_lvminstruction import *
 
 __all__ = [
     'LTF',
@@ -52,6 +54,22 @@ class LyaType(object):
     def __ne__(self, other):
         return self.name != other
 
+    def get_binary_instruction(self, op):
+        instruction = self._binary_opcodes.get(op, None)
+
+        if instruction is None:
+            raise LyaGenericError(-1, None, "Binary operation error")
+
+        return instruction()
+
+    def get_relational_instruction(self, op):
+        instruction = self._rel_opcodes.get(op, None)
+
+        if instruction is None:
+            raise LyaGenericError(-1, None, "Relational operation error")
+
+        return instruction()
+
     @property
     def name(self) -> str:
         return self._name
@@ -63,6 +81,10 @@ class LyaType(object):
     @property
     def binary_ops(self):
         return self._binary_ops
+
+    @property
+    def relational_ops(self):
+        return self._rel_ops
 
 
 class LyaBaseType(LyaType):
@@ -106,7 +128,13 @@ class LyaIntType(LyaBaseType):
     _binary_ops = {'+', '-', '*', '/', '%'}
     _rel_ops = {'==', '!=', '>', '>=', '<', '<='}
     _unary_opcodes = {}
-    _binary_opcodes = {}
+    _binary_opcodes = {
+        '+': ADD,
+        '-': SUB,
+        '*': MUL,
+        '/': DIV,
+        '%': MOD
+    }
     _rel_opcodes = {}
 
     _instance = None
@@ -119,10 +147,19 @@ class LyaBoolType(LyaBaseType):
     _name = "bool"
     _unary_ops = {'!'}
     _binary_ops = {}
-    _rel_ops = {'==', '!='}
+    _rel_ops = {'&&', '||', '==', '!=', '<', '<=', '>', '>='}
     _unary_opcodes = {}
     _binary_opcodes = {}
-    _rel_opcodes = {}
+    _rel_opcodes = {
+        '&&': AND,
+        '||': LOR,
+        '==': EQU,
+        '!=': NEQ,
+        '<': LES,
+        '<=': LEQ,
+        '>': GRT,
+        '>=': GRE
+    }
 
     _instance = None
 

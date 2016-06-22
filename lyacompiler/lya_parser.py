@@ -434,7 +434,8 @@ class LyaParser(object):
 
     def p_operand0_relational_exp(self, p):
         """operand0 : operand0 relational_operator operand1"""
-        p[0] = RelationalExpression(p[1], p[2], p[3])
+        op, lineno = p[2]
+        p[0] = RelationalExpression(p[1], op, p[3], lineno=lineno)
 
     def p_operand0_membership_exp(self, p):
         """operand0 : operand0 membership_operator operand1"""
@@ -449,7 +450,7 @@ class LyaParser(object):
                                | GEQ
                                | LSS
                                | LEQ"""
-        p[0] = p[1]
+        p[0] = (p[1], p.lineno(1))
 
     def p_membership_operator(self, p):
         """membership_operator : IN"""

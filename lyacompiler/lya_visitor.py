@@ -85,6 +85,14 @@ class Visitor(ASTNodeVisitor):
                 return side.type.synonym_value
         return None
 
+    def _get_binary_boolean_side_value(self, side):
+        if isinstance(side, BooleanConstant):
+            return side.value
+        if isinstance(side, Location):
+            if isinstance(side.type, Identifier):
+                return side.type.synonym_value
+        return None
+
     def _evaluate_binary_expression(self, operation, left, right):
         """If possible, computes the binary expression.
         Assumes semantic analysis was made
@@ -99,6 +107,28 @@ class Visitor(ASTNodeVisitor):
         if isinstance(raw_type, LyaIntType):
             left_val = self._get_binary_integer_side_value(left)
             right_val = self._get_binary_integer_side_value(right)
+            if left_val is not None and right_val is not None:
+                exp_value = eval("{0}{1}{2}".format(left_val, operation, right_val))
+
+        # TODO: Ref binary op.
+
+        return raw_type, exp_value
+
+
+    def _evaluate_relational_expression(self, operation, left, right):
+        """If possible, computes the relational expression.
+        Assumes semantic analysis was made
+        :param operation:
+        :param left:
+        :param right:
+        :return:
+        """
+        raw_type = left.raw_type
+        exp_value = None
+
+        if isinstance(raw_type, LyaBoolType):
+            left_val = self._get_binary_boolean_side_value(left)
+            right_val = self._get_binary_boolean_side_value(right)
             if left_val is not None and right_val is not None:
                 exp_value = eval("{0}{1}{2}".format(left_val, operation, right_val))
 
@@ -416,6 +446,27 @@ class Visitor(ASTNodeVisitor):
         raw_type, exp_value = self._evaluate_binary_expression(op, left, right)
         binary_expression.raw_type = raw_type
         binary_expression.exp_value = exp_value
+
+    def visit_RelationalExpression(self, relational_expression: RelationalExpression):
+        self.visit(relational_expression.l_value)
+        self.visit(relational_expression.r_value)
+
+        op = relational_expression.op
+        left = relational_expression.l_value
+        right = relational_expression.r_value
+
+        if left.raw_type != right.raw_type:
+            raise LyaOperationError(relational_expression.lineno, op, left.raw_type, right.raw_type)
+
+        if op not in left.raw_type.relational_ops:
+            raise LyaOperationError(relational_expression.lineno, op, left_type=left.raw_type)
+
+        if op not in right.raw_type.relational_ops:
+            raise LyaOperationError(relational_expression.lineno, op, right_type=right.raw_type)
+
+        raw_type, exp_value = self._evaluate_relational_expression(op, left, right)
+        relational_expression.raw_type = raw_type
+        relational_expression.exp_value = exp_value
 
     # def visit_UnaryExpr(self, node):
     #     self.visit(node.expr)

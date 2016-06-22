@@ -135,7 +135,14 @@ class LyaIntType(LyaBaseType):
         '/': DIV,
         '%': MOD
     }
-    _rel_opcodes = {}
+    _rel_opcodes = {
+        '==': EQU,
+        '!=': NEQ,
+        '<': LES,
+        '<=': LEQ,
+        '>': GRT,
+        '>=': GRE
+    }
 
     _instance = None
 

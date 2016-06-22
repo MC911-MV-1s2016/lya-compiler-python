@@ -461,7 +461,8 @@ class LyaParser(object):
 
     def p_operand1_op2(self, p):
         """operand1 : operand1 operator2 operand2"""
-        p[0] = BinaryExpression(p[1], p[2], p[3])
+        op, lineno = p[2]
+        p[0] = BinaryExpression(p[1], op, p[3], lineno=lineno)
 
     def p_operator2(self, p):
         """operator2 : arithmetic_additive_operator
@@ -471,11 +472,11 @@ class LyaParser(object):
     def p_arithmetic_additive_operator(self, p):
         """arithmetic_additive_operator : PLUS
                                         | MINUS"""
-        p[0] = p[1]
+        p[0] = (p[1], p.lineno(1))
 
     def p_string_concatenation_operator(self, p):
         """string_concatenation_operator : CONCAT"""
-        p[0] = p[1]
+        p[0] = (p[1], p.lineno(1))
 
     def p_operand2_operand3(self, p):
         """operand2 : operand3"""
@@ -483,13 +484,14 @@ class LyaParser(object):
 
     def p_operand2_op3(self, p):
         """operand2 : operand2 arithmetic_multiplicative_operator operand3"""
-        p[0] = BinaryExpression(p[1], p[2], p[3])
+        op, lineno = p[2]
+        p[0] = BinaryExpression(p[1], op, p[3], lineno=lineno)
 
     def p_arithmetic_multiplicative_operator(self, p):
         """arithmetic_multiplicative_operator : TIMES
                                               | DIVIDE
                                               | PERC"""
-        p[0] = p[1]
+        p[0] = (p[1], p.lineno(1))
 
     def p_operand3_uminus(self, p):
         """operand3 : MINUS operand4 %prec UMINUS"""
@@ -541,10 +543,24 @@ class LyaParser(object):
                              | do_action"""
         p[0] = BracketedAction(p[1])
 
+    _ops = {
+        '+=': '+',
+        '-=': '-',
+        '*=': '*',
+        '/=': '/',
+        '%=': '%',
+        '&=': '&',
+    }
+
     def p_assignment_action(self, p):
         """assignment_action : location assigning_operator expression"""
-        # names[p[1]]=p[3]
-        p[0] = Assignment(p[1], p[2], p[3])
+        location = p[1]
+        op, lineno = p[2]
+        expression = p[3]
+        if op != '=':
+            op = self._ops.get(op)
+            expression = BinaryExpression(location, op, expression)
+        p[0] = AssignmentAction(p[1], expression, lineno=lineno)
 
     def p_assigning_operator(self, p):
         """assigning_operator : ASSIGN
@@ -554,7 +570,7 @@ class LyaParser(object):
                               | DIVIDEASSIGN
                               | PERCASSIGN
                               | CONCATASSIGN"""
-        p[0] = p[1]
+        p[0] = (p[1], p.lineno(1))
 
     # if-then-else ------------------------------------------------------
 

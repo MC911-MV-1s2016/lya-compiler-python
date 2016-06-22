@@ -268,12 +268,12 @@ LTF = LyaTypeFactory
 # 0 - Parar em erro de sintaxe - OK
 # 1 - Arrumar ASTNode para ter apenas um lya_type (no lugar do raw_type) - OK
 # 2 - Refatorar visitação para pegar tipos da factory (LTF) - OK
-# 4 - Eval de expressions, se operandos forem números,
+# 4 - Eval de expressions, se operandos forem números, - OK
 #     vai jogando resultado parcial para cima, junto com tipo.
 #     Se encontrar location -> id -> int, ver se id tem exp_val, se não tiver
 #     não joga nenhum resultado parcial para cima, só tipo. ConstExpress não podem
 #     ter var no meio. Arrays tem q ter tamanho conhecido em tempo de compilação.
-# 5 - Visitar sinonimos (guardar syn_val)
+# 5 - Visitar sinonimos (guardar syn_val) - OK
 # 6 - Visitar Exps
 # 7 - Visitar Array: garantir range - OK
 # 8 - String - OK

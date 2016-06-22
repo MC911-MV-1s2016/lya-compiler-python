@@ -122,7 +122,7 @@ class Visitor(ASTNodeVisitor):
     #                   "Binary operator {} not supported on {} of expression".format(op, errside))
     #     return left.check_type
 
-    # Visitation ------------------------------------------------
+    # Program ----------------------------------------------------------------------------------------------------------
 
     def visit_Program(self, program: Program):
         self.environment.start_new_scope(program)
@@ -130,7 +130,7 @@ class Visitor(ASTNodeVisitor):
             self.visit(statement)
         self.environment.end_current_scope()
 
-    # Statement -------------------------------------------------
+    # Statement --------------------------------------------------------------------------------------------------------
 
     def visit_Declaration(self, declaration: Declaration):
         self.visit(declaration.mode)
@@ -186,7 +186,7 @@ class Visitor(ASTNodeVisitor):
         for new_mode in node.new_modes:
             self.visit(new_mode)
 
-    # Procedure ------------------------------------------
+    # Procedure --------------------------------------------------------------------------------------------------------
 
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
         self.current_scope.add_procedure(procedure.label, procedure)
@@ -240,7 +240,10 @@ class Visitor(ASTNodeVisitor):
 
         procedure_definition = self._lookup_procedure(call).definition
 
-        n_procedure_parameters = len(procedure_definition.parameters)
+        n_procedure_parameters = 0
+        for p in procedure_definition.parameters:
+            n_procedure_parameters += len(p.ids)
+
         n_call_parameters = len(call.expressions)
 
         if n_procedure_parameters != n_call_parameters:
@@ -257,17 +260,15 @@ class Visitor(ASTNodeVisitor):
         self.visit(spec.mode)
         spec.raw_type = spec.mode.raw_type
 
-    def visit_ReturnAction(self, ret: ReturnAction):
-        self.visit(ret.expression)
-        ret.exp_value = ret.expression.exp_value
-        self.current_scope.add_result(ret)
+    def visit_ReturnAction(self, return_action: ReturnAction):
+        self.visit(return_action.expression)
+        self.current_scope.add_result(return_action.lineno, return_action.expression)
 
-    def visit_ResultAction(self, ret: ResultAction):
-        self.visit(ret.expression)
-        ret.exp_value = ret.expression.exp_value
-        self.current_scope.add_result(ret)
+    def visit_ResultAction(self, result: ResultAction):
+        self.visit(result.expression)
+        self.current_scope.add_result(result.expression, result.lineno)
 
-    # Mode
+    # Mode -------------------------------------------------------------------------------------------------------------
 
     def visit_Mode(self, mode: Mode):
         self.visit(mode.base_mode)
@@ -337,7 +338,7 @@ class Visitor(ASTNodeVisitor):
 
         array_mode.raw_type = LTF.array_type(array_mode.element_mode.raw_type, array_ranges)
 
-    # Location
+    # Location ---------------------------------------------------------------------------------------------------------
 
     def visit_Location(self, location: Location):
         self.visit(location.type)
@@ -347,7 +348,7 @@ class Visitor(ASTNodeVisitor):
 
         location.raw_type = location.type.raw_type
 
-    # Expression
+    # Expression -------------------------------------------------------------------------------------------------------
 
     def visit_Expression(self, expression: Expression):
         self.visit(expression.sub_expression)
@@ -369,16 +370,13 @@ class Visitor(ASTNodeVisitor):
         right = binary_expression.right
 
         if left.raw_type != right.raw_type:
-            # TODO: Binop lineno?
-            raise LyaOperationError(1, op, left.raw_type, right.raw_type)
+            raise LyaOperationError(binary_expression.lineno, op, left.raw_type, right.raw_type)
 
         if op not in left.raw_type.binary_ops:
-            # TODO: Binop lineno?
-            raise LyaOperationError(1, op, left_type=left.raw_type)
+            raise LyaOperationError(binary_expression.lineno, op, left_type=left.raw_type)
 
         if op not in right.raw_type.binary_ops:
-            # TODO: Binop lineno?
-            raise LyaOperationError(1, op, right_type=right.raw_type)
+            raise LyaOperationError(binary_expression.lineno, op, right_type=right.raw_type)
 
         raw_type, exp_value = self._evaluate_binary_expression(op, left, right)
         binary_expression.raw_type = raw_type
@@ -391,8 +389,23 @@ class Visitor(ASTNodeVisitor):
     #     # Set the result type to the same as the operand
     #     node.raw_type = raw_type
 
+    # Action -----------------------------------------------------------------------------------------------------------
 
+    # def visit_Action(self, action: Action):
 
+    # def visit_BracketedAction(self, bracketed_action: BracketedAction):
+
+    def visit_AssignmentAction(self, assignment: AssignmentAction):
+        self.visit(assignment.location)
+        self.visit(assignment.expression)
+
+        # TODO: Array, ArrayElement, Slices, Strings... other locs
+
+        if assignment.location.raw_type != assignment.expression.raw_type:
+            raise LyaTypeError(assignment.lineno, assignment.expression.raw_type, assignment.location.raw_type)
+
+        # TODO: Checar se cabe no location (mem_size)
+        # TODO: Checar ranges respeitados? FAz sentido?
 
     # Do_Action
 

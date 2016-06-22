@@ -171,16 +171,6 @@ class SynonymDefinition(ASTNode):
         self.mode = mode
         self.expression = expression
 
-
-# Visitar SynonymDefinition
-    #Visita Expression e garantir q eh const (tem exp_value)
-    #Visitar Mode, se existir
-        #Bater raw_types
-    #Visitar identifiers
-        # Setar raw_type
-        # Setar synonym_value
-        # Adicionar ao escopo
-
 # Visitar Expression.
 
 # Assign to define or type -> ilegal operation.
@@ -384,14 +374,6 @@ class ValueArrayElement(ASTNode):
 class ValueArraySlice(ASTNode):
     _fields = ['value', 'l_bound', 'u_bound']
 
-
-class Assignment(ASTNode):
-    _fields = ['l_value', 'op', 'r_value']
-
-    def debug_data(self):
-        return self.op
-
-
 class Expression(ASTNode):
     _fields = ['sub_expression']
 
@@ -478,7 +460,18 @@ class BracketedAction(Action):
 
 
 class AssignmentAction(Action):
-    _fields = ['loc', 'op', 'expr']
+    """
+    :type location: Location
+    :type expression: expression
+    """
+    _fields = ['location', 'expression']
+
+    def __init__(self, location: 'Location', expression: 'Expression', **kwargs):
+        self.lineno = None
+        super().__init__(location, expression, **kwargs)
+        self.location = location
+        self.expression = expression
+
 
 
 class IfAction(Action):

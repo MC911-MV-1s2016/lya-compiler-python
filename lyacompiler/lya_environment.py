@@ -13,6 +13,7 @@
 from .lya_ast import Identifier
 from .lya_scope import *
 from .lya_builtins import *
+from .lya_errors import *
 
 
 class Environment(object):
@@ -58,9 +59,9 @@ class Environment(object):
         enclosure.scope = self.current_scope
 
     def end_current_scope(self):
-        if self.current_scope.ret is not None:
+        if self.current_scope.ret is not None and self.current_scope.ret.raw_type != LTF.void_type():
             if self.current_scope.result is None:
-                pass#raise LyaReturnError() #TODO
+                raise LyaGenericError(-1, self.current_scope.enclosure, "Exiting scope without return.")
 
         self.current_scope.enclosure.offset = self.current_scope.locals_displacement
         self.current_scope = self.current_scope.parent

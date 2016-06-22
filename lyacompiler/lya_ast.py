@@ -585,15 +585,53 @@ class DoControl(ASTNode):
         self.for_control = for_control
         self.while_control = while_control
 
+
 class ForControl(ASTNode):
-    _fields = ['enum']
+    """
+    :type iteration:  Iteration
+    """
+    _fields = ['iteration']
+
+    def __init__(self, iteration: 'Iteration', **kwargs):
+        super().__init__(iteration, **kwargs)
+        self.iteration = iteration
 
 
-class StepEnumeration(ASTNode):
-    _fields = ['counter', 'start_val', 'step_val', 'down', 'end_val']
+class Iteration(ASTNode):
+    pass
 
 
-class RangeEnumeration(ASTNode):
+class StepEnumeration(Iteration):
+    """
+    :type identifier: Identifier
+    :type start_expression: IntegerExpression
+    :type step_expression: IntegerExpression @nullable
+    :type down: bool
+    :type end_expression: IntegerExpression
+    :type start_label: int
+    :type end_label: int
+    """
+    _fields = ['identifier', 'start_expression', 'step_expression', 'down', 'end_expression']
+
+    def __init__(self, identifier: 'Identifier',
+                 start_expression: 'IntegerExpression',
+                 step_expression: 'IntegerExpression',
+                 down: bool,
+                 end_expression: 'IntegerExpression',
+                 **kwargs):
+        self.lineno = None
+        super().__init__(identifier, start_expression, step_expression, down, end_expression, **kwargs)
+        # TODO: start and end integer_exp -> discrete_exp
+        self.identifier = identifier
+        self.start_expression = start_expression
+        self.step_expression = step_expression
+        self.down = down
+        self.end_expression = end_expression
+        self.start_label = None
+        self.end_label = None
+
+
+class RangeEnumeration(Iteration):
     _fields = ['counter', 'down', 'mode']
 
 

@@ -271,6 +271,14 @@ x:
   od;
 print (0);"""
 
+test5_source = """dcl i, soma int;
+soma = 0;
+do for i=1 to 10;
+    soma += i;
+od;
+print (soma);
+"""
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';
@@ -298,5 +306,5 @@ p(n);"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test_unary_op_source
+lya_debug_source = test3_source
 #lya_debug_source = lya_source_do3

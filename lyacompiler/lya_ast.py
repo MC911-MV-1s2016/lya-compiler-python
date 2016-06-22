@@ -564,6 +564,8 @@ class DoAction(Action):
     """
     :type control: DoControl
     :type actions: List[Action]
+    :type start_label: int
+    :type end_label: int    @nullable
     """
     _fields = ['control', 'actions']
 
@@ -571,6 +573,8 @@ class DoAction(Action):
         super().__init__(control, actions, **kwargs)
         self.control = control
         self.actions = actions
+        self.start_label = None
+        self.end_label = None
 
 
 class DoControl(ASTNode):
@@ -608,8 +612,6 @@ class StepEnumeration(Iteration):
     :type step_expression: IntegerExpression @nullable
     :type down: bool
     :type end_expression: IntegerExpression
-    :type start_label: int
-    :type end_label: int
     """
     _fields = ['identifier', 'start_expression', 'step_expression', 'down', 'end_expression']
 
@@ -627,8 +629,6 @@ class StepEnumeration(Iteration):
         self.step_expression = step_expression
         self.down = down
         self.end_expression = end_expression
-        self.start_label = None
-        self.end_label = None
 
 
 class RangeEnumeration(Iteration):
@@ -638,8 +638,6 @@ class RangeEnumeration(Iteration):
 class WhileControl(ASTNode):
     """
     :type boolean_expression: BooleanExpression
-    :type start_label: int
-    :type end_label: int
     """
     _fields = ['boolean_expression']
 
@@ -647,8 +645,6 @@ class WhileControl(ASTNode):
         self.lineno = None
         super().__init__(boolean_expression, **kwargs)
         self.boolean_expression = boolean_expression
-        self.start_label = None
-        self.end_label = None
 
 
 class CallAction(Action):

@@ -279,6 +279,17 @@ od;
 print (soma);
 """
 
+test6_source = """dcl i int;
+dcl soma int = 0, b bool = true;
+
+do for i=1 to 10 while b;
+    soma += i;
+    if soma > 100 then
+        b = false;
+    fi;
+od;
+print (soma);"""
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';
@@ -306,5 +317,5 @@ p(n);"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test3_source
+lya_debug_source = test6_source
 #lya_debug_source = lya_source_do3

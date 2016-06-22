@@ -136,10 +136,6 @@ class Visitor(ASTNodeVisitor):
         self.visit(declaration.mode)
         self.visit(declaration.init)
         if declaration.init is not None:
-            if declaration.init.exp_value is None:
-                raise LyaGenericError(declaration.ids[0].lineno,
-                                      declaration, "Unable to resolve declaration "
-                                                   "initialization expression at compile time.")
             if declaration.mode.raw_type != declaration.init.raw_type:
                 raise LyaAssignmentError(declaration.ids[0].lineno,
                                          declaration.init.raw_type,
@@ -448,7 +444,17 @@ class Visitor(ASTNodeVisitor):
 
     # IfAction ---------------------------------------------------------------------------------------------------------
 
+
+    # TODO: CodeGen If compare
+    # TODO: CodeGen If labels
+    # TODO: CodeGen BinaryExp all ops
+    # TODO: CodeGen result
+    # TODO: CodeGen Builtin read
+    # TODO: CodeGen Builtin print
+
+
     def visit_IfAction(self, if_action: IfAction):
+        self.visit(if_action.boolean_expression)
         if_action.next_label = self.environment.generate_label()
         if_action.exit_label = self.environment.generate_label()
         self.visit(if_action.then_clause)

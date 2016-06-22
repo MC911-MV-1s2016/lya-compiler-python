@@ -273,5 +273,5 @@ dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 1
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test2_source
+lya_debug_source = test3_source
 #lya_debug_source = lya_source_do3

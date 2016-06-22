@@ -63,7 +63,10 @@ class CodeGenerator(ASTNodeVisitor):
         if declaration.init is not None:
             # TODO: Load string constant
             for identifier in declaration.ids:
-                self._add_instruction(LDC(declaration.init.exp_value))
+                if declaration.init.exp_value is not None:
+                    self._add_instruction(LDC(declaration.init.exp_value))
+                else:
+                    self.visit(declaration.init)
                 self._add_instruction(STV(self.current_scope.level, identifier.displacement))
 
     # Procedure ------------------------------------------
@@ -92,16 +95,24 @@ class CodeGenerator(ASTNodeVisitor):
 
         for expression in reversed(call.expressions):
             exp = expression.sub_expression
-            if isinstance(exp, Location):
-                if isinstance(exp.type, Identifier):
-                    self._add_instruction(LDV(exp.type.scope_level, exp.type.displacement))
-            elif isinstance(exp, Expression):
+            if isinstance(exp, Expression):
                 if exp.exp_value:
                     # TODO: Otimização - carregar str cte
                     self._add_instruction(LDC(exp.exp_value))
                     pass
             else:
-                self.visit(exp)
+                self.visit(expression)
+            # exp = expression.sub_expression
+            # if isinstance(exp, Location):
+            #     if isinstance(exp.type, Identifier):
+            #         self._add_instruction(LDV(exp.type.scope_level, exp.type.displacement))
+            # elif isinstance(exp, Expression):
+            #     if exp.exp_value:
+            #         # TODO: Otimização - carregar str cte
+            #         self._add_instruction(LDC(exp.exp_value))
+            #         pass
+            # else:
+            #     self.visit(exp)
 
         self._add_instruction(CFU(call.scope_level))
 
@@ -192,15 +203,15 @@ class CodeGenerator(ASTNodeVisitor):
     #
     #     array_mode.raw_type = LTF.array_type(array_mode.element_mode.raw_type, array_ranges)
     #
-    # # Location
-    #
-    # def visit_Location(self, location: Location):
-    #     self.visit(location.type)
-    #     if isinstance(location.type, Identifier):
-    #         identifier = self._lookup_identifier(location.type)
-    #
-    #     location.raw_type = location.type.raw_type
-    #
+    # Location
+
+    def visit_Location(self, location: Location):
+            if isinstance(location.type, Identifier):
+                self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
+            else:
+                self.visit(location.type)
+
+
     # # Expression
     #
     # def visit_Expression(self, expression: Expression):
@@ -313,3 +324,6 @@ class CodeGenerator(ASTNodeVisitor):
         self.visit(assignment.expression)
         if isinstance(assignment.location.type, Identifier):
             self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
+
+    # IfAction ---------------------------------------------------------------------------------------------------------
+

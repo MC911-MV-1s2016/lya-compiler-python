@@ -469,12 +469,19 @@ class Visitor(ASTNodeVisitor):
         relational_expression.raw_type = raw_type
         relational_expression.exp_value = exp_value
 
-    # def visit_UnaryExpr(self, node):
-    #     self.visit(node.expr)
-    #     # Make sure that the operation is supported by the type
-    #     raw_type = self.raw_type_unary(node, node.op, node.expr)
-    #     # Set the result type to the same as the operand
-    #     node.raw_type = raw_type
+    def visit_UnaryExpression(self, unary_expression):
+        value = unary_expression.value
+        op = unary_expression.op
+
+        self.visit(value)
+
+        # Make sure that the operation is supported by the type
+        if op not in value.raw_type.unary_ops:
+            raise LyaOperationError(unary_expression.lineno, op, left_type=value.raw_type)
+
+        # raw_type = self.raw_type_unary(unary_expression, unary_expression.op, unary_expression.expr)
+        # Set the result type to the same as the operand
+        unary_expression.raw_type = value.raw_type
 
     # Action -----------------------------------------------------------------------------------------------------------
 

@@ -54,6 +54,14 @@ class LyaType(object):
     def __ne__(self, other):
         return self.name != other
 
+    def get_unary_instruction(self, op):
+        instruction = self._unary_opcodes.get(op, None)
+
+        if instruction is None:
+            raise LyaGenericError(-1, None, "Unary operation error")
+
+        return instruction()
+
     def get_binary_instruction(self, op):
         instruction = self._binary_opcodes.get(op, None)
 
@@ -85,6 +93,10 @@ class LyaType(object):
     @property
     def relational_ops(self):
         return self._rel_ops
+
+    @property
+    def unary_ops(self):
+        return self._unary_ops
 
 
 class LyaBaseType(LyaType):
@@ -127,7 +139,10 @@ class LyaIntType(LyaBaseType):
     _unary_ops = {'+', '-'}
     _binary_ops = {'+', '-', '*', '/', '%'}
     _rel_ops = {'==', '!=', '>', '>=', '<', '<='}
-    _unary_opcodes = {}
+    _unary_opcodes = {
+        '-': NEG,
+        '+': NOP
+    }
     _binary_opcodes = {
         '+': ADD,
         '-': SUB,
@@ -155,7 +170,9 @@ class LyaBoolType(LyaBaseType):
     _unary_ops = {'!'}
     _binary_ops = {}
     _rel_ops = {'&&', '||', '==', '!=', '<', '<=', '>', '>='}
-    _unary_opcodes = {}
+    _unary_opcodes = {
+        '!': NOT
+    }
     _binary_opcodes = {}
     _rel_opcodes = {
         '&&': AND,

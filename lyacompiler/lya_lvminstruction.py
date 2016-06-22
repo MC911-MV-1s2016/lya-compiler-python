@@ -7,7 +7,9 @@ class LyaInstruction(object):
         self.arg2 = arg2
 
     def __str__(self):
-        if self.arg1 is None and self.arg2 is None:
+        if self._code is '':
+            pass
+        elif self.arg1 is None and self.arg2 is None:
             return str(tuple([self._code]))
         elif self.arg2 is None:
             return str(tuple([self._code, self.arg1]))
@@ -371,3 +373,9 @@ class END(LyaInstruction):
     (’end’)         # Stop execution
     """
     _code = 'end'
+
+class NOP(LyaInstruction):
+    """
+    # Does nothing
+    """
+    _code = ''

@@ -288,8 +288,15 @@ p: proc (x bool);
 end;
 p(n);"""
 
+test_unary_op_source = """dcl m int = 2, n int = 3;
+p: proc (x int);
+  dcl s bool;
+  s = !true;
+end;
+p(n);"""
+
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test4_source
+lya_debug_source = test_unary_op_source
 #lya_debug_source = lya_source_do3

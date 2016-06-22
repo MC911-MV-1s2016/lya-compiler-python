@@ -344,6 +344,24 @@ class CodeGenerator(ASTNodeVisitor):
 
         self._add_instruction(left.raw_type.get_relational_instruction(op))
 
+
+    def visit_UnaryExpression(self, unary_expression: UnaryExpression):
+        value = unary_expression.value
+        op = unary_expression.op
+
+        if isinstance(value, Location):
+            if isinstance(value.type, Identifier):
+                self._add_instruction(LDV(value.type.scope_level, value.type.displacement))
+        elif isinstance(value, Expression):
+            if value.exp_value:
+                # TODO: Otimização - carregar str cte
+                self._add_instruction(LDC(value.exp_value))
+                pass
+        else:
+            self.visit(value)
+
+        self._add_instruction(value.raw_type.get_unary_instruction(op))
+
     # Action -----------------------------------------------------------------------------------------------------------
 
     # def visit_Action(self, action: Action):

@@ -234,27 +234,30 @@ class Visitor(ASTNodeVisitor):
             self.current_scope.add_parameter(identifier, parameter)
 
     def visit_ProcedureCall(self, call: ProcedureCall):
-
         for parameter in call.expressions:
             self.visit(parameter)
 
         procedure_definition = self._lookup_procedure(call).definition
+        call.raw_type = procedure_definition.result.raw_type
 
-        n_procedure_parameters = 0
+        procedure_parameters_ids = []
         for p in procedure_definition.parameters:
-            n_procedure_parameters += len(p.ids)
+            procedure_parameters_ids += p.ids
 
+        n_procedure_parameters = len(procedure_parameters_ids)
         n_call_parameters = len(call.expressions)
 
         if n_procedure_parameters != n_call_parameters:
-            raise LyaProcedureCallError(call.lineno, call.identifier.name, None, n_call_parameters, n_procedure_parameters)
+            raise LyaProcedureCallError(call.lineno, call.identifier.name, None,
+                                        n_call_parameters, n_procedure_parameters)
 
         for i in range(n_call_parameters):
             expression = call.expressions[i]
-            parameter = procedure_definition.parameters[i]
+            parameter_id = procedure_parameters_ids[i]
 
-            if parameter.raw_type != expression.raw_type:
-                raise LyaArgumentTypeError(call.lineno, call.identifier.name, i, expression.raw_type, parameter.raw_type)
+            if parameter_id.raw_type != expression.raw_type:
+                raise LyaArgumentTypeError(call.lineno, call.identifier.name, i,
+                                           expression.raw_type, parameter_id.raw_type)
 
     def visit_ResultSpec(self, spec: ResultSpec):
         self.visit(spec.mode)
@@ -267,6 +270,29 @@ class Visitor(ASTNodeVisitor):
     def visit_ResultAction(self, result: ResultAction):
         self.visit(result.expression)
         self.current_scope.add_result(result.expression, result.lineno)
+
+    def visit_BuiltinCall(self, builtin_call: BuiltinCall):
+        n = len(builtin_call.expressions)
+        if n != 1:
+            raise LyaProcedureCallError(builtin_call.lineno, builtin_call.name, None, n, 1)
+
+        for exp in builtin_call.expressions:
+            self.visit(exp)
+
+        name = builtin_call.name
+        expression = builtin_call.expressions[0]
+        if name == 'print' or name == 'read':
+            builtin_call.raw_type = LTF.void_type()
+            # TODO: Accepted expression raw_types???
+        elif name == 'lower' or name == 'upper' or name == 'length':
+            builtin_call.raw_type = LTF.int_type()
+            # TODO: Only accept array?
+            if not isinstance(expression.raw_type, LyaArrayType):
+                raise LyaArgumentTypeError(builtin_call.lineno, name, 0,
+                                           expression.raw_type, 'array')
+        else:
+            # SUCC, PRED, NUM??
+            pass
 
     # Mode -------------------------------------------------------------------------------------------------------------
 
@@ -345,7 +371,6 @@ class Visitor(ASTNodeVisitor):
         if isinstance(location.type, Identifier):
             self._lookup_identifier(location.type)
             # identifier = self._lookup_identifier(location.type)
-
         location.raw_type = location.type.raw_type
 
     # Expression -------------------------------------------------------------------------------------------------------
@@ -361,6 +386,13 @@ class Visitor(ASTNodeVisitor):
             if isinstance(expression.sub_expression.type, Identifier):
                 expression.exp_value = expression.sub_expression.type.synonym_value
 
+    def visit_BooleanExpression(self, boolean_expression: BooleanExpression):
+        self.visit(boolean_expression.sub_expression)
+        if boolean_expression.sub_expression.raw_type != LTF.bool_type():
+            # TODO: BooleanExpression lineno?
+            raise LyaTypeError(-1, boolean_expression.sub_expression.raw_type, LTF.bool_type())
+
+    def visit_BinaryExpression(self, binary_expression: BinaryExpression):
         self.visit(binary_expression.left)
         self.visit(binary_expression.right)
 

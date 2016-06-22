@@ -588,7 +588,7 @@ class LyaParser(object):
 
     def p_then_clause_empty(self, p):
         """then_clause : THEN empty"""
-        p[0] = ThenClause(None)
+        p[0] = ThenClause([])
 
     def p_else_clause(self, p):
         """else_clause : ELSE action_statement_list"""
@@ -596,15 +596,17 @@ class LyaParser(object):
 
     def p_else_clause_empty(self, p):
         """else_clause : ELSE empty"""
-        p[0] = ElseClause(None)
+        p[0] = ElseClause([])
 
     def p_else_clause_if_else(self, p):
         """else_clause : ELSIF boolean_expression then_clause else_clause"""
-        p[0] = ElsifClause(p[2], p[3], p[4])
+        p[0] = ElsIfClause(p[2], p[3], p[4])
 
     def p_else_clause_if(self, p):
         """else_clause : ELSIF boolean_expression then_clause"""
-        p[0] = ElsifClause(p[2], p[3], None)
+        p[0] = ElsIfClause(p[2], p[3], None)
+
+    # do ------------------------------------------------------
 
     def p_do_action_control_action(self, p):
         """do_action : DO control_part SEMICOL action_statement_list OD"""
@@ -696,7 +698,7 @@ class LyaParser(object):
     def p_call_action(self, p):
         """call_action : procedure_call
                        | builtin_call"""
-        p[0] = CallAction(p[1])
+        p[0] = p[1]
 
     def p_procedure_call_parameter(self, p):
         """procedure_call : procedure_name LPAREN parameter_list RPAREN"""
@@ -746,11 +748,13 @@ class LyaParser(object):
 
     def p_builtin_call_parameter(self, p):
         """builtin_call : builtin_name LPAREN parameter_list RPAREN"""
-        p[0] = BuiltinCall(p[1], p[3])
+        name, lineno = p[1]
+        p[0] = BuiltinCall(name, p[3], lineno=lineno)
 
     def p_builtin_call(self, p):
         """builtin_call : builtin_name LPAREN RPAREN"""
-        p[0] = BuiltinCall(p[1], None)
+        name, lineno = p[1]
+        p[0] = BuiltinCall(name, [], lineno=lineno)
 
     def p_builtin_name(self, p):
         """builtin_name : NUM
@@ -761,7 +765,7 @@ class LyaParser(object):
                         | LENGTH
                         | READ
                         | PRINT"""
-        p[0] = p[1]
+        p[0] = (p[1], p.lineno(1))
 
     # Procedure -----------------------------------------------------------------
 

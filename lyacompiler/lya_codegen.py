@@ -131,13 +131,19 @@ class CodeGenerator(ASTNodeVisitor):
     #     self.visit(spec.mode)
     #     spec.raw_type = spec.mode.raw_type
 
-    # def visit_ReturnAction(self, return_action: ReturnAction):
-    #     if return_action.expression is not None and self.current_scope.ret.raw_type != LTF.void_type():
-    #         # TODO: Returning on void function
-    #         pass
-    #     self.visit(return_action.expression)
-    #     self.current_scope.add_result(return_action.lineno, return_action.expression)
-    #     return_action.displacement = self.current_scope.parameters_displacement
+    def visit_ReturnAction(self, return_action: ReturnAction):
+        enclosure = self.current_scope.enclosure
+        end_label = enclosure.end_label
+
+        if self.current_scope.ret.raw_type == LTF.void_type():
+            # TODO: Returning on void function
+            pass
+
+        if return_action.expression is not None:
+            self.visit(return_action.expression)
+            self._add_instruction(STV(self.current_scope.level, return_action.displacement))
+
+        self._add_instruction(JMP(end_label))
     #
     def visit_ResultAction(self, result: ResultAction):
         self.visit(result.expression)

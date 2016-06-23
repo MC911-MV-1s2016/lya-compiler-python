@@ -325,6 +325,21 @@ test_elsif_source = """dcl m int = 2, n int = 3, y, s int, b bool = true;
 
 print (s);"""
 
+testret_source = """dcl m int = 2, n int = 3;
+p: proc (x, y int, b bool) returns (int);
+    dcl s int = x;
+    if b then
+        s += y;
+        return s;
+    else
+        result y;
+    fi;
+end;
+
+dcl b bool;
+read (b);
+print (p(m, n, b));"""
+
 
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']

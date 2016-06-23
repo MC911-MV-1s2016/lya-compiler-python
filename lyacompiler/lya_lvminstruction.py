@@ -368,11 +368,20 @@ class PRS(LyaInstruction):
     _code = 'prs'
 
 
+class PRT(LyaInstruction):
+    """
+    ('prt', k)      # Print Multiple Values
+                        print(M[sp-k+1:sp+1]); sp-=(k-1)
+    """
+    _code = 'prt'
+
+
 class END(LyaInstruction):
     """
     (’end’)         # Stop execution
     """
     _code = 'end'
+
 
 class NOP(LyaInstruction):
     """

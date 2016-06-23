@@ -100,6 +100,8 @@
                            adr = adr + 1
                            print(M(adr),end="")
                         sp=sp-1
+    ('prt', k)      # Print Multiple Values
+                        print(M[sp-k+1:sp+1]); sp-=(k-1)
     (’stp’)         # Start Program
                         sp=-1; D[0]=0
     (’lbl’, i)      # No operation

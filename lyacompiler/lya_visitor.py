@@ -322,15 +322,35 @@ class Visitor(ASTNodeVisitor):
 
         name = builtin_call.name
         expression = builtin_call.expressions[0]
-        if name == 'print' or name == 'read':
+
+        if name == 'print':
+            if not isinstance(expression.raw_type, LyaArrayType) \
+                    and not isinstance(expression.raw_type, LyaStringType) \
+                    and not expression.raw_type.memory_size == 1:
+                raise LyaGenericError(builtin_call.lineno, BuiltinCall,
+                                      "Unsupported read() builtin call.")
             builtin_call.raw_type = LTF.void_type()
-            # TODO: Accepted expression raw_types???
-        elif name == 'lower' or name == 'upper' or name == 'length':
+
+        if name == 'read':
+            if not isinstance(expression.raw_type, LyaStringType) \
+                    and not expression.raw_type.memory_size == 1:
+                raise LyaGenericError(builtin_call.lineno, BuiltinCall,
+                                      "Unsupported read() builtin call.")
+            builtin_call.raw_type = LTF.void_type()
+
+        if name == 'lower' or name == 'upper':
             builtin_call.raw_type = LTF.int_type()
             # TODO: Only accept array?
             if not isinstance(expression.raw_type, LyaArrayType):
                 raise LyaArgumentTypeError(builtin_call.lineno, name, 0,
                                            expression.raw_type, 'array')
+
+        if name == 'length':
+            builtin_call.raw_type = LTF.int_type()
+            if not isinstance(expression.raw_type, LyaArrayType) or not isinstance(expression.raw_type, LyaStringType):
+                raise LyaGenericError(builtin_call.lineno, builtin_call,
+                                      "Method length() only applies to 'chars' and 'array'. "
+                                      "Received '{}'".format(expression.raw_type))
         else:
             # SUCC, PRED, NUM??
             pass
@@ -536,7 +556,7 @@ class Visitor(ASTNodeVisitor):
             else_if_clause.else_clause.label = else_if_clause.next_label
             self.visit(else_if_clause.else_clause)
 
-    # Do_Action
+    # Do_Action --------------------------------------------------------------------------------------------------------
 
     def visit_DoAction(self, do_action: DoAction):
         do_action.start_label = self.environment.generate_label()

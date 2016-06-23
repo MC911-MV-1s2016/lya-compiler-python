@@ -44,6 +44,11 @@ class CodeGenerator(ASTNodeVisitor):
     def _add_instruction(self, instruction: LyaInstruction):
         self.instructions.append(instruction)
 
+    def _lookup_procedure(self, proc_call: ProcedureCall):
+        entry_procedure = self.current_scope.procedure_lookup(proc_call.identifier.name, proc_call.lineno)
+        if entry_procedure is None:
+            raise LyaNameError(proc_call.lineno, proc_call.identifier.name)
+        return entry_procedure
     # ----
 
     def visit_Program(self, program: Program):
@@ -87,11 +92,17 @@ class CodeGenerator(ASTNodeVisitor):
             n_params += len(p.ids)
 
         self._add_instruction(DLC(procedure.offset))
-        self._add_instruction(RET(self.current_scope.level, n_params))
+
+        if procedure.identifier.raw_type is not LyaVoidType:
+            self._add_instruction(RET(self.current_scope.level, n_params))
         self._add_instruction(LBL(procedure.end_label))
         self.current_scope = self.current_scope.parent
 
     def visit_ProcedureCall(self, call: ProcedureCall):
+        procedure = self._lookup_procedure(call)
+        ret = procedure.scope.ret
+        if ret is not None:
+            self._add_instruction(ALC(ret.raw_type.memory_size))
 
         for expression in reversed(call.expressions):
             exp = expression.sub_expression

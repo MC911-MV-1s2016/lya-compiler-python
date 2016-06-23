@@ -55,7 +55,6 @@ class Visitor(ASTNodeVisitor):
         if entry_identifier is None:
             raise LyaNameError(identifier.lineno, identifier.name)
         identifier.raw_type = entry_identifier.raw_type
-        # identifier.memory_size = entry_identifier.memory_size
         identifier.scope_level = entry_identifier.scope_level
         identifier.displacement = entry_identifier.displacement
         identifier.start = entry_identifier.start
@@ -85,6 +84,14 @@ class Visitor(ASTNodeVisitor):
                 return side.type.synonym_value
         return None
 
+    def _get_binary_boolean_side_value(self, side):
+        if isinstance(side, BooleanConstant):
+            return side.value
+        if isinstance(side, Location):
+            if isinstance(side.type, Identifier):
+                return side.type.synonym_value
+        return None
+
     def _evaluate_binary_expression(self, operation, left, right):
         """If possible, computes the binary expression.
         Assumes semantic analysis was made
@@ -99,6 +106,28 @@ class Visitor(ASTNodeVisitor):
         if isinstance(raw_type, LyaIntType):
             left_val = self._get_binary_integer_side_value(left)
             right_val = self._get_binary_integer_side_value(right)
+            if left_val is not None and right_val is not None:
+                exp_value = eval("{0}{1}{2}".format(left_val, operation, right_val))
+
+        # TODO: Ref binary op.
+
+        return raw_type, exp_value
+
+
+    def _evaluate_relational_expression(self, operation, left, right):
+        """If possible, computes the relational expression.
+        Assumes semantic analysis was made
+        :param operation:
+        :param left:
+        :param right:
+        :return:
+        """
+        raw_type = left.raw_type
+        exp_value = None
+
+        if isinstance(raw_type, LyaBoolType):
+            left_val = self._get_binary_boolean_side_value(left)
+            right_val = self._get_binary_boolean_side_value(right)
             if left_val is not None and right_val is not None:
                 exp_value = eval("{0}{1}{2}".format(left_val, operation, right_val))
 
@@ -136,10 +165,6 @@ class Visitor(ASTNodeVisitor):
         self.visit(declaration.mode)
         self.visit(declaration.init)
         if declaration.init is not None:
-            if declaration.init.exp_value is None:
-                raise LyaGenericError(declaration.ids[0].lineno,
-                                      declaration, "Unable to resolve declaration "
-                                                   "initialization expression at compile time.")
             if declaration.mode.raw_type != declaration.init.raw_type:
                 raise LyaAssignmentError(declaration.ids[0].lineno,
                                          declaration.init.raw_type,
@@ -272,12 +297,20 @@ class Visitor(ASTNodeVisitor):
         spec.raw_type = spec.mode.raw_type
 
     def visit_ReturnAction(self, return_action: ReturnAction):
+        if return_action.expression is not None and self.current_scope.ret.raw_type != LTF.void_type():
+            # TODO: Returning on void function
+            pass
         self.visit(return_action.expression)
         self.current_scope.add_result(return_action.lineno, return_action.expression)
+        return_action.displacement = self.current_scope.parameters_displacement
 
     def visit_ResultAction(self, result: ResultAction):
+        if self.current_scope.ret.raw_type == LTF.void_type():
+            # TODO: Error setting result on void return function.
+            pass
         self.visit(result.expression)
         self.current_scope.add_result(result.expression, result.lineno)
+        result.displacement = self.current_scope.parameters_displacement
 
     def visit_BuiltinCall(self, builtin_call: BuiltinCall):
         n = len(builtin_call.expressions)
@@ -289,15 +322,35 @@ class Visitor(ASTNodeVisitor):
 
         name = builtin_call.name
         expression = builtin_call.expressions[0]
-        if name == 'print' or name == 'read':
+
+        if name == 'print':
+            if not isinstance(expression.raw_type, LyaArrayType) \
+                    and not isinstance(expression.raw_type, LyaStringType) \
+                    and not expression.raw_type.memory_size == 1:
+                raise LyaGenericError(builtin_call.lineno, BuiltinCall,
+                                      "Unsupported read() builtin call.")
             builtin_call.raw_type = LTF.void_type()
-            # TODO: Accepted expression raw_types???
-        elif name == 'lower' or name == 'upper' or name == 'length':
+
+        if name == 'read':
+            if not isinstance(expression.raw_type, LyaStringType) \
+                    and not expression.raw_type.memory_size == 1:
+                raise LyaGenericError(builtin_call.lineno, BuiltinCall,
+                                      "Unsupported read() builtin call.")
+            builtin_call.raw_type = LTF.void_type()
+
+        if name == 'lower' or name == 'upper':
             builtin_call.raw_type = LTF.int_type()
             # TODO: Only accept array?
             if not isinstance(expression.raw_type, LyaArrayType):
                 raise LyaArgumentTypeError(builtin_call.lineno, name, 0,
                                            expression.raw_type, 'array')
+
+        if name == 'length':
+            builtin_call.raw_type = LTF.int_type()
+            if not isinstance(expression.raw_type, LyaArrayType) or not isinstance(expression.raw_type, LyaStringType):
+                raise LyaGenericError(builtin_call.lineno, builtin_call,
+                                      "Method length() only applies to 'chars' and 'array'. "
+                                      "Received '{}'".format(expression.raw_type))
         else:
             # SUCC, PRED, NUM??
             pass
@@ -398,7 +451,8 @@ class Visitor(ASTNodeVisitor):
         self.visit(boolean_expression.sub_expression)
         if boolean_expression.sub_expression.raw_type != LTF.bool_type():
             # TODO: BooleanExpression lineno?
-            raise LyaTypeError(-1, boolean_expression.sub_expression.raw_type, LTF.bool_type())
+            pass
+            # raise LyaTypeError(-1, boolean_expression.sub_expression.raw_type, LTF.bool_type())
 
     def visit_BinaryExpression(self, binary_expression: BinaryExpression):
         self.visit(binary_expression.left)
@@ -421,14 +475,46 @@ class Visitor(ASTNodeVisitor):
         binary_expression.raw_type = raw_type
         binary_expression.exp_value = exp_value
 
-    # def visit_UnaryExpr(self, node):
-    #     self.visit(node.expr)
-    #     # Make sure that the operation is supported by the type
-    #     raw_type = self.raw_type_unary(node, node.op, node.expr)
-    #     # Set the result type to the same as the operand
-    #     node.raw_type = raw_type
+    def visit_RelationalExpression(self, relational_expression: RelationalExpression):
+        self.visit(relational_expression.l_value)
+        self.visit(relational_expression.r_value)
+
+        op = relational_expression.op
+        left = relational_expression.l_value
+        right = relational_expression.r_value
+
+        if left.raw_type != right.raw_type:
+            raise LyaOperationError(relational_expression.lineno, op, left.raw_type, right.raw_type)
+
+        if op not in left.raw_type.relational_ops:
+            raise LyaOperationError(relational_expression.lineno, op, left_type=left.raw_type)
+
+        if op not in right.raw_type.relational_ops:
+            raise LyaOperationError(relational_expression.lineno, op, right_type=right.raw_type)
+
+        raw_type, exp_value = self._evaluate_relational_expression(op, left, right)
+        relational_expression.raw_type = raw_type
+        relational_expression.exp_value = exp_value
+
+    def visit_UnaryExpression(self, unary_expression):
+        value = unary_expression.value
+        op = unary_expression.op
+
+        self.visit(value)
+
+        # Make sure that the operation is supported by the type
+        if op not in value.raw_type.unary_ops:
+            raise LyaOperationError(unary_expression.lineno, op, left_type=value.raw_type)
+
+        # raw_type = self.raw_type_unary(unary_expression, unary_expression.op, unary_expression.expr)
+        # Set the result type to the same as the operand
+        unary_expression.raw_type = value.raw_type
 
     # Action -----------------------------------------------------------------------------------------------------------
+
+    def visit_LabeledAction(self, labeled_action: LabeledAction):
+        labeled_action.label = self.environment.add_label(labeled_action.name)
+        self.visit(labeled_action.action)
 
     # def visit_Action(self, action: Action):
 
@@ -449,6 +535,7 @@ class Visitor(ASTNodeVisitor):
     # IfAction ---------------------------------------------------------------------------------------------------------
 
     def visit_IfAction(self, if_action: IfAction):
+        self.visit(if_action.boolean_expression)
         if_action.next_label = self.environment.generate_label()
         if_action.exit_label = self.environment.generate_label()
         self.visit(if_action.then_clause)
@@ -460,6 +547,8 @@ class Visitor(ASTNodeVisitor):
 
     def visit_ElsIfClause(self, else_if_clause: ElsIfClause):
         else_if_clause.next_label = self.environment.generate_label()
+
+        self.visit(else_if_clause.boolean_expression)
         self.visit(else_if_clause.then_clause)
         if else_if_clause.else_clause is not None:
             if isinstance(else_if_clause.else_clause, ElsIfClause):
@@ -467,26 +556,37 @@ class Visitor(ASTNodeVisitor):
             else_if_clause.else_clause.label = else_if_clause.next_label
             self.visit(else_if_clause.else_clause)
 
-    # Do_Action
+    # Do_Action --------------------------------------------------------------------------------------------------------
+
+    def visit_DoAction(self, do_action: DoAction):
+        do_action.start_label = self.environment.generate_label()
+        self.visit(do_action.control)
+        if do_action.control.while_control is not None:
+            do_action.end_label = self.environment.generate_label()
+        for action in do_action.actions:
+            self.visit(action)
+
+    # def visit_ForControl(self, for_control: ForControl):
+    #     self.visit(for_control.iteration)
 
     def visit_StepEnumeration(self, step: StepEnumeration):
-        entry = self.current_scope.entry_lookup(step.counter)
+        self._lookup_identifier(step.identifier)
 
-        if entry is None:
-            raise LyaNameError(step.lineno, step.counter)
+        if step.identifier.raw_type != LTF.int_type():
+            raise LyaTypeError(step.lineno, step.identifier.raw_type, LTF.int_type())
 
-        self.visit(step.start_val)
-        self.visit(step.step_val)
-        self.visit(step.end_val)
+        self.visit(step.start_expression)
+        if step.start_expression.raw_type != LTF.int_type():
+            raise LyaTypeError(step.lineno, step.start_expression.raw_type, LTF.int_type())
 
-        if step.start_val.raw_type != LTF.int_type():
-            raise LyaTypeError(step.lineno, step.start_val.raw_type, LTF.int_type())
+        if step.step_expression is not None:
+            self.visit(step.step_expression)
+            if step.step_expression.sub_expression.raw_type != LTF.int_type():
+                raise LyaTypeError(step.lineno, step.step_expression.sub_expression.raw_type, LTF.int_type())
 
-        if step.step_val.sub_expression.raw_type != LTF.int_type():
-            raise LyaTypeError(step.lineno, step.step_val.sub_expression.raw_type, LTF.int_type())
-
-        if step.end_val.raw_type != LTF.int_type():
-            raise LyaTypeError(step.lineno, step.end_val.raw_type, LTF.int_type())
+        self.visit(step.end_expression)
+        if step.end_expression.raw_type != LTF.int_type():
+            raise LyaTypeError(step.lineno, step.end_expression.raw_type, LTF.int_type())
 
     def visit_RangeEnumeration(self, range_enum: RangeEnumeration):
         entry = self.current_scope.entry_lookup(range_enum.counter)
@@ -496,11 +596,21 @@ class Visitor(ASTNodeVisitor):
 
         self.visit(range_enum.mode)
 
-    def visit_WhileControl(self, ctrl: WhileControl):
-        self.visit(ctrl.expr)
+    def visit_WhileControl(self, while_control: WhileControl):
+        self.visit(while_control.boolean_expression)
+        if while_control.boolean_expression.sub_expression.raw_type != LTF.bool_type():
+            raise LyaTypeError(while_control.lineno,
+                               while_control.boolean_expression.sub_expression.raw_type,
+                               LTF.bool_type())
 
-        if ctrl.expr.sub_expression.raw_type != LTF.bool_type():
-            raise LyaTypeError(ctrl.lineno, ctrl.expr.sub_expression.raw_type, LTF.bool_type())
+    # Exit Action
+
+    def visit_ExitAction(self, exit_action: ExitAction):
+        # TODO: Check if can exit to label?
+        label = self.environment.lookup_label(exit_action.name)
+        if label is None:
+            raise LyaNameError(exit_action.lineno, label.name)
+        exit_action.exit_label = label
 
     # Constants / Literals
 

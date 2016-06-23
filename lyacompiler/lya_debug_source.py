@@ -260,6 +260,36 @@ dcl b bool;
 read (b);
 print (p(m, n, b));"""
 
+test4_source = """dcl i int, b bool = true;
+x:
+  do while b;
+        read (i);
+        if i <= 0 then
+            exit x;
+        fi;
+        print (i*i);
+  od;
+print (0);"""
+
+test5_source = """dcl i, soma int;
+soma = 0;
+do for i=1 to 10;
+    soma += i;
+od;
+print (soma);
+"""
+
+test6_source = """dcl i int;
+dcl soma int = 0, b bool = true;
+
+do for i=1 to 10 while b;
+    soma += i;
+    if soma > 100 then
+        b = false;
+    fi;
+od;
+print (soma);"""
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';
@@ -270,8 +300,49 @@ syn sy4 int = 1 + sy1;"""
 dcl_op_source = """dcl var1 int=3+5-7*7/9%3; dcl var2 int = 2 in 3;"""
 dcl_op_source2 = """dcl var2, varx char;\ndcl var3, var4 int = 10;\ndcl var5 = 10 + 5 * (10 - 20);"""
 
+test_rel_exp_source = """dcl m bool = false, n bool = false;
+p: proc (x bool);
+  dcl s bool;
+  s = m >= x;
+end;
+p(n);"""
+
+test_unary_op_source = """dcl m int = 2, n int = 3;
+p: proc (x int);
+  dcl s bool;
+  s = !true;
+end;
+p(n);"""
+
+test_elsif_source = """dcl m int = 2, n int = 3, y, s int, b bool = true;
+    if b then
+        s += y;
+    elsif b then
+        s = y;
+    else
+        s = 3;
+    fi;
+
+print (s);"""
+
+testret_source = """dcl m int = 2, n int = 3;
+p: proc (x, y int, b bool) returns (int);
+    dcl s int = x;
+    if b then
+        s += y;
+        return s;
+    else
+        result y;
+    fi;
+end;
+
+dcl b bool;
+read (b);
+print (p(m, n, b));"""
+
+
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test2_source
+lya_debug_source = test3_source
 #lya_debug_source = lya_source_do3

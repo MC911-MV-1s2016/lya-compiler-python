@@ -457,7 +457,19 @@ class ReferencedLocation(ASTNode):
 
 
 class LabeledAction(Statement):
-    _fields = ['label', 'action']
+    """
+    :type name: str
+    :type action: Action
+    :type label: int
+    """
+    _fields = ['name', 'action']
+
+    def __init__(self, name: str, action: 'Action', **kwargs):
+        self.lineno = None
+        super().__init__(name, action, **kwargs)
+        self.name = name
+        self.action = action
+        self.label = None
 
 
 class Action(ASTNode):
@@ -546,28 +558,93 @@ class ElsIfClause(ASTNode):
         self.next_label = None
 
 
+# TODO: Marcar o que é nullable nos nós
+
 class DoAction(Action):
-    _fields = ['ctrl', 'stmt']
+    """
+    :type control: DoControl
+    :type actions: List[Action]
+    :type start_label: int
+    :type end_label: int    @nullable
+    """
+    _fields = ['control', 'actions']
+
+    def __init__(self, control: 'DoControl', actions: List['Action'], **kwargs):
+        super().__init__(control, actions, **kwargs)
+        self.control = control
+        self.actions = actions
+        self.start_label = None
+        self.end_label = None
 
 
 class DoControl(ASTNode):
-    _fields = ['for_ctrl', 'while_ctrl']
+    """
+    :type for_control: ForControl
+    :type while_control: WhileControl
+    """
+    _fields = ["for_control", "while_control"]
+
+    def __init__(self, for_control: 'ForControl', while_control: 'WhileControl', **kwargs):
+        super().__init__(for_control, while_control, **kwargs)
+        self.for_control = for_control
+        self.while_control = while_control
 
 
 class ForControl(ASTNode):
-    _fields = ['enum']
+    """
+    :type iteration:  Iteration
+    """
+    _fields = ['iteration']
+
+    def __init__(self, iteration: 'Iteration', **kwargs):
+        super().__init__(iteration, **kwargs)
+        self.iteration = iteration
 
 
-class StepEnumeration(ASTNode):
-    _fields = ['counter', 'start_val', 'step_val', 'down', 'end_val']
+class Iteration(ASTNode):
+    pass
 
 
-class RangeEnumeration(ASTNode):
+class StepEnumeration(Iteration):
+    """
+    :type identifier: Identifier
+    :type start_expression: IntegerExpression
+    :type step_expression: IntegerExpression @nullable
+    :type down: bool
+    :type end_expression: IntegerExpression
+    """
+    _fields = ['identifier', 'start_expression', 'step_expression', 'down', 'end_expression']
+
+    def __init__(self, identifier: 'Identifier',
+                 start_expression: 'IntegerExpression',
+                 step_expression: 'IntegerExpression',
+                 down: bool,
+                 end_expression: 'IntegerExpression',
+                 **kwargs):
+        self.lineno = None
+        super().__init__(identifier, start_expression, step_expression, down, end_expression, **kwargs)
+        # TODO: start and end integer_exp -> discrete_exp
+        self.identifier = identifier
+        self.start_expression = start_expression
+        self.step_expression = step_expression
+        self.down = down
+        self.end_expression = end_expression
+
+
+class RangeEnumeration(Iteration):
     _fields = ['counter', 'down', 'mode']
 
 
 class WhileControl(ASTNode):
-    _fields = ['expr']
+    """
+    :type boolean_expression: BooleanExpression
+    """
+    _fields = ['boolean_expression']
+
+    def __init__(self, boolean_expression: 'BooleanExpression', **kwargs):
+        self.lineno = None
+        super().__init__(boolean_expression, **kwargs)
+        self.boolean_expression = boolean_expression
 
 
 class CallAction(Action):
@@ -589,12 +666,23 @@ class ProcedureCall(CallAction):
 
 
 class ExitAction(Action):
-    _fields = ['label']
+    """
+    :type name: str
+    :type exit_label: int
+    """
+    _fields = ['name']
+
+    def __init__(self, name: str, **kwargs):
+        self.lineno = None
+        super().__init__(name, **kwargs)
+        self.name = name
+        self.exit_label = None
 
 
 class ReturnAction(Action):
     """
     :type result: Expression
+    :type displacement: int
     """
     _fields = ['expression']
 
@@ -602,11 +690,13 @@ class ReturnAction(Action):
         self.lineno = None
         super().__init__(expression, **kwargs)
         self.expression = expression
+        self.displacement = None
 
 
 class ResultAction(Action):
     """
     :type result: Expression
+    :type displacement: int     @nullable
     """
     _fields = ['expression']
 
@@ -614,6 +704,7 @@ class ResultAction(Action):
         self.lineno = None
         super().__init__(expression, **kwargs)
         self.expression = expression
+        self.displacement = None
 
 
 class BuiltinCall(CallAction):

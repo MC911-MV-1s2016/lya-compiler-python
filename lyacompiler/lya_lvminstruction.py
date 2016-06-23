@@ -7,7 +7,9 @@ class LyaInstruction(object):
         self.arg2 = arg2
 
     def __str__(self):
-        if self.arg1 is None and self.arg2 is None:
+        if self._code is '':
+            pass
+        elif self.arg1 is None and self.arg2 is None:
             return str(tuple([self._code]))
         elif self.arg2 is None:
             return str(tuple([self._code, self.arg1]))
@@ -366,8 +368,23 @@ class PRS(LyaInstruction):
     _code = 'prs'
 
 
+class PRT(LyaInstruction):
+    """
+    ('prt', k)      # Print Multiple Values
+                        print(M[sp-k+1:sp+1]); sp-=(k-1)
+    """
+    _code = 'prt'
+
+
 class END(LyaInstruction):
     """
     (’end’)         # Stop execution
     """
     _code = 'end'
+
+
+class NOP(LyaInstruction):
+    """
+    # Does nothing
+    """
+    _code = ''

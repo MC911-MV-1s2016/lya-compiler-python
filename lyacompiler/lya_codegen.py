@@ -330,6 +330,10 @@ class CodeGenerator(ASTNodeVisitor):
 
     # Action -----------------------------------------------------------------------------------------------------------
 
+    def visit_LabeledAction(self, labeled_action: LabeledAction):
+        self.visit(labeled_action.action)
+        self._add_instruction(LBL(labeled_action.label))
+
     # def visit_Action(self, action: Action):
 
     # def visit_BracketedAction(self, bracketed_action: BracketedAction):
@@ -355,7 +359,8 @@ class CodeGenerator(ASTNodeVisitor):
             self._add_instruction(LBL(if_action.next_label))
             self.visit(if_action.else_clause)
 
-        self._add_instruction(LBL(if_action.exit_label))
+        # if if_action.exit_label is not None:
+        #     self._add_instruction(LBL(if_action.exit_label))
 
     def visit_ElsIfClause(self, else_if_clause: ElsIfClause):
         # If
@@ -375,12 +380,27 @@ class CodeGenerator(ASTNodeVisitor):
 
     # TODO: DoAction
 
-    # def visit_DoAction(self, do_action: DoAction):
-    #
-    #     do_action.start_label = self.environment.generate_label()
-    #     self.visit(do_action.control)
-    #     if do_action.control.while_control is not None:
-    #         do_action.end_label = self.environment.generate_label()
-    #
-    #     for action in do_action.actions:
-    #         self.visit(action)
+    def visit_DoAction(self, do_action: DoAction):
+        self._add_instruction(LBL(do_action.start_label))
+
+        # While Control.
+        if do_action.control.while_control is not None:
+            self.visit(do_action.control.while_control.boolean_expression)
+            self._add_instruction(JOF(do_action.end_label))
+
+        for action in do_action.actions:
+            self.visit(action)
+
+        # For Control.
+        pass
+
+        # Next iteration.
+        self._add_instruction(JMP(do_action.start_label))
+
+        if do_action.end_label is not None:
+            self._add_instruction(LBL(do_action.end_label))
+
+    # Exit Action
+
+    def visit_ExitAction(self, exit_action: ExitAction):
+        self._add_instruction(JMP(exit_action.exit_label))

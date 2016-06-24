@@ -500,7 +500,7 @@ class IfAction(Action):
     :type then_clause: ThenClause
     :type else_clause:
     :type exit_label: int
-    :type next_label: int
+    :type next_label: int       @nullable
     """
     _fields = ['boolean_expression', 'then_clause', 'else_clause']
 
@@ -544,7 +544,7 @@ class ElsIfClause(ASTNode):
     :type else_clause:
     :type label: int
     :type exit_label: int
-    :type next_label: int
+    :type next_label: int       @nullable
     """
     _fields = ['boolean_expression', 'then_clause', 'else_clause']
 

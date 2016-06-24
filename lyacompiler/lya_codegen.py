@@ -378,12 +378,22 @@ class CodeGenerator(ASTNodeVisitor):
 
     # DoAction ---------------------------------------------------------------------------------------------------------
 
-    # TODO: DoAction
-
     def visit_DoAction(self, do_action: DoAction):
+
+        # For setup.
+        if do_action.control.for_control is not None:
+            iteration = do_action.control.for_control.iteration
+            if isinstance(iteration, StepEnumeration):
+                self.visit(iteration.start_expression)
+                self._add_instruction(LDV(iteration.identifier.scope_level,
+                                          iteration.identifier.displacement))
+            else:
+                # TODO: RangeEnumeration
+                pass
+
         self._add_instruction(LBL(do_action.start_label))
 
-        # While Control.
+        # While Control. Stopping condition.
         if do_action.control.while_control is not None:
             self.visit(do_action.control.while_control.boolean_expression)
             self._add_instruction(JOF(do_action.end_label))
@@ -391,11 +401,53 @@ class CodeGenerator(ASTNodeVisitor):
         for action in do_action.actions:
             self.visit(action)
 
-        # For Control.
-        pass
+        # For Control. Stopping condition.
+        if do_action.control.for_control is not None:
+            iteration = do_action.control.for_control.iteration
+            if isinstance(iteration, StepEnumeration):
+
+                # Push i (control identifier)
+                self._add_instruction(LDV(iteration.identifier.scope_level,
+                                          iteration.identifier.displacement))
+
+                if iteration.step_expression is not None:
+                    # Push step value.
+                    self.visit(iteration.step_expression)
+                else:
+                    # Push 1.
+                    self._add_instruction(LDC(1))
+
+                if iteration.down:
+                    # i - step
+                    self._add_instruction(SUB())
+                else:
+                    # i + step
+                    self._add_instruction(ADD())
+                # Storing updated i.
+                self._add_instruction(STV(iteration.identifier.scope_level,
+                                          iteration.identifier.displacement))
+                # Pushing i back to memory.
+                self._add_instruction(LDV(iteration.identifier.scope_level,
+                                          iteration.identifier.displacement))
+                # Push end value.
+                self.visit(iteration.end_expression)
+                # Checking if stopping condition reached.
+                if iteration.down:
+                    # i < end
+                    self._add_instruction(LES())
+                else:
+                    # i > end
+                    self._add_instruction(GRT())
+                # If not stopping condition, go to next iteration.
+                self._add_instruction(JOF(do_action.start_label))
+            else:
+                # TODO: RangeEnumeration
+                pass
 
         # Next iteration.
-        self._add_instruction(JMP(do_action.start_label))
+        if do_action.control.while_control is not None \
+                and do_action.control.for_control is None:
+            self._add_instruction(JMP(do_action.start_label))
 
         if do_action.end_label is not None:
             self._add_instruction(LBL(do_action.end_label))

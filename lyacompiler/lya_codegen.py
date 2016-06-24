@@ -385,7 +385,7 @@ class CodeGenerator(ASTNodeVisitor):
             iteration = do_action.control.for_control.iteration
             if isinstance(iteration, StepEnumeration):
                 self.visit(iteration.start_expression)
-                self._add_instruction(LDV(iteration.identifier.scope_level,
+                self._add_instruction(STV(iteration.identifier.scope_level,
                                           iteration.identifier.displacement))
             else:
                 # TODO: RangeEnumeration

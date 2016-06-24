@@ -330,6 +330,10 @@ class CodeGenerator(ASTNodeVisitor):
 
     # Action -----------------------------------------------------------------------------------------------------------
 
+    def visit_LabeledAction(self, labeled_action: LabeledAction):
+        self.visit(labeled_action.action)
+        self._add_instruction(LBL(labeled_action.label))
+
     # def visit_Action(self, action: Action):
 
     # def visit_BracketedAction(self, bracketed_action: BracketedAction):
@@ -355,7 +359,8 @@ class CodeGenerator(ASTNodeVisitor):
             self._add_instruction(LBL(if_action.next_label))
             self.visit(if_action.else_clause)
 
-        self._add_instruction(LBL(if_action.exit_label))
+        # if if_action.exit_label is not None:
+        #     self._add_instruction(LBL(if_action.exit_label))
 
     def visit_ElsIfClause(self, else_if_clause: ElsIfClause):
         # If
@@ -373,14 +378,81 @@ class CodeGenerator(ASTNodeVisitor):
 
     # DoAction ---------------------------------------------------------------------------------------------------------
 
-    # TODO: DoAction
+    def visit_DoAction(self, do_action: DoAction):
 
-    # def visit_DoAction(self, do_action: DoAction):
-    #
-    #     do_action.start_label = self.environment.generate_label()
-    #     self.visit(do_action.control)
-    #     if do_action.control.while_control is not None:
-    #         do_action.end_label = self.environment.generate_label()
-    #
-    #     for action in do_action.actions:
-    #         self.visit(action)
+        # For setup.
+        if do_action.control.for_control is not None:
+            iteration = do_action.control.for_control.iteration
+            if isinstance(iteration, StepEnumeration):
+                self.visit(iteration.start_expression)
+                self._add_instruction(STV(iteration.identifier.scope_level,
+                                          iteration.identifier.displacement))
+            else:
+                # TODO: RangeEnumeration
+                pass
+
+        self._add_instruction(LBL(do_action.start_label))
+
+        # While Control. Stopping condition.
+        if do_action.control.while_control is not None:
+            self.visit(do_action.control.while_control.boolean_expression)
+            self._add_instruction(JOF(do_action.end_label))
+
+        for action in do_action.actions:
+            self.visit(action)
+
+        # For Control. Stopping condition.
+        if do_action.control.for_control is not None:
+            iteration = do_action.control.for_control.iteration
+            if isinstance(iteration, StepEnumeration):
+
+                # Push i (control identifier)
+                self._add_instruction(LDV(iteration.identifier.scope_level,
+                                          iteration.identifier.displacement))
+
+                if iteration.step_expression is not None:
+                    # Push step value.
+                    self.visit(iteration.step_expression)
+                else:
+                    # Push 1.
+                    self._add_instruction(LDC(1))
+
+                if iteration.down:
+                    # i - step
+                    self._add_instruction(SUB())
+                else:
+                    # i + step
+                    self._add_instruction(ADD())
+                # Storing updated i.
+                self._add_instruction(STV(iteration.identifier.scope_level,
+                                          iteration.identifier.displacement))
+                # Pushing i back to memory.
+                self._add_instruction(LDV(iteration.identifier.scope_level,
+                                          iteration.identifier.displacement))
+                # Push end value.
+                self.visit(iteration.end_expression)
+                # Checking if stopping condition reached.
+                if iteration.down:
+                    # i < end
+                    self._add_instruction(LES())
+                else:
+                    # i > end
+                    self._add_instruction(GRT())
+                # If not stopping condition, go to next iteration.
+                self._add_instruction(JOF(do_action.start_label))
+            else:
+                # TODO: RangeEnumeration
+                pass
+
+        # Next iteration.
+        if do_action.control.while_control is not None \
+                and do_action.control.for_control is None:
+            self._add_instruction(JMP(do_action.start_label))
+
+        if do_action.end_label is not None:
+            self._add_instruction(LBL(do_action.end_label))
+
+    # Exit Action
+
+    def visit_ExitAction(self, exit_action: ExitAction):
+        self._add_instruction(JMP(exit_action.exit_label))

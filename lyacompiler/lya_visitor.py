@@ -537,20 +537,19 @@ class Visitor(ASTNodeVisitor):
     def visit_IfAction(self, if_action: IfAction):
         self.visit(if_action.boolean_expression)
         if_action.next_label = self.environment.generate_label()
-        if_action.exit_label = self.environment.generate_label()
         self.visit(if_action.then_clause)
         if if_action.else_clause is not None:
+            if_action.exit_label = self.environment.generate_label()
             if isinstance(if_action.else_clause, ElsIfClause):
                 if_action.else_clause.exit_label = if_action.exit_label
             if_action.else_clause.label = if_action.next_label
             self.visit(if_action.else_clause)
 
     def visit_ElsIfClause(self, else_if_clause: ElsIfClause):
-        else_if_clause.next_label = self.environment.generate_label()
-
         self.visit(else_if_clause.boolean_expression)
         self.visit(else_if_clause.then_clause)
         if else_if_clause.else_clause is not None:
+            else_if_clause.next_label = self.environment.generate_label()
             if isinstance(else_if_clause.else_clause, ElsIfClause):
                 else_if_clause.else_clause.exit_label = else_if_clause.exit_label
             else_if_clause.else_clause.label = else_if_clause.next_label

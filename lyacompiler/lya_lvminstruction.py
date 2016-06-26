@@ -1,26 +1,30 @@
 
 class LyaInstruction(object):
-    _code = None
+    _mnemonic = None
 
     def __init__(self, arg1=None, arg2=None):
         self.arg1 = arg1
         self.arg2 = arg2
 
     def __str__(self):
-        if self._code is '':
+        if self._mnemonic is '':
             pass
         elif self.arg1 is None and self.arg2 is None:
-            return str(tuple([self._code]))
+            return str(tuple([self._mnemonic]))
         elif self.arg2 is None:
-            return str(tuple([self._code, self.arg1]))
+            return str(tuple([self._mnemonic, self.arg1]))
         elif self.arg1 is None:
             # TODO: Error
             raise TypeError()
         else:
-            return str(tuple([self._code, self.arg1, self.arg2]))
+            return str(tuple([self._mnemonic, self.arg1, self.arg2]))
 
     def __repr__(self):
         return str(self)
+
+    @property
+    def class_name(self):
+        return self.__class__.__name__
 
 
 class STP(LyaInstruction):
@@ -28,7 +32,7 @@ class STP(LyaInstruction):
     (’stp’)         # Start Program
                         sp=-1; D[0]=0
     """
-    _code = 'stp'
+    _mnemonic = 'stp'
 
 
 class LBL(LyaInstruction):
@@ -36,7 +40,11 @@ class LBL(LyaInstruction):
     (’lbl’, i)      # No operation
                         (define the label index i)
     """
-    _code = 'lbl'
+    _mnemonic = 'lbl'
+
+    def __init__(self, i):
+        super().__init__(i)
+        self.i = i
 
 
 class LDC(LyaInstruction):
@@ -44,7 +52,11 @@ class LDC(LyaInstruction):
     (’ldc’, k)     # Load constant
                       sp=sp+1;  M[sp]=k
     """
-    _code = 'ldc'
+    _mnemonic = 'ldc'
+
+    def __init__(self, k):
+        super().__init__(k)
+        self.k = k
 
 
 class LDV(LyaInstruction):
@@ -52,7 +64,12 @@ class LDV(LyaInstruction):
     (’ldv’, i, j)  # Load value
                       sp=sp+1;  M[sp]=M[D[i]+j]
     """
-    _code = 'ldv'
+    _mnemonic = 'ldv'
+
+    def __init__(self, i, j):
+        super().__init__(i, j)
+        self.i = i
+        self.j = j
 
 
 class LDR(LyaInstruction):
@@ -60,7 +77,12 @@ class LDR(LyaInstruction):
     (’ldr’, i, j)  # Load reference
                       sp=sp+1;  M[sp]=D[i]+j
     """
-    _code = 'ldr'
+    _mnemonic = 'ldr'
+
+    def __init__(self, i, j):
+        super().__init__(i, j)
+        self.i = i
+        self.j = j
 
 
 class STV(LyaInstruction):
@@ -68,14 +90,25 @@ class STV(LyaInstruction):
     (’stv’, i, j)  # Store value
                       M[D[i]+j]=M[sp];  sp=sp-1
     """
-    _code = 'stv'
+    _mnemonic = 'stv'
+
+    def __init__(self, i, j):
+        super().__init__(i, j)
+        self.i = i
+        self.j = j
+
 
 class LRV(LyaInstruction):
     """
     (’lrv’, i, j)  # Load reference value
                       sp=sp+1;  M[sp]=M[M[D[i]+j]]
     """
-    _code = 'lrv'
+    _mnemonic = 'lrv'
+
+    def __init__(self, i, j):
+        super().__init__(i, j)
+        self.i = i
+        self.j = j
 
 
 class SRV(LyaInstruction):
@@ -83,7 +116,12 @@ class SRV(LyaInstruction):
     (’srv’, i, j)  # Store reference value
                       M[M[D[i]+j]]=M[sp];  sp=sp-1
     """
-    _code = 'srv'
+    _mnemonic = 'srv'
+
+    def __init__(self, i, j):
+        super().__init__(i, j)
+        self.i = i
+        self.j = j
 
 
 class ADD(LyaInstruction):
@@ -91,7 +129,7 @@ class ADD(LyaInstruction):
     (’add’)        # Add
                       M[sp-1]=M[sp-1] + M[sp];  sp=sp-1
     """
-    _code = 'add'
+    _mnemonic = 'add'
 
 
 class SUB(LyaInstruction):
@@ -99,7 +137,7 @@ class SUB(LyaInstruction):
     (’sub’)        # Subtract
                       M[sp-1]=M[sp-1] - M[sp];  sp=sp-1
     """
-    _code = 'sub'
+    _mnemonic = 'sub'
 
 
 class MUL(LyaInstruction):
@@ -107,7 +145,7 @@ class MUL(LyaInstruction):
     (’mul’)        # Multiply
                       M[sp-1]=M[sp-1] * M[sp];  sp=sp-1
     """
-    _code = 'mul'
+    _mnemonic = 'mul'
 
 
 class DIV(LyaInstruction):
@@ -115,7 +153,7 @@ class DIV(LyaInstruction):
     (’div’)        # Division
                       M[sp-1]=M[sp-1] / M[sp];  sp=sp-1
     """
-    _code = 'div'
+    _mnemonic = 'div'
 
 
 class MOD(LyaInstruction):
@@ -123,7 +161,7 @@ class MOD(LyaInstruction):
     (’mod’)        # Modulus
                       M[sp-1]=M[sp-1] % M[sp];  sp=sp-1
     """
-    _code = 'mod'
+    _mnemonic = 'mod'
 
 
 class NEG(LyaInstruction):
@@ -131,7 +169,7 @@ class NEG(LyaInstruction):
     (’neg’)        # Negate
                       M[sp]= -M[sp]
     """
-    _code = 'neg'
+    _mnemonic = 'neg'
 
 
 class AND(LyaInstruction):
@@ -139,7 +177,7 @@ class AND(LyaInstruction):
     (’and’)        # Logical And
                       M[sp-1]=M[sp-1] and M[sp];  sp=sp-1
     """
-    _code = 'and'
+    _mnemonic = 'and'
 
 
 class LOR(LyaInstruction):
@@ -147,7 +185,7 @@ class LOR(LyaInstruction):
     (’lor’)        # Logical Or
                       M[sp-1]=M[sp-1] or M[sp];  sp=sp-1
     """
-    _code = 'lor'
+    _mnemonic = 'lor'
 
 
 class NOT(LyaInstruction):
@@ -155,7 +193,7 @@ class NOT(LyaInstruction):
     (’not’)        # Logical Not
                       M[sp]= not M[sp]
     """
-    _code = 'not'
+    _mnemonic = 'not'
 
 
 class LES(LyaInstruction):
@@ -163,7 +201,7 @@ class LES(LyaInstruction):
     (’les’)        # Less
                       M[sp-1]=M[sp-1] < M[sp];  sp=sp-1
     """
-    _code = 'les'
+    _mnemonic = 'les'
 
 
 class LEQ(LyaInstruction):
@@ -171,7 +209,7 @@ class LEQ(LyaInstruction):
     (’leq’)        # Less or Equal
                       M[sp-1]=M[sp-1] <= M[sp];  sp=sp-1
     """
-    _code = 'leq'
+    _mnemonic = 'leq'
 
 
 class GRT(LyaInstruction):
@@ -179,7 +217,7 @@ class GRT(LyaInstruction):
     (’grt’)        # Greater
                       M[sp-1]=M[sp-1] > M[sp];  sp=sp-1
     """
-    _code = 'grt'
+    _mnemonic = 'grt'
 
 
 class GRE(LyaInstruction):
@@ -187,7 +225,7 @@ class GRE(LyaInstruction):
     (’gre’)        # Greater or Equal
                       M[sp-1]=M[sp-1] >= M[sp];  sp=sp-1
     """
-    _code = 'gre'
+    _mnemonic = 'gre'
 
 
 class EQU(LyaInstruction):
@@ -195,7 +233,7 @@ class EQU(LyaInstruction):
     (’equ’)        # Equal
                       M[sp-1]=M[sp-1] == M[sp];  sp=sp-1
     """
-    _code = 'equ'
+    _mnemonic = 'equ'
 
 
 class NEQ(LyaInstruction):
@@ -203,7 +241,7 @@ class NEQ(LyaInstruction):
     (’neq’)        # Not Equal
                       M[sp-1]=M[sp-1] != M[sp];  sp=sp-1
     """
-    _code = 'neq'
+    _mnemonic = 'neq'
 
 
 class JMP(LyaInstruction):
@@ -211,7 +249,11 @@ class JMP(LyaInstruction):
     (’jmp’, p)     # Jump
                       pc=p
     """
-    _code = 'jmp'
+    _mnemonic = 'jmp'
+
+    def __init__(self, p):
+        super().__init__(p)
+        self.p = p
 
 
 class JOF(LyaInstruction):
@@ -223,7 +265,11 @@ class JOF(LyaInstruction):
                           pc=pc+1
                       sp=sp-1
     """
-    _code = 'jof'
+    _mnemonic = 'jof'
+
+    def __init__(self, p):
+        super().__init__(p)
+        self.p = p
 
 
 class ALC(LyaInstruction):
@@ -231,7 +277,11 @@ class ALC(LyaInstruction):
     (’alc’, n)     # Allocate memory
                       sp=sp+n
     """
-    _code = 'alc'
+    _mnemonic = 'alc'
+
+    def __init__(self, n):
+        super().__init__(n)
+        self.n = n
 
 
 class DLC(LyaInstruction):
@@ -239,7 +289,11 @@ class DLC(LyaInstruction):
     (’dlc’, n)     # Deallocate memory
                       sp=sp-n
     """
-    _code = 'dlc'
+    _mnemonic = 'dlc'
+
+    def __init__(self, n):
+        super().__init__(n)
+        self.n = n
 
 
 class CFU(LyaInstruction):
@@ -247,7 +301,11 @@ class CFU(LyaInstruction):
     (’cfu’, p)     # Call Function
                       sp=sp+1; M[sp]=pc+1; pc=p
     """
-    _code = 'cfu'
+    _mnemonic = 'cfu'
+
+    def __init__(self, p):
+        super().__init__(p)
+        self.p = p
 
 
 class ENF(LyaInstruction):
@@ -255,7 +313,11 @@ class ENF(LyaInstruction):
     (’enf’, k)     # Enter Function
                       sp=sp+1; M[sp]=D[k]; D[k]=sp+1
     """
-    _code = 'enf'
+    _mnemonic = 'enf'
+
+    def __init__(self, k):
+        super().__init__(k)
+        self.k = k
 
 
 class RET(LyaInstruction):
@@ -263,7 +325,12 @@ class RET(LyaInstruction):
     (’ret’, k, n)  # Return from Function
                       D[k]=M[sp]; pc=M[sp-1]; sp=sp-(n+2)
     """
-    _code = 'ret'
+    _mnemonic = 'ret'
+
+    def __init__(self, k, n):
+        super().__init__(k, n)
+        self.k = k
+        self.n = n
 
 
 class IDX(LyaInstruction):
@@ -272,7 +339,11 @@ class IDX(LyaInstruction):
                       M[sp-1]=M[sp-1] + M[sp] * k
                       sp=sp-1
     """
-    _code = 'idx'
+    _mnemonic = 'idx'
+
+    def __init__(self, k):
+        super().__init__(k)
+        self.k = k
 
 
 class GRC(LyaInstruction):
@@ -280,7 +351,7 @@ class GRC(LyaInstruction):
     (’grc’)        # Get(Load) Reference Contents
                       M[sp]=M[M[sp]]
     """
-    _code = 'grc'
+    _mnemonic = 'grc'
 
 
 class LMV(LyaInstruction):
@@ -291,7 +362,11 @@ class LMV(LyaInstruction):
                           M[sp+i]=M[t+i]
                       sp=sp + k - 1
     """
-    _code = 'lmv'
+    _mnemonic = 'lmv'
+
+    def __init__(self, k):
+        super().__init__(k)
+        self.k = k
 
 
 class SMV(LyaInstruction):
@@ -301,7 +376,11 @@ class SMV(LyaInstruction):
                            M[M[sp-k]+i]=M[sp-k+i+1]
                        sp=sp - k - 1
     """
-    _code = 'smv'
+    _mnemonic = 'smv'
+
+    def __init__(self, k):
+        super().__init__(k)
+        self.k = k
 
 
 class STS(LyaInstruction):
@@ -314,7 +393,11 @@ class STS(LyaInstruction):
                            M[adr]=c;
                        sp=sp-1
     """
-    _code = 'sts'
+    _mnemonic = 'sts'
+
+    def __init__(self, k):
+        super().__init__(k)
+        self.k = k
 
 
 class RDV(LyaInstruction):
@@ -322,7 +405,7 @@ class RDV(LyaInstruction):
     (’rdv’)        # Read single Value
                        sp=sp+1;  M[sp]=input()
     """
-    _code = 'rdv'
+    _mnemonic = 'rdv'
 
 
 class RDS(LyaInstruction):
@@ -336,7 +419,7 @@ class RDS(LyaInstruction):
                            M[adr]=k
                        sp=sp-1
     """
-    _code = 'rds'
+    _mnemonic = 'rds'
 
 
 class PRV(LyaInstruction):
@@ -344,7 +427,7 @@ class PRV(LyaInstruction):
     (’prv’)         # Print Value
                         print(M[sp]); sp=sp-1
     """
-    _code = 'prv'
+    _mnemonic = 'prv'
 
 
 class PRC(LyaInstruction):
@@ -352,7 +435,11 @@ class PRC(LyaInstruction):
     (’prc’, i)      # Print String constant
                         print(H(i),end="")
     """
-    _code = 'prc'
+    _mnemonic = 'prc'
+
+    def __init__(self, i):
+        super().__init__(i)
+        self.i = i
 
 
 class PRS(LyaInstruction):
@@ -365,7 +452,7 @@ class PRS(LyaInstruction):
                            print(M(adr),end="")
                         sp=sp-1
     """
-    _code = 'prs'
+    _mnemonic = 'prs'
 
 
 class PRT(LyaInstruction):
@@ -373,18 +460,22 @@ class PRT(LyaInstruction):
     ('prt', k)      # Print Multiple Values
                         print(M[sp-k+1:sp+1]); sp-=(k-1)
     """
-    _code = 'prt'
+    _mnemonic = 'prt'
+
+    def __init__(self, k):
+        super().__init__(k)
+        self.k = k
 
 
 class END(LyaInstruction):
     """
     (’end’)         # Stop execution
     """
-    _code = 'end'
+    _mnemonic = 'end'
 
 
 class NOP(LyaInstruction):
     """
     # Does nothing
     """
-    _code = ''
+    _mnemonic = ''

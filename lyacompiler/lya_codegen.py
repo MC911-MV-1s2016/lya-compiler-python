@@ -17,6 +17,7 @@ from .lya_builtins import *
 from .lya_lvminstruction import *
 from .lya_scope import LyaScope
 
+
 class CodeGenerator(ASTNodeVisitor):
     """
     """
@@ -25,6 +26,8 @@ class CodeGenerator(ASTNodeVisitor):
         self.environment = None
         self.current_scope = None   # type: LyaScope
         self.instructions = []
+        self.instructions_index = 0
+        self.labels_map = {}
         self.errors = []
 
     def visit(self, node):
@@ -42,7 +45,11 @@ class CodeGenerator(ASTNodeVisitor):
             pass
 
     def _add_instruction(self, instruction: LyaInstruction):
+        instruction.index = self.instructions_index
         self.instructions.append(instruction)
+        if isinstance(instruction, LBL):
+            self.labels_map[instruction.i] = instruction.index
+        self.instructions_index += 1
 
     def _lookup_procedure(self, proc_call: ProcedureCall):
         entry_procedure = self.current_scope.procedure_lookup(proc_call.identifier.name, proc_call.lineno)
@@ -114,7 +121,7 @@ class CodeGenerator(ASTNodeVisitor):
             else:
                 self.visit(expression)
 
-        self._add_instruction(CFU(call.scope_level))
+        self._add_instruction(CFU(call.start_label))
 
     def visit_ReturnAction(self, return_action: ReturnAction):
         procedure = self.current_scope.enclosure    # type: ProcedureStatement
@@ -358,6 +365,9 @@ class CodeGenerator(ASTNodeVisitor):
             self._add_instruction(JMP(if_action.exit_label))
             self._add_instruction(LBL(if_action.next_label))
             self.visit(if_action.else_clause)
+            self._add_instruction(LBL(if_action.exit_label))
+        else:
+            self._add_instruction(LBL(if_action.next_label))
 
         # if if_action.exit_label is not None:
         #     self._add_instruction(LBL(if_action.exit_label))
@@ -375,6 +385,8 @@ class CodeGenerator(ASTNodeVisitor):
             self._add_instruction(JMP(else_if_clause.exit_label))
             self._add_instruction(LBL(else_if_clause.next_label))
             self.visit(else_if_clause.else_clause)
+        else:
+            self._add_instruction(LBL(else_if_clause.next_label))
 
     # DoAction ---------------------------------------------------------------------------------------------------------
 

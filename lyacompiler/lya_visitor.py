@@ -270,7 +270,7 @@ class Visitor(ASTNodeVisitor):
         procedure_definition = procedure.definition
         call.raw_type = procedure.identifier.raw_type
         call.scope_level = procedure.scope.level
-
+        call.start_label = procedure.start_label
         # TODO: E loc?
 
         procedure_parameters_ids = []

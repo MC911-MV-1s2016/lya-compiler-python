@@ -349,7 +349,8 @@ class LyaParser(object):
     def p_boolean_literal(self, p):
         """boolean_literal : FALSE
                            | TRUE"""
-        p[0] = BooleanConstant(p[1])
+        c = True if p[1] == 'true' else False
+        p[0] = BooleanConstant(c)
 
     def p_character_literal(self, p):
         """character_literal : CCONST """

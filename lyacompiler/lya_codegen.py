@@ -365,6 +365,7 @@ class CodeGenerator(ASTNodeVisitor):
             self._add_instruction(JMP(if_action.exit_label))
             self._add_instruction(LBL(if_action.next_label))
             self.visit(if_action.else_clause)
+            self._add_instruction(LBL(if_action.exit_label))
 
         # if if_action.exit_label is not None:
         #     self._add_instruction(LBL(if_action.exit_label))

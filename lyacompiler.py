@@ -90,12 +90,12 @@ class LyaCompiler(object):
         print("\n--- Generated Code END ---\n")
 
         # Program Execution
-        print("-- Executing Code --\n")
+        print("--- Executing Code ---\n")
         lvm = LyaVirtualMachine()
         lvm.execute(code_generator.instructions,
                     code_generator.labels_map,
                     semantic_visitor.environment.string_constant_heap)
-        print("\n-- Code executed --\n")
+        print("\n--- Code executed ---")
 
     def _debug_mode(self, args):
         from lyacompiler.lya_debug_source import lya_debug_source

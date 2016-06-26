@@ -65,7 +65,13 @@ class LyaVirtualMachine(object):
         self.label_pc_map = labels_map
         self.string_heap = string_constants
         while not isinstance(self.current_instruction, END):
-            next_pc = self._execute_current_instruction()
+
+            try:
+                next_pc = self._execute_current_instruction()
+            except LyaError as err:
+                print(err)
+                exit()
+
             if next_pc is None:
                 self.pc += 1
             else:
@@ -283,7 +289,9 @@ class LyaVirtualMachine(object):
                               pc=pc+1
                           sp=sp-1
         """
-        if not self.memory[self.sp]:
+        sp = self.sp
+        self.sp -= 1
+        if not self.memory[sp]:
             return self.label_pc_map[jof.p]
 
     def execute_ALC(self, alc: ALC):
@@ -300,7 +308,6 @@ class LyaVirtualMachine(object):
                           sp=sp-n
         """
         self.sp -= dlc.n
-        self.memory = self.memory[:self.sp + 1]
 
     def execute_CFU(self, cfu: CFU):
         """
@@ -384,13 +391,28 @@ class LyaVirtualMachine(object):
             self.memory[adr] = c
         self.sp -= 1
 
+    @staticmethod
+    def check_int(s):
+        if s[0] in ('-', '+'):
+            return s[1:].isdigit()
+        return s.isdigit()
+
     def execute_RDV(self, rdv: RDV):
         """
         (’rdv’)        # Read single Value
                            sp=sp+1;  M[sp]=input()
         """
         self.sp += 1
-        self.memory[self.sp] = input()  # TODO: Guard
+        single_value = input()
+        if single_value == "true":
+            single_value = True
+        elif single_value == "false":
+            single_value = False
+        elif self.check_int(single_value):
+            single_value = int(single_value)
+        elif len(single_value) != 1:
+            raise LyaLVMError(self.pc, rdv, "Invalid single value input '{0}'.".format(single_value))
+        self.memory[self.sp] = single_value
 
     def execute_RDS(self, rds: RDS):
         """

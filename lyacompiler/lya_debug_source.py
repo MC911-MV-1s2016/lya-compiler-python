@@ -337,7 +337,7 @@ p: proc (x, y int, b bool) returns (int);
     fi;
 end;
 
-dcl b bool;
+dcl b bool = true;
 read (b);
 print (p(m, n, b));"""
 

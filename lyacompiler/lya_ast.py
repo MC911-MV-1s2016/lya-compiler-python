@@ -655,6 +655,7 @@ class ProcedureCall(CallAction):
     """
     :type identifier: Identifier
     :type expressions: list[Expression]
+    :type start_label: int
     """
     _fields = ['identifier', 'expressions']
 
@@ -663,6 +664,7 @@ class ProcedureCall(CallAction):
         super().__init__(identifier, expressions, **kwargs)
         self.identifier = identifier
         self.expressions = expressions
+        self.start_label = None
 
 
 class ExitAction(Action):

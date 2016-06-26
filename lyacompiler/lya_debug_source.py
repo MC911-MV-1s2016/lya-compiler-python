@@ -242,6 +242,7 @@ test2_source = """dcl m int = 2, n int = 3;
 p: proc (x int);
   dcl s int;
   s = m * x;
+  print(s);
 end;
 p(n);"""
 
@@ -344,5 +345,5 @@ print (p(m, n, b));"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test6_source
+lya_debug_source = test3_source
 #lya_debug_source = lya_source_do3

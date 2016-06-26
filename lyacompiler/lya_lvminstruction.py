@@ -5,6 +5,7 @@ class LyaInstruction(object):
     def __init__(self, arg1=None, arg2=None):
         self.arg1 = arg1
         self.arg2 = arg2
+        self.index = None
 
     def __str__(self):
         if self._mnemonic is '':

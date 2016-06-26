@@ -13,7 +13,7 @@
 from . import LyaColor
 from .lya_builtins import *
 from .lya_ast import ASTNode
-# from .lya_scope import SymbolEntry
+from .lya_lvminstruction import *
 
 __all__ = [
     'LyaError',
@@ -24,7 +24,8 @@ __all__ = [
     'LyaAssignmentError',
     'LyaOperationError',
     'LyaGenericError',
-    'LyaSyntaxError'
+    'LyaSyntaxError',
+    'LyaLVMError'
 ]
 
 # Index Out Of Range
@@ -245,3 +246,17 @@ class LyaSyntaxError(LyaError):
         if self.value is not None:
             return "At '{0}'.".format(self.value)
         return "Production p={0}".format(self.value)
+
+
+class LyaLVMError(LyaError):
+    """
+    """
+    def __init__(self, pc: int, instruction: LyaInstruction, msg=None):
+        super().__init__(pc)
+        self.instruction = instruction
+        self.msg = msg
+
+    def message(self):
+        if self.msg is not None:
+            return "Instruction {0}. {1}".format(self.instruction, self.msg)
+        return "Unrecognized instruction {0}.".format(self.instruction)

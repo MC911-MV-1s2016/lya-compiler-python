@@ -193,7 +193,18 @@ class CodeGenerator(ASTNodeVisitor):
             else:
                 self.visit(location.type)
 
+    def visit_DereferencedReference(self, dereferenced_reference: DereferencedReference):
+        if isinstance(dereferenced_reference.loc.type, Identifier):
+            self._add_instruction(LRV(dereferenced_reference.loc.type.scope_level, dereferenced_reference.loc.type.displacement))
+        else:
+            self.visit(dereferenced_reference.loc.type)
 
+    def visit_ReferencedLocation(self, referenced_location: ReferencedLocation):
+        if isinstance(referenced_location.loc.type, Identifier):
+            self._add_instruction(
+                LDR(referenced_location.loc.type.scope_level, referenced_location.loc.type.displacement))
+        else:
+            self.visit(referenced_location.loc.type)
     # # Expression
     #
     # def visit_Expression(self, expression: Expression):

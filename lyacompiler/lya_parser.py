@@ -216,7 +216,7 @@ class LyaParser(object):
     def p_reference_mode(self, p):
         """reference_mode : REF mode"""
         # TODO: check if mode_name is defined
-        p[0] = ReferenceMode(p[2])
+        p[0] = ReferenceMode(p[2], lineno=p.lineno(1))
 
     def p_composite_mode(self, p):
         """composite_mode : string_mode
@@ -288,7 +288,7 @@ class LyaParser(object):
 
     def p_dereferenced_reference(self, p):
         """dereferenced_reference : location ARROW"""
-        p[0] = DereferencedReference(p[1])
+        p[0] = DereferencedReference(p[1], lineno=p.lineno(2))
         # TODO: check if location is RefType
 
     def p_string_element(self, p):

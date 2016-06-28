@@ -291,6 +291,24 @@ do for i=1 to 10 while b;
 od;
 print (soma);"""
 
+test7_source = """dcl i,j int, r ref int;
+
+p: proc(x int, y ref int) returns (int);
+  dcl b bool;
+  read(b);
+  if b then
+     y = -> i;
+     result y->;
+  else
+     y = r;
+     result r->;
+  fi;
+end;
+
+read(i);
+r = -> i;
+print(p(i,->j));"""
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';
@@ -345,5 +363,5 @@ print (p(m, n, b));"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test6_source
+lya_debug_source = test7_source
 #lya_debug_source = lya_source_do3

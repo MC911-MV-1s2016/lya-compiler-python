@@ -369,7 +369,12 @@ class Visitor(ASTNodeVisitor):
 
     def visit_ReferenceMode(self, reference_mode: ReferenceMode):
         self.visit(reference_mode.mode)
-        # TODO: Improve Reference Mode management (Ref RawType + Mode RaType)
+
+        if reference_mode.mode.raw_type is LyaRefType:
+            raise LyaGenericError(reference_mode.lineno, "Unsupported multiple indirection.")
+        reference_mode.raw_type = LTF.ref_type(reference_mode.mode.raw_type)
+        # TODO: Improve Reference Mode management (Ref RawType + Mode RawType)
+        # and comparisons between types
 
     def visit_StringMode(self, string_mode: StringMode):
         string_mode.raw_type = LTF.string_type(string_mode.length.value)
@@ -433,6 +438,21 @@ class Visitor(ASTNodeVisitor):
             self._lookup_identifier(location.type)
             # identifier = self._lookup_identifier(location.type)
         location.raw_type = location.type.raw_type
+
+    def visit_DereferencedReference(self, dereferenced_reference: DereferencedReference):
+        self.visit(dereferenced_reference.loc)
+
+        if dereferenced_reference.loc.raw_type != LTF.ref_type(dereferenced_reference.loc.raw_type.referenced_type):
+            raise LyaTypeError(dereferenced_reference.lineno, dereferenced_reference.loc.raw_type,
+                               LyaRefType)
+
+        dereferenced_reference.raw_type = dereferenced_reference.loc.raw_type.referenced_type
+
+    def visit_ReferencedLocation(self, referenced_location: ReferencedLocation):
+        self.visit(referenced_location.loc)
+
+        referenced_location.raw_type = LTF.ref_type(referenced_location.loc.raw_type)
+
 
     # Expression -------------------------------------------------------------------------------------------------------
 

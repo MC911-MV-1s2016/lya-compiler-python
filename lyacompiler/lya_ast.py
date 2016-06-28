@@ -21,6 +21,7 @@ from .lya_builtins import LyaType
 class QualifierType(Enum):
     none = 0
     location = 1
+    ref_location = 2
 
 
 class ASTNode(object):

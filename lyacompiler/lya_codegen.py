@@ -133,6 +133,7 @@ class CodeGenerator(ASTNodeVisitor):
         self._add_instruction(JMP(end_label))
 
     def visit_ResultAction(self, result: ResultAction):
+        result.expression.sub_expression.qualifier = QualifierType.location
         self.visit(result.expression)
 
         self._add_instruction(STV(self.current_scope.level, result.displacement))
@@ -192,6 +193,8 @@ class CodeGenerator(ASTNodeVisitor):
                 # TODO: Other location types
                 if location.type.qualifier is QualifierType.location:
                     self._add_instruction(LRV(location.type.scope_level, location.type.displacement))
+                elif location.type.qualifier is QualifierType.ref_location:
+                    self._add_instruction(LDR(location.type.scope_level, location.type.displacement))
                 else:
                     self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
             else:

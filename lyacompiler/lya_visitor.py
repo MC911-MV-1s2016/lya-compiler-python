@@ -309,6 +309,14 @@ class Visitor(ASTNodeVisitor):
             # TODO: Error setting result on void return function.
             pass
         self.visit(result.expression)
+
+        if not isinstance(result.expression.sub_expression, Location):
+            print("SHIT ResultAction")
+            #TODO: error not location
+            pass
+
+        result.expression.sub_expression.type.qualifier = self.current_scope.ret.qualifier
+
         self.current_scope.add_result(result.expression, result.lineno)
         result.displacement = self.current_scope.parameters_displacement
 

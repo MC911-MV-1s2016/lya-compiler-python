@@ -319,7 +319,8 @@ p: proc(x int, y int loc) returns (int loc);
 end;
 
 i = p(3,j);
-print(i,j);  /* print 2,3 */"""
+print(i);
+print(j);  /* print 2,3 */"""
 
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
@@ -375,5 +376,5 @@ print (p(m, n, b));"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test7_source
+lya_debug_source = test8_source
 #lya_debug_source = lya_source_do3

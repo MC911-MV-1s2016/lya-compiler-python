@@ -1,0 +1,134 @@
+//examples with locs
+//https://groups.google.com/forum/#!topic/mc911-1s2016/X2b3e_cbDf4
+
+dcl i int, j,k int = 2;
+
+p: proc(x int, y int loc) returns (int loc);
+    dcl z int = y;
+    y = x;
+    result k;
+    print(z); /* print 2 */
+end;
+
+i = p(3,j);
+print(i,j);  /* print 2,3 */
+
+Program: offset=3
+  DeclStmt:
+    Decl:
+      ID: name=i, scope=0, value=0 (at line :1)
+      Mode:
+        DiscreteMode: name=int (at line :1)
+    Decl:
+      ID: name=j, scope=0, value=1 (at line :1)
+      ID: name=k, scope=0, value=2 (at line :1)
+      Mode:
+        DiscreteMode: name=int (at line :1)
+      Expr:
+        Constant: value=2 (at line :1)
+          DiscreteMode: name=int
+  ProcStmt: offset=1
+    ID: name=p, start=1, end=3, qualtype=loc (at line :3)
+    ProcDef:  (at line :3)
+      FormalParam:  (at line :3)
+        ID: name=x, scope=1, value=-3 (at line :3)
+        Mode:
+          DiscreteMode: name=int (at line :3)
+      FormalParam: qualtype=loc (at line :3)
+        ID: name=y, scope=1, value=-4, qualtype=loc (at line :3)
+        Mode:
+          DiscreteMode: name=int (at line :3)
+      Returns: qualtype=loc (at line :3)
+        Mode:
+          DiscreteMode: name=int (at line :3)
+      DeclStmt:
+        Decl:
+          ID: name=z, scope=1, value=0 (at line :4)
+          Mode:
+            DiscreteMode: name=int (at line :4)
+          Expr:
+            ID: name=y, scope=1, value=-4, qualtype=loc (at line :4)
+      Action:
+        Assignment: op== (at line :5)
+          Location:
+            ID: name=y, scope=1, value=-4, qualtype=loc (at line :5)
+          Expr:
+            ID: name=x, scope=1, value=-3 (at line :5)
+      Action:
+        Result:
+          Expr:
+            ID: name=k, scope=0, value=2 (at line :6)
+      Action:
+        BuiltinCall: name=print (at line :0)
+          Expr:
+            ID: name=z, scope=1, value=0 (at line :7)
+  Action:
+    Assignment: op== (at line :10)
+      Location:
+        ID: name=i, scope=0, value=0 (at line :10)
+      Expr:
+        ProcCall: name=p (at line :10)
+          Expr:
+            Constant: value=3 (at line :10)
+              DiscreteMode: name=int
+          Expr:
+            ID: name=j, scope=0, value=1 (at line :10)
+  Action:
+    BuiltinCall: name=print (at line :0)
+      Expr:
+        ID: name=i, scope=0, value=0 (at line :11)
+      Expr:
+        ID: name=j, scope=0, value=1 (at line :11)
+
+'''
+Scope level for ProcStmt p: 1
+  formal parameters & their offsets
+  _ret : -5
+  y : -4
+  x : -3
+  variables & their offsets
+  z : 0
+Scope level for Program : 0
+  variables & their offsets
+  j : 1
+  i : 0
+  k : 2
+  functions, return types & labels
+  p : int, labels start=1, end=3
+'''
+[
+  ('stp'),
+  ('alc', 3),
+  ('ldc', 2),
+  ('stv', 0, 1),
+  ('ldc', 2),
+  ('stv', 0, 2),
+  ('jmp', 3),
+  ('lbl', 1),
+  ('enf', 1),
+  ('alc', 1),
+  ('lrv', 1, -4),
+  ('stv', 1, 0),
+  ('ldv', 1, -3),
+  ('srv', 1, -4),
+  ('ldr', 0, 2),
+  ('stv', 1, -5),
+  ('ldv', 1, 0),
+  ('prv'),
+  ('lbl', 2),
+  ('dlc', 1),
+  ('ret', 1, 2),
+  ('lbl', 3),
+  ('alc', 1),
+  ('ldr', 0, 1),
+  ('ldc', 3),
+  ('cfu', 1),
+  ('grc'),
+  ('stv', 0, 0),
+  ('ldv', 0, 0),
+  ('prv'),
+  ('ldv', 0, 1),
+  ('prv'),
+  ('dlc', 3),
+  ('end'),
+]

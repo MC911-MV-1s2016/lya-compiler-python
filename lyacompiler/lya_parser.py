@@ -824,7 +824,7 @@ class LyaParser(object):
 
     def p_result_spec_attr(self, p):
         """result_spec : RETURNS LPAREN mode LOC RPAREN"""
-        p[0] = ResultSpec(p[3], QualifierType.location)
+        p[0] = ResultSpec(p[3], QualifierType.ref_location)
 
     def p_result_spec(self, p):
         """result_spec : RETURNS LPAREN mode RPAREN"""

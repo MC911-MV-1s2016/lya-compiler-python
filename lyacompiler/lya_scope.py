@@ -142,8 +142,8 @@ class LyaScope(object):
             SymbolType.procedure: self.procedures,
             SymbolType.label: self.labels
         }
-        self.ret = None
-        self.result = None #holds a node of the return call
+        self.ret = None #holds a node of the identifier returned
+        self.result = None #result value
 
     def add_child(self, scope):
         scope.parent = self

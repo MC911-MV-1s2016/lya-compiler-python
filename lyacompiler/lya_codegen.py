@@ -123,6 +123,9 @@ class CodeGenerator(ASTNodeVisitor):
 
         self._add_instruction(CFU(call.start_label))
 
+        if procedure.definition.result.loc is QualifierType.ref_location:
+            self._add_instruction(GRC())
+
     def visit_ReturnAction(self, return_action: ReturnAction):
         procedure = self.current_scope.enclosure    # type: ProcedureStatement
         end_label = procedure.end_label

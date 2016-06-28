@@ -292,6 +292,14 @@ class Visitor(ASTNodeVisitor):
                 raise LyaArgumentTypeError(call.lineno, call.identifier.name, i,
                                            expression.raw_type, parameter_id.raw_type)
 
+            if parameter_id.qualifier is QualifierType.location:
+                if not isinstance(expression, Location):
+                    #TODO raise error about not passing a variable as parameter
+                    pass
+
+                expression.sub_expression.type.qualifier = QualifierType.ref_location
+
+
     def visit_ResultSpec(self, spec: ResultSpec):
         self.visit(spec.mode)
         spec.raw_type = spec.mode.raw_type

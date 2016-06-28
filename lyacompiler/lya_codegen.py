@@ -134,6 +134,7 @@ class CodeGenerator(ASTNodeVisitor):
 
     def visit_ResultAction(self, result: ResultAction):
         self.visit(result.expression)
+
         self._add_instruction(STV(self.current_scope.level, result.displacement))
 
     def visit_BuiltinCall(self, builtin_call: BuiltinCall):
@@ -189,7 +190,10 @@ class CodeGenerator(ASTNodeVisitor):
     def visit_Location(self, location: Location):
             if isinstance(location.type, Identifier):
                 # TODO: Other location types
-                self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
+                if location.type.qualifier is QualifierType.location:
+                    self._add_instruction(LRV(location.type.scope_level, location.type.displacement))
+                else:
+                    self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
             else:
                 self.visit(location.type)
 
@@ -201,8 +205,7 @@ class CodeGenerator(ASTNodeVisitor):
 
     def visit_ReferencedLocation(self, referenced_location: ReferencedLocation):
         if isinstance(referenced_location.loc.type, Identifier):
-            self._add_instruction(
-                LDR(referenced_location.loc.type.scope_level, referenced_location.loc.type.displacement))
+            self._add_instruction(LDR(referenced_location.loc.type.scope_level, referenced_location.loc.type.displacement))
         else:
             self.visit(referenced_location.loc.type)
     # # Expression
@@ -359,7 +362,10 @@ class CodeGenerator(ASTNodeVisitor):
     def visit_AssignmentAction(self, assignment: AssignmentAction):
         self.visit(assignment.expression)
         if isinstance(assignment.location.type, Identifier):
-            self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
+            if assignment.location.type.qualifier is QualifierType.location:
+                self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
+            else:
+                self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
 
     # IfAction ---------------------------------------------------------------------------------------------------------
 

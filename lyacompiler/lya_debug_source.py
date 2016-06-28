@@ -309,6 +309,18 @@ read(i);
 r = -> i;
 print(p(i,->j));"""
 
+test8_source = """dcl i int, j,k int = 2;
+
+p: proc(x int, y int loc) returns (int loc);
+    dcl z int = y;
+    y = x;
+    result k;
+    print(z); /* print 2 */
+end;
+
+i = p(3,j);
+print(i,j);  /* print 2,3 */"""
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';

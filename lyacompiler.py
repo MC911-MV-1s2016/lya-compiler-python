@@ -83,6 +83,7 @@ class LyaCompiler(object):
         print("Generating code...")
         code_generator = CodeGenerator()
         code_generator.environment = ast.environment
+        code_generator.string_constants = semantic_visitor.environment.string_constant_heap
         code_generator.visit(ast)
         print("\n--- Generated Code ---\n")
         for i in range(len(code_generator.instructions)):

@@ -432,7 +432,11 @@ type r_my_int = ref my_int;
 dcl uou r_my_int;
 print(uou);"""
 
+
+printtest_source = """
+print("BANANA"); """
+
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test11_source
+lya_debug_source = printtest_source

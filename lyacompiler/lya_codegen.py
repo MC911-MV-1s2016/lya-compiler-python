@@ -29,6 +29,7 @@ class CodeGenerator(ASTNodeVisitor):
         self.instructions_index = 0
         self.labels_map = {}
         self.errors = []
+        self.string_constants = []
 
     def visit(self, node):
         try:
@@ -62,12 +63,15 @@ class CodeGenerator(ASTNodeVisitor):
     def visit_Program(self, program: Program):
         self.current_scope = program.scope
         self._add_instruction(STP())
-        self._add_instruction(ALC(program.offset))
+
+        if program.offset != 0:
+            self._add_instruction(ALC(program.offset))
 
         for stmts in program.statements:
             self.visit(stmts)
 
-        self._add_instruction(DLC(program.offset))
+        if program.offset != 0:
+            self._add_instruction(DLC(program.offset))
         self._add_instruction(END())
 
     # Statement -------------------------------------------------
@@ -156,9 +160,10 @@ class CodeGenerator(ASTNodeVisitor):
             for print_arg in print_arg_list:
                 self.visit(print_arg)
                 if isinstance(print_arg.raw_type, LyaStringType):
-                    self._add_instruction(PRS())
-                elif isinstance(print_arg.sub_expression, StringConstant):
-                    self._add_instruction(PRC(print_arg.sub_expression.heap_position))
+                    if isinstance(print_arg.sub_expression, StringConstant):
+                        self._add_instruction(PRC(print_arg.sub_expression.heap_position))
+
+                #TODO: what to do if it's not constant?
                 elif isinstance(print_arg.sub_expression, LyaArrayType):
                     # TODO: Improve array printing
                     self._add_instruction(PRT(print_arg.sub_expression.length))

@@ -218,7 +218,6 @@ class LyaRefType(LyaType):
 
     def __init__(self, referenced_type: LyaType):
         super().__init__()
-        # TODO: Bloquear referenced_types não permitidos (como outro Ref)
         self.referenced_type = referenced_type  # type : LyaType
 
     # TODO: Can assign <- other

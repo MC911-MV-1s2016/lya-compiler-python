@@ -481,8 +481,36 @@ class Visitor(ASTNodeVisitor):
 
     def visit_ReferencedLocation(self, referenced_location: ReferencedLocation):
         self.visit(referenced_location.loc)
-
         referenced_location.raw_type = LTF.ref_type(referenced_location.loc.raw_type)
+
+    def visit_Element(self, element: Element):
+        for expression in element.expressions:
+            self.visit(expression)
+
+        if isinstance(element.location, Identifier):
+            self._lookup_identifier(element.location)
+        else:
+            self.visit(element.location)
+
+        depth = len(element.expressions)
+
+        if isinstance(element.location.raw_type, LyaStringType):
+            # StringElement only reduced from identifier (not loc)
+            # TODO: Check-n-raise
+            if depth != 1:
+                # StringElement doesn't suport multiple indexes.
+                raise LyaGenericError(element.lineno, element, "StringElement doesn't support multiple indexes.")
+            element.raw_type = LyaStringType(1)
+        elif isinstance(element.location.raw_type, LyaArrayType):
+            raw_type = element.location.raw_type.get_referenced_type(depth)
+            if raw_type is None:
+                raise LyaGenericError(element.lineno, element, "Array '{0}' out of range index "
+                                                               "depth ({1}) access.".format(element.location.raw_type,
+                                                                                            depth))
+            element.raw_type = raw_type
+        else:
+            raise LyaGenericError(element.lineno, element, "Unsupported element location "
+                                                           "type '{0}'.".format(element.location.raw_type))
 
 
     # Expression -------------------------------------------------------------------------------------------------------

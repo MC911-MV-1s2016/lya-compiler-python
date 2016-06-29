@@ -73,29 +73,30 @@ class LyaCompiler(object):
         # Semantic Analysis
         print("\nAnalysing semantics...")
         semantic_visitor = Visitor()
+        # semantic_visitor.show(ast)
         semantic_visitor.visit(ast)
         print("\n--- Decorated AST ---\n")
         semantic_visitor.show(ast)
         print("\n--- Decorated AST END ---\n")
 
-        # Code Generation
-        print("Generating code...")
-        code_generator = CodeGenerator()
-        code_generator.environment = ast.environment
-        code_generator.visit(ast)
-        print("\n--- Generated Code ---\n")
-        for i in range(len(code_generator.instructions)):
-            instruction = code_generator.instructions[i]
-            print("{0}:\t{1}".format(i, str(instruction)))
-        print("\n--- Generated Code END ---\n")
+        # # Code Generation
+        # print("Generating code...")
+        # code_generator = CodeGenerator()
+        # code_generator.environment = ast.environment
+        # code_generator.visit(ast)
+        # print("\n--- Generated Code ---\n")
+        # for i in range(len(code_generator.instructions)):
+        #     instruction = code_generator.instructions[i]
+        #     print("{0}:\t{1}".format(i, str(instruction)))
+        # print("\n--- Generated Code END ---\n")
 
-        # Program Execution
-        print("--- Executing Code ---\n")
-        lvm = LyaVirtualMachine()
-        lvm.execute(code_generator.instructions,
-                    code_generator.labels_map,
-                    semantic_visitor.environment.string_constant_heap)
-        print("\n--- Code executed ---")
+        # # Program Execution
+        # print("--- Executing Code ---\n")
+        # lvm = LyaVirtualMachine()
+        # lvm.execute(code_generator.instructions,
+        #             code_generator.labels_map,
+        #             semantic_visitor.environment.string_constant_heap)
+        # print("\n--- Code executed ---")
 
     def _debug_mode(self, args):
         from lyacompiler.lya_debug_source import lya_debug_source

@@ -292,13 +292,13 @@ class LyaParser(object):
         # TODO: check if location is RefType
 
     def p_string_element(self, p):
-        """string_element : identifier LBRACK start_element RBRACK"""
+        """string_element : identifier LBRACK expression RBRACK"""
         # TODO: Check identifier as location if defined
-        p[0] = StringElement(p[1], p[3])
+        p[0] = Element(p[1], [p[3]])
 
-    def p_start_element(self, p):
-        """start_element : integer_expression"""
-        p[0] = StartElement(p[1])
+    # def p_start_element(self, p):
+    #     """start_element : integer_expression"""
+    #     p[0] = StartElement(p[1])
 
     def p_string_slice(self, p):
         """string_slice : identifier LBRACK left_element COLON right_element RBRACK"""
@@ -315,7 +315,7 @@ class LyaParser(object):
 
     def p_array_element(self, p):
         """array_element : array_location LBRACK expression_list RBRACK"""
-        p[0] = ArrayElement(p[1], p[3])
+        p[0] = Element(p[1], p[3], lineno=p.lineno(2))
 
     def p_array_slice(self, p):
         """array_slice : array_location LBRACK lower_bound COLON upper_bound RBRACK"""
@@ -368,7 +368,7 @@ class LyaParser(object):
 
     def p_value_array_element(self, p):
         """value_array_element : array_primitive_value LBRACK expression_list RBRACK"""
-        p[0] = ValueArrayElement(p[1], p[3])
+        p[0] = ValueArrayElement(p[1], p[3], lineno=p.lineno(2))
 
     def p_value_array_slice(self, p):
         """value_array_slice : array_primitive_value LBRACK lower_bound COLON upper_bound RBRACK"""

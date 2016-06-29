@@ -330,8 +330,8 @@ class DereferencedReference(ASTNode):
     _fields = ['loc']
 
 
-class StringElement(ASTNode):
-    _fields = ['ids', 'st_element']
+# class StringElement(ASTNode):
+#     _fields = ['ids', 'st_element']
 
 
 class StartElement(ASTNode):
@@ -342,12 +342,27 @@ class StringSlice(ASTNode):
     _fields = ['ids', 'l_elem', 'r_elem']
 
 
-class ArrayElement(ASTNode):
-    _fields = ['loc', 'expr']
+# class ArrayElement(ASTNode):
+#     _fields = ['loc', 'expr']
 
 
 class ArraySlice(ASTNode):
     _fields = ['loc', 'l_bound', 'u_bound']
+
+
+class Element(ASTNode):
+    """ Represents a string or array element.
+
+    :type location: Location if string, location is Identifier
+    :type expressions: List[Expression] if string, only one expression
+    """
+    _fields = ['location', 'expressions']
+
+    def __init__(self, location: 'Location', expressions: List['Expression'], **kwargs):
+        self.lineno = None
+        super().__init__(location, expressions, **kwargs)
+        self.location = location
+        self.expressions = expressions
 
 
 class Constant(ASTNode):

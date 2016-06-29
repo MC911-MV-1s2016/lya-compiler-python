@@ -261,6 +261,13 @@ class LyaArrayType(LyaRefType):
     def memory_size(self):
         return self._memory_size
 
+    def get_referenced_type(self, depth) -> LyaType:
+        if depth == 1:
+            return self.referenced_type
+        if not isinstance(self.referenced_type, LyaArrayType):
+            return None
+        else:
+            return self.referenced_type.get_referenced_type(depth-1)
 
 class LyaStringType(LyaType):
     """Lya Type that represents a string.

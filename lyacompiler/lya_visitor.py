@@ -612,7 +612,7 @@ class Visitor(ASTNodeVisitor):
 
         self.visit(assignment.expression)
 
-        # TODO: Array, ArrayElement, Slices, Strings... other locs
+        # TODO: Array (array <- array?), ArrayElement, Slices, Strings... other locs
 
         if assignment.location.raw_type != assignment.expression.raw_type:
             raise LyaTypeError(assignment.lineno, assignment.expression.raw_type, assignment.location.raw_type)

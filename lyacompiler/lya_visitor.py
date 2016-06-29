@@ -480,8 +480,13 @@ class Visitor(ASTNodeVisitor):
         referenced_location.raw_type = LTF.ref_type(referenced_location.loc.raw_type)
 
     def visit_Element(self, element: Element):
+        # TODO: More levels?
+        self.visit(element.location)
+        element.raw_type = element.location.raw_type
         for expression in element.expressions:
             self.visit(expression)
+            if expression.raw_type != LTF.int_type():
+                raise LyaTypeError(element.lineno, expression.raw_type, LTF.int_type())
 
         if isinstance(element.location, Identifier):
             self._lookup_identifier(element.location)

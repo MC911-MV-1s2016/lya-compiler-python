@@ -322,6 +322,18 @@ i = p(3,j);
 print(i);
 print(j);  /* print 2,3 */"""
 
+test9_source = """dcl a array[3:10] int;
+dcl i,j int;
+
+read(j);
+a[3]=2*j;
+do
+  for i = 4 to 10;
+    a[i] = 5+i;
+od;
+print(a[j]);"""
+
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';

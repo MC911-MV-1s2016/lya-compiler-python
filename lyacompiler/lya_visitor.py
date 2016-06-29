@@ -63,6 +63,12 @@ class Visitor(ASTNodeVisitor):
         identifier.synonym_value = entry_identifier.synonym_value
         return entry_identifier
 
+    def _lookup_type(self, identifier: Identifier):
+        raw_type = self.current_scope.type_lookup(identifier.name, identifier.lineno)
+        if raw_type is None:
+            raise LyaNameError(identifier.lineno, identifier.name)
+        return raw_type
+
     def _lookup_procedure(self, proc_call: ProcedureCall):
         entry_procedure = self.current_scope.procedure_lookup(proc_call.identifier.name, proc_call.lineno)
         if entry_procedure is None:
@@ -208,7 +214,6 @@ class Visitor(ASTNodeVisitor):
         for identifier in synonym.identifiers:
             identifier.raw_type = synonym.raw_type
             identifier.synonym_value = synonym.expression.exp_value
-            # identifier.memory_size = synonym.mode.memory_size
             self.current_scope.add_synonym(identifier, synonym)
 
     def visit_NewModeStatement(self, node):
@@ -373,10 +378,20 @@ class Visitor(ASTNodeVisitor):
 
     # Mode -------------------------------------------------------------------------------------------------------------
 
+    def visit_ModeDefinition(self, mode_definition: ModeDefinition):
+        self.visit(mode_definition.mode)
+        mode_definition.raw_type = mode_definition.mode.raw_type
+
+        for identifier in mode_definition.identifiers:
+            identifier.raw_type = mode_definition.raw_type
+            self.current_scope.add_new_type(identifier, mode_definition)
+
     def visit_Mode(self, mode: Mode):
         self.visit(mode.base_mode)
-        # TODO: If base_mode is Identifier (mode_name), check if defined as type
-        mode.raw_type = mode.base_mode.raw_type
+        if isinstance(mode.base_mode, Identifier):
+            mode.raw_type = self._lookup_type(mode.base_mode)
+        else:
+            mode.raw_type = mode.base_mode.raw_type
 
     def visit_DiscreteMode(self, discrete_mode: DiscreteMode):
         discrete_mode.raw_type = LTF.base_type_from_string(discrete_mode.name)
@@ -387,7 +402,7 @@ class Visitor(ASTNodeVisitor):
         self.visit(reference_mode.mode)
 
         if reference_mode.mode.raw_type is LyaRefType:
-            raise LyaGenericError(reference_mode.lineno, "Unsupported multiple indirection.")
+            raise LyaGenericError(reference_mode.lineno, reference_mode, "Unsupported multiple indirection.")
         reference_mode.raw_type = LTF.ref_type(reference_mode.mode.raw_type)
         # TODO: Improve Reference Mode management (Ref RawType + Mode RawType)
         # and comparisons between types

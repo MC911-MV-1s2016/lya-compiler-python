@@ -185,8 +185,18 @@ class SynonymDefinition(ASTNode):
 
 # Assign to define or type -> ilegal operation.
 
+
 class ModeDefinition(ASTNode):
-    _fields = ['ids', 'mode']
+    """
+    :type identifiers: List[Identifier]
+    :type mode: Mode
+    """
+    _fields = ['identifiers', 'mode']
+
+    def __init__(self, identifiers, mode, **kwargs):
+        super().__init__(identifiers, mode, **kwargs)
+        self.identifiers = identifiers
+        self.mode = mode
 
 
 class Mode(ASTNode):

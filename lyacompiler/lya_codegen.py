@@ -220,6 +220,8 @@ class CodeGenerator(ASTNodeVisitor):
                     self._add_instruction(LDR(location.type.scope_level, location.type.displacement))
                 else:
                     self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
+            elif isinstance(location.type, Element):
+                self.visit(location.type)
             else:
                 self.visit(location.type)
 
@@ -234,48 +236,29 @@ class CodeGenerator(ASTNodeVisitor):
             self._add_instruction(LDR(referenced_location.loc.type.scope_level, referenced_location.loc.type.displacement))
         else:
             self.visit(referenced_location.loc.type)
-    # # Expression
-    #
-    # def visit_Expression(self, expression: Expression):
-    #     self.visit(expression.sub_expression)
-    #     expression.raw_type = expression.sub_expression.raw_type
-    #     if isinstance(expression.sub_expression, Constant):
-    #         expression.exp_value = expression.sub_expression.value
-    #
-    # # Do_Action
-    #
-    # def visit_StepEnumeration(self, step: StepEnumeration):
-    #     entry = self.current_scope.entry_lookup(step.counter)
-    #
-    #     if entry is None:
-    #         raise LyaNameError(step.lineno, step.counter)
-    #
-    #     self.visit(step.start_val)
-    #     self.visit(step.step_val)
-    #     self.visit(step.end_val)
-    #
-    #     if step.start_val.raw_type != LTF.int_type():
-    #         raise LyaTypeError(step.lineno, step.start_val.raw_type, LTF.int_type())
-    #
-    #     if step.step_val.sub_expression.raw_type != LTF.int_type():
-    #         raise LyaTypeError(step.lineno, step.step_val.sub_expression.raw_type, LTF.int_type())
-    #
-    #     if step.end_val.raw_type != LTF.int_type():
-    #         raise LyaTypeError(step.lineno, step.end_val.raw_type, LTF.int_type())
-    #
-    # def visit_RangeEnumeration(self, range_enum: RangeEnumeration):
-    #     entry = self.current_scope.entry_lookup(range_enum.counter)
-    #
-    #     if entry is None:
-    #         raise LyaNameError(range_enum.lineno, range_enum.counter)
-    #
-    #     self.visit(range_enum.mode)
-    #
-    # def visit_WhileControl(self, ctrl: WhileControl):
-    #     self.visit(ctrl.expr)
-    #
-    #     if ctrl.expr.sub_expression.raw_type != LTF.bool_type():
-    #         raise LyaTypeError(ctrl.lineno, ctrl.expr.sub_expression.raw_type, LTF.bool_type())
+
+    def visit_Element(self, element: Element):
+
+        if isinstance(element.location, Identifier):
+            self._add_instruction(LDR(element.location.scope_level, element.location.displacement))
+            # self.visit(location.type)
+            # TODO: Not identifier?
+        else:
+            self.visit(element.location)
+
+        # TODO: More levels (len(expression) > 0)
+
+        exp = element.expressions[0]
+        self.visit(exp)
+        if isinstance(element.location.raw_type, LyaArrayType):
+            self._add_instruction(LDC(element.location.raw_type.index_range[0]))
+        # TODO: StringElement
+
+        self._add_instruction(SUB())
+
+        self._add_instruction(IDX(element.raw_type.memory_size))
+        # for expression in element.expressions:
+        #     self.visit(expression)
 
     # Constants / Literals ----------------------------------
 
@@ -294,6 +277,16 @@ class CodeGenerator(ASTNodeVisitor):
     # def visit_StringConstant(self, sconst: StringConstant):
     #     sconst.heap_position = self.environment.store_string_constant(sconst.value)
     #     sconst.raw_type = LTF.string_type(sconst.length)
+
+    # Expression
+
+    def visit_Expression(self, expression: Expression):
+        self.visit(expression.sub_expression)
+        if isinstance(expression.sub_expression, Location):
+            if isinstance(expression.sub_expression.type, Element):
+                # TODO: What if Element is another array, or ref?
+                self._add_instruction(GRC())
+
 
     def visit_BinaryExpression(self, binary_expression: BinaryExpression):
 
@@ -389,16 +382,21 @@ class CodeGenerator(ASTNodeVisitor):
         if isinstance(assignment.location.type, ProcedureCall):
             self.visit(assignment.location.type)
 
-        self.visit(assignment.expression)
         # Assignment Location
         if isinstance(assignment.location.type, Identifier):
+            self.visit(assignment.expression)
             if assignment.location.type.qualifier == QualifierType.location:
                 self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
             else:
                 self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
         elif isinstance(assignment.location.type, Element):
-            # TODO: Função para acessar elemento e e colocar instruction no assign
-            pass
+            # Element assignment. Array.
+            self.visit(assignment.location)
+            self.visit(assignment.expression)
+            # TODO: String?
+            self._add_instruction(SMV(assignment.location.type.raw_type.memory_size))
+        else:
+            self.visit(assignment.expression)
 
         # Assignment Expression
         if hasattr(assignment.expression, 'sub_expression'):
@@ -409,9 +407,9 @@ class CodeGenerator(ASTNodeVisitor):
 
                     if procedure_statement.definition.result.loc == QualifierType.ref_location:
                         self._add_instruction(GRC())
-                if isinstance(assignment.expression.sub_expression.type, Element):
-                    # TODO: Resolver elemento e colocar instrução para grc
-                    pass
+                # if isinstance(assignment.expression.sub_expression.type, Element):
+                #     # TODO: Resolver elemento e colocar instrução para grc
+                #     pass
 
         if isinstance(assignment.location.type, ProcedureCall):
             # TODO: Não tem que checar se o call tem retorno antes de fazer isso?

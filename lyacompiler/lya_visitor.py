@@ -369,7 +369,7 @@ class Visitor(ASTNodeVisitor):
                                       "Method length() only applies to 'chars' and 'array'. "
                                       "Received '{}'".format(expression.raw_type))
         else:
-            # SUCC, PRED, NUM??
+            # TODO SUCC, PRED, NUM??
             pass
 
     # Mode -------------------------------------------------------------------------------------------------------------
@@ -573,7 +573,7 @@ class Visitor(ASTNodeVisitor):
             raise LyaOperationError(relational_expression.lineno, op, right_type=right.raw_type)
 
         raw_type, exp_value = self._evaluate_relational_expression(op, left, right)
-        relational_expression.raw_type = raw_type
+        relational_expression.raw_type = LTF.bool_type()
         relational_expression.exp_value = exp_value
 
     def visit_UnaryExpression(self, unary_expression):

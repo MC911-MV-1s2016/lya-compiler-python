@@ -207,12 +207,12 @@ class LyaRefType(LyaType):
     """Lya Type that references another LyaType.
     """
 
-    _name = "ref",
+    _name = "ref"
     _unary_ops = {"->"}
     _binary_ops = {}
     _rel_ops = {"==", "!="}
     _unary_opcodes = {"->": "ldr"}
-    _binary_opcodes = {},
+    _binary_opcodes = {}
     _rel_opcodes = {"==": "equ",
                     "!=": "neq"}
 

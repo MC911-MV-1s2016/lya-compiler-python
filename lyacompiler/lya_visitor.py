@@ -460,8 +460,7 @@ class Visitor(ASTNodeVisitor):
 
         if not isinstance(dereferenced_reference.loc.raw_type, LyaRefType):
             raise LyaTypeError(dereferenced_reference.lineno, dereferenced_reference.loc.raw_type,
-                               LTF.ref_type(LTF.void_type()))
-        #TODO: how to raise an error without specifying the referenced_type on ref?
+                               LyaRefType._name)
 
         dereferenced_reference.raw_type = dereferenced_reference.loc.raw_type.referenced_type
 

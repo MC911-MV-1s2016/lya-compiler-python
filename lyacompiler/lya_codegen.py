@@ -366,9 +366,12 @@ class CodeGenerator(ASTNodeVisitor):
     # def visit_BracketedAction(self, bracketed_action: BracketedAction):
 
     def visit_AssignmentAction(self, assignment: AssignmentAction):
+
+        # TODO: if location.type é CallAction, visitar call action.
+
         self.visit(assignment.expression)
         if isinstance(assignment.location.type, Identifier):
-            if assignment.location.type.qualifier is QualifierType.location:
+            if assignment.location.type.qualifier == QualifierType.location:
                 self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
             else:
                 self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))

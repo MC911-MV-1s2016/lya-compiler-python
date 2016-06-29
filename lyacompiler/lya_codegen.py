@@ -308,10 +308,8 @@ class CodeGenerator(ASTNodeVisitor):
             if isinstance(left.type, Identifier):
                 self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
         elif isinstance(left, Expression):
-            if left.exp_value:
-                # TODO: Otimização - carregar str cte
+            if left.exp_value and not isinstance(left.exp_value, StringConstant): # STRConstants are loaded into the heap
                 self._add_instruction(LDC(left.exp_value))
-                pass
         else:
             self.visit(left)
 
@@ -319,10 +317,8 @@ class CodeGenerator(ASTNodeVisitor):
             if isinstance(right.type, Identifier):
                 self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
         elif isinstance(left, Expression):
-            if right.exp_value:
-                # TODO: Otimização - carregar cte
+            if right.exp_value and not isinstance(right.exp_value, StringConstant):
                 self._add_instruction(LDC(right.exp_value))
-                pass
         else:
             self.visit(right)
 
@@ -340,10 +336,8 @@ class CodeGenerator(ASTNodeVisitor):
             if isinstance(left.type, Identifier):
                 self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
         elif isinstance(left, Expression):
-            if left.exp_value:
-                # TODO: Carregar str cte
+            if left.exp_value and not isinstance(left.exp_value, StringConstant):
                 self._add_instruction(LDC(left.exp_value))
-                pass
         else:
             self.visit(left)
 
@@ -351,10 +345,8 @@ class CodeGenerator(ASTNodeVisitor):
             if isinstance(right.type, Identifier):
                 self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
         elif isinstance(left, Expression):
-            if right.exp_value:
-                # TODO: Carregar cte
+            if right.exp_value and not isinstance(right.exp_value, StringConstant):
                 self._add_instruction(LDC(right.exp_value))
-                pass
         else:
             self.visit(right)
 
@@ -369,10 +361,8 @@ class CodeGenerator(ASTNodeVisitor):
             if isinstance(value.type, Identifier):
                 self._add_instruction(LDV(value.type.scope_level, value.type.displacement))
         elif isinstance(value, Expression):
-            if value.exp_value:
-                # TODO: Carregar str cte
+            if value.exp_value and not isinstance(value.exp_value, StringConstant):
                 self._add_instruction(LDC(value.exp_value))
-                pass
         else:
             self.visit(value)
 

@@ -434,7 +434,9 @@ print(uou);"""
 
 
 printtest_source = """
-print("BANANA"); """
+dcl c chars[10] = "BANANA";
+
+print(c);"""
 
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']

@@ -442,3 +442,22 @@ print(c);"""
 __all__ = ['lya_debug_source']
 
 lya_debug_source = printtest_source
+
+lya_debug_source = """
+gcd: proc (x int, y int) returns (int);
+  dcl g int;
+  g = y;
+  do
+    while x > 0;
+      g = x;
+      x = y - (y/x) * x;
+      y = g;
+  od;
+  return g;
+end;
+
+dcl a, b int;
+print("give-me two integers separated by space:");
+read (a);
+read (b);
+print (gcd(a,b));"""

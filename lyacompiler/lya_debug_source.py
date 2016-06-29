@@ -346,8 +346,7 @@ end;
 dcl b bool = false;
 p(b)    = 20;
 p(true) = 10;
-print(x);
-print(y);   // display 10, 20
+print(x, y);  // display 10, 20
 """
 
 syn_test_source = """syn sy1 = 20;
@@ -416,4 +415,4 @@ print(uou);"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test7_source
+lya_debug_source = test10_source

@@ -331,7 +331,7 @@ class Visitor(ASTNodeVisitor):
 
     def visit_BuiltinCall(self, builtin_call: BuiltinCall):
         n = len(builtin_call.expressions)
-        if n != 1:
+        if n != 1 and builtin_call.name != 'print':
             raise LyaProcedureCallError(builtin_call.lineno, builtin_call.name, None, n, 1)
 
         for exp in builtin_call.expressions:

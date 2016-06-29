@@ -151,18 +151,33 @@ class CodeGenerator(ASTNodeVisitor):
         name = builtin_call.name
 
         if name == 'print':
-            print_arg = builtin_call.expressions[0]     # type: Expression
+            print_arg_list = builtin_call.expressions  # type: Expression
 
-            self.visit(print_arg)
-            if isinstance(print_arg.raw_type, LyaStringType):
-                self._add_instruction(PRS())
-            elif isinstance(print_arg.sub_expression, StringConstant):
-                self._add_instruction(PRC(print_arg.sub_expression.heap_position))
-            elif isinstance(print_arg.sub_expression, LyaArrayType):
-                # TODO: Improove array printing
-                self._add_instruction(PRT(print_arg.sub_expression.length))
-            else:
-                self._add_instruction(PRV())
+            for print_arg in print_arg_list:
+                self.visit(print_arg)
+                if isinstance(print_arg.raw_type, LyaStringType):
+                    self._add_instruction(PRS())
+                elif isinstance(print_arg.sub_expression, StringConstant):
+                    self._add_instruction(PRC(print_arg.sub_expression.heap_position))
+                elif isinstance(print_arg.sub_expression, LyaArrayType):
+                    # TODO: Improve array printing
+                    self._add_instruction(PRT(print_arg.sub_expression.length))
+                else:
+                    self._add_instruction(PRV())
+
+        # if name == 'print':
+        #     print_arg = builtin_call.expressions[0]     # type: Expression
+        #
+        #     self.visit(print_arg)
+        #     if isinstance(print_arg.raw_type, LyaStringType):
+        #         self._add_instruction(PRS())
+        #     elif isinstance(print_arg.sub_expression, StringConstant):
+        #         self._add_instruction(PRC(print_arg.sub_expression.heap_position))
+        #     elif isinstance(print_arg.sub_expression, LyaArrayType):
+        #         # TODO: Improove array printing
+        #         self._add_instruction(PRT(print_arg.sub_expression.length))
+        #     else:
+        #         self._add_instruction(PRV())
 
         if name == 'read':
             read_arg = builtin_call.expressions[0]      # type: Expression

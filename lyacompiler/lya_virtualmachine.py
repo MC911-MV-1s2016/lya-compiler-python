@@ -48,7 +48,7 @@ class LyaVirtualMachine(object):
         self.bp = 0
         self.display = [None] * 100     # TODO: Make it dynamic.
         self.sp = 0
-        self.memory = [None] * 1000
+        self.memory = [None] * 100
         self.string_heap = []
         self.label_pc_map = {}
 
@@ -366,13 +366,16 @@ class LyaVirtualMachine(object):
     def execute_SMV(self, smv: SMV):
         """
         (’smv’, k)     # Store multiple Values
-                           for i in range(0,k-1):
-                               M[M[sp-k]+i]=M[sp-k+i+1]
-                           sp=sp - k - 1
+                        t = M[sp-k]
+                        M[t:t+k] =M[sp-k+1:sp+1]
+                        sp -= (k+1)
         """
-        for i in range(0, smv.k-1):
-            self.memory[self.memory[self.sp - smv.k] + i] = self.memory[self.sp - smv.k + i + 1]
-        self.sp -= smv.k + 1
+        t = self.memory[self.sp - smv.k]
+        self.memory[t:t+smv.k] = self.memory[self.sp-smv.k+1:self.sp+1]
+        self.sp = self.sp - smv.k - 1
+        # for i in range(0, smv.k):
+        #     self.memory[self.memory[self.sp - smv.k] + i] = self.memory[self.sp - smv.k + i + 1]
+        # self.sp -= smv.k + 1
 
     def execute_STS(self, sts: STS):
         """

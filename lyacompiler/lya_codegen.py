@@ -89,11 +89,14 @@ class CodeGenerator(ASTNodeVisitor):
         self._add_instruction(JMP(procedure.end_label))
         self._add_instruction(LBL(procedure.start_label))
         self._add_instruction(ENF(self.current_scope.level))
-        self._add_instruction(ALC(procedure.offset))
+
+        if procedure.offset != 0:
+            self._add_instruction(ALC(procedure.offset))
 
         self.visit(procedure.definition)
 
-        self._add_instruction(DLC(procedure.offset))
+        if procedure.offset != 0:
+            self._add_instruction(DLC(procedure.offset))
 
         if procedure.identifier.raw_type is not LyaVoidType:
             # Calculating the number of parameters received
@@ -125,8 +128,8 @@ class CodeGenerator(ASTNodeVisitor):
 
         self._add_instruction(CFU(call.start_label))
 
-        if procedure.definition.result.loc is QualifierType.ref_location:
-            self._add_instruction(GRC())
+        # if procedure.definition.result.loc is QualifierType.ref_location:
+        #     self._add_instruction(GRC())
 
     def visit_ReturnAction(self, return_action: ReturnAction):
         procedure = self.current_scope.enclosure    # type: ProcedureStatement
@@ -368,8 +371,8 @@ class CodeGenerator(ASTNodeVisitor):
     # def visit_BracketedAction(self, bracketed_action: BracketedAction):
 
     def visit_AssignmentAction(self, assignment: AssignmentAction):
-
-        # TODO: if location.type é CallAction, visitar call action.
+        if isinstance(assignment.location.type, ProcedureCall):
+            self.visit(assignment.location.type)
 
         self.visit(assignment.expression)
         if isinstance(assignment.location.type, Identifier):
@@ -377,6 +380,18 @@ class CodeGenerator(ASTNodeVisitor):
                 self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
             else:
                 self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
+
+        if isinstance(assignment.expression.sub_expression, Location) and \
+                isinstance(assignment.expression.sub_expression.type, ProcedureCall):
+            procedure_call = assignment.expression.sub_expression.type
+            procedure_statement = self._lookup_procedure(procedure_call)
+
+            if procedure_statement.definition.result.loc == QualifierType.ref_location:
+                self._add_instruction(GRC())
+
+        if isinstance(assignment.location.type, ProcedureCall):
+            self._add_instruction(SMV(assignment.location.type.raw_type.memory_size))
+
 
     # IfAction ---------------------------------------------------------------------------------------------------------
 

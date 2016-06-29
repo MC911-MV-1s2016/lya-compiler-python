@@ -333,6 +333,22 @@ do
 od;
 print(a[j]);"""
 
+test10_source = """dcl x, y int;
+
+p: proc (b bool) returns (int loc);
+  if b then
+    result x;
+  else
+    result y;
+  fi;
+end;
+
+dcl b bool = false;
+p(b)    = 20;
+p(true) = 10;
+print(x);
+print(y);   // display 10, 20
+"""
 
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
@@ -388,5 +404,5 @@ print (p(m, n, b));"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test3_source
+lya_debug_source = test10_source
 #lya_debug_source = lya_source_do3

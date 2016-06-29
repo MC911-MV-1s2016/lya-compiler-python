@@ -558,6 +558,15 @@ class Visitor(ASTNodeVisitor):
 
     def visit_AssignmentAction(self, assignment: AssignmentAction):
         self.visit(assignment.location)
+
+        if isinstance(assignment.location.type, ProcedureCall):
+            procedure_call = assignment.location.type
+            procedure_statement = self._lookup_procedure(procedure_call)
+
+            if procedure_statement.definition.result.loc != QualifierType.ref_location:
+                raise LyaGenericError(assignment.lineno, assignment,
+                                      "Atributing result to non-LOC function call.")
+
         self.visit(assignment.expression)
 
         # TODO: Array, ArrayElement, Slices, Strings... other locs

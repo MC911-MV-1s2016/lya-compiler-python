@@ -319,8 +319,7 @@ p: proc(x int, y int loc) returns (int loc);
 end;
 
 i = p(3,j);
-print(i);
-print(j);  /* print 2,3 */"""
+print(i, j); /* print 2,3 */"""
 
 test9_source = """dcl a array[3:10] int;
 dcl i,j int;

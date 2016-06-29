@@ -314,7 +314,7 @@ class Visitor(ASTNodeVisitor):
             # TODO: Returning on void function
             pass
         self.visit(return_action.expression)
-        self.current_scope.add_result(return_action.lineno, return_action.expression)
+        self.current_scope.add_result(return_action.expression, return_action.lineno)
         return_action.displacement = self.current_scope.parameters_displacement
 
     def visit_ResultAction(self, result: ResultAction):

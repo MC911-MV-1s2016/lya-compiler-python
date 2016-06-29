@@ -182,13 +182,18 @@ class CodeGenerator(ASTNodeVisitor):
         if name == 'read':
             read_arg = builtin_call.expressions[0]      # type: Expression
             location = read_arg.sub_expression          # type: Location
-            identifier = location.type                  # type: Identifier
             if isinstance(read_arg.raw_type, LyaStringType):
                 self._add_instruction(RDS())
+                # TODO: Test String
                 self._add_instruction(STS(read_arg.raw_type.length))
             else:
-                self._add_instruction(RDV())
-                self._add_instruction(STV(identifier.scope_level, identifier.displacement))
+                if isinstance(location.type, Identifier):
+                    self._add_instruction(RDV())
+                    self._add_instruction(STV(location.type.scope_level, location.type.displacement))
+                elif isinstance(location.type, Element):
+                    self.visit(location.type)
+                    self._add_instruction(RDV())
+                    self._add_instruction(SMV(location.type.raw_type.memory_size))
 
         if name == 'lower':
             read_arg = builtin_call.expressions[0]      # type: Expression

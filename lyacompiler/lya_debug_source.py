@@ -384,9 +384,20 @@ dcl b bool = true;
 read (b);
 print (p(m, n, b));"""
 
+typedef_source = """type my_int = int;
+dcl x my_int = 2;
+type vector = array[1:10] int;
+dcl v vector;
+type p_int = ref int;
+dcl pi p_int;
+print(x);
+print(v);
+print(pi);
+type r_my_int = ref my_int;
+dcl uou r_my_int;
+print(uou);"""
 
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
 lya_debug_source = test3_source
-#lya_debug_source = lya_source_do3

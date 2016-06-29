@@ -20,6 +20,7 @@ __all__ = [
     'LyaNameError',
     'LyaProcedureCallError',
     'LyaTypeError',
+    'LyaNotATypeError',
     'LyaArgumentTypeError',
     'LyaAssignmentError',
     'LyaOperationError',
@@ -27,10 +28,6 @@ __all__ = [
     'LyaSyntaxError',
     'LyaLVMError'
 ]
-
-# Index Out Of Range
-# FuncCall (Wrong Params)
-#
 
 
 class LyaError(Exception):
@@ -134,6 +131,22 @@ class LyaTypeError(LyaError):
         else:
             return "Type '{0}' received. Expected '{1}'.".format(self.current_type,
                                                                  self.expected_type)
+
+
+class LyaNotATypeError(LyaError):
+    """Raised when a name not defined as type is used as type.
+
+    Attributes:
+        lineno -- The line number where the exception was raised.
+        name -- The name that is not a type.
+    """
+
+    def __init__(self, lineno: int, name: str):
+        super().__init__(lineno)
+        self.name = name
+
+    def message(self):
+        return "'{0}' not a type.".format(self.name)
 
 
 class LyaArgumentTypeError(LyaTypeError):

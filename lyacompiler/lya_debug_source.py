@@ -348,6 +348,27 @@ p(true) = 10;
 print(x, y);  // display 10, 20
 """
 
+test11_source = """type vector = array[1:10] int;
+dcl v vector, i int;
+
+sum: proc (v vector) returns (int);
+    dcl s, i int;
+    i = 1;
+    s = 0;
+    do
+      while i<10;
+          s = s + v[i];
+          i += 1;
+    od;
+    return s;
+end;
+
+do
+  for i = 1 to 10;
+      read(v[i]);
+od;
+print(sum(v));"""
+
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
 syn sy2 char = 'c';
@@ -414,4 +435,4 @@ print(uou);"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test10_source
+lya_debug_source = test11_source

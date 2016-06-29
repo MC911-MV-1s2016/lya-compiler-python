@@ -242,9 +242,9 @@ test2_source = """dcl m int = 2, n int = 3;
 p: proc (x int);
   dcl s int;
   s = m * x;
-  print(s);
 end;
-p(n);"""
+p(n);
+print(m);"""
 
 test3_source = """dcl m int = 2, n int = 3;
 p: proc (x, y int, b bool) returns (int);

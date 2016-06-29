@@ -76,6 +76,7 @@ class LyaVirtualMachine(object):
                 self.pc += 1
             else:
                 self.pc = next_pc
+        pass
 
     def _execute_current_instruction(self) -> int:
         if self.current_instruction is not None:

@@ -375,23 +375,32 @@ class CodeGenerator(ASTNodeVisitor):
             self.visit(assignment.location.type)
 
         self.visit(assignment.expression)
+        # Assignment Location
         if isinstance(assignment.location.type, Identifier):
             if assignment.location.type.qualifier == QualifierType.location:
                 self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
             else:
                 self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
+        elif isinstance(assignment.location.type, Element):
+            # TODO: Função para acessar elemento e e colocar instruction no assign
+            pass
 
-        if isinstance(assignment.expression.sub_expression, Location) and \
-                isinstance(assignment.expression.sub_expression.type, ProcedureCall):
-            procedure_call = assignment.expression.sub_expression.type
-            procedure_statement = self._lookup_procedure(procedure_call)
+        # Assignment Expression
+        if hasattr(assignment.expression, 'sub_expression'):
+            if isinstance(assignment.expression.sub_expression, Location):
+                if isinstance(assignment.expression.sub_expression.type, ProcedureCall):
+                    procedure_call = assignment.expression.sub_expression.type
+                    procedure_statement = self._lookup_procedure(procedure_call)
 
-            if procedure_statement.definition.result.loc == QualifierType.ref_location:
-                self._add_instruction(GRC())
+                    if procedure_statement.definition.result.loc == QualifierType.ref_location:
+                        self._add_instruction(GRC())
+                if isinstance(assignment.expression.sub_expression.type, Element):
+                    # TODO: Resolver elemento e colocar instrução para grc
+                    pass
 
         if isinstance(assignment.location.type, ProcedureCall):
+            # TODO: Não tem que checar se o call tem retorno antes de fazer isso?
             self._add_instruction(SMV(assignment.location.type.raw_type.memory_size))
-
 
     # IfAction ---------------------------------------------------------------------------------------------------------
 

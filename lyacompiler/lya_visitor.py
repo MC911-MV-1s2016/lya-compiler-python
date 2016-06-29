@@ -319,16 +319,12 @@ class Visitor(ASTNodeVisitor):
 
     def visit_ResultAction(self, result: ResultAction):
         if self.current_scope.ret.raw_type == LTF.void_type():
-            # TODO: Error setting result on void return function.
-            pass
+            raise LyaGenericError(result.lineno, result, "Error setting a result on void return function.")
+
         self.visit(result.expression)
 
-        if not isinstance(result.expression.sub_expression, Location):
-            print("SHIT ResultAction")
-            #TODO: error not location
-            pass
-
-        result.expression.sub_expression.type.qualifier = self.current_scope.ret.qualifier
+        if isinstance(result.expression.sub_expression, Location):
+            result.expression.sub_expression.type.qualifier = self.current_scope.ret.qualifier
 
         self.current_scope.add_result(result.expression, result.lineno)
         result.displacement = self.current_scope.parameters_displacement

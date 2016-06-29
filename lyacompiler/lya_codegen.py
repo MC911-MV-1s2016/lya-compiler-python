@@ -97,10 +97,12 @@ class CodeGenerator(ASTNodeVisitor):
 
         if procedure.identifier.raw_type is not LyaVoidType:
             # Calculating the number of parameters received
+            mem_size = 0
             n_params = 0
             for p in procedure.definition.parameters:
-                n_params += len(p.ids)
-            self._add_instruction(RET(self.current_scope.level, n_params))
+                for i in p.ids:
+                    mem_size += i.raw_type.memory_size
+            self._add_instruction(RET(self.current_scope.level, mem_size))
 
         self._add_instruction(LBL(procedure.end_label))
         self.current_scope = self.current_scope.parent

@@ -388,5 +388,5 @@ print (p(m, n, b));"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test7_source
+lya_debug_source = test3_source
 #lya_debug_source = lya_source_do3

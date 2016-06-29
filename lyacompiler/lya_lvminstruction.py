@@ -373,9 +373,9 @@ class LMV(LyaInstruction):
 class SMV(LyaInstruction):
     """
     (’smv’, k)     # Store multiple Values
-                       for i in range(0,k-1):
-                           M[M[sp-k]+i]=M[sp-k+i+1]
-                       sp=sp - k - 1
+                        t = M[sp-k]
+                        M[t:t+k] =M[sp-k+1:sp+1]
+                        sp -= (k+1)
     """
     _mnemonic = 'smv'
 

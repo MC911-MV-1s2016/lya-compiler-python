@@ -319,8 +319,7 @@ p: proc(x int, y int loc) returns (int loc);
 end;
 
 i = p(3,j);
-print(i);
-print(j);  /* print 2,3 */"""
+print(i, j); /* print 2,3 */"""
 
 test9_source = """dcl a array[3:10] int;
 dcl i,j int;
@@ -346,9 +345,29 @@ end;
 dcl b bool = false;
 p(b)    = 20;
 p(true) = 10;
-print(x);
-print(y);   // display 10, 20
+print(x, y);  // display 10, 20
 """
+
+test11_source = """type vector = array[1:10] int;
+dcl v vector, i int;
+
+sum: proc (v vector) returns (int);
+    dcl s, i int;
+    i = 1;
+    s = 0;
+    do
+      while i<10;
+          s = s + v[i];
+          i += 1;
+    od;
+    return s;
+end;
+
+do
+  for i = 1 to 10;
+      read(v[i]);
+od;
+print(sum(v));"""
 
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
@@ -413,7 +432,32 @@ type r_my_int = ref my_int;
 dcl uou r_my_int;
 print(uou);"""
 
+
+printtest_source = """
+dcl c chars[10] = "BANANA";
+
+print(c);"""
+
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test9_source
+lya_debug_source = printtest_source
+
+lya_debug_source = """
+gcd: proc (x int, y int) returns (int);
+  dcl g int;
+  g = y;
+  do
+    while x > 0;
+      g = x;
+      x = y - (y/x) * x;
+      y = g;
+  od;
+  return g;
+end;
+
+dcl a, b int;
+print("give-me two integers separated by space:");
+read (a);
+read (b);
+print (gcd(a,b));"""

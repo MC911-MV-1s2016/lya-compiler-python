@@ -314,28 +314,24 @@ class Visitor(ASTNodeVisitor):
             # TODO: Returning on void function
             pass
         self.visit(return_action.expression)
-        self.current_scope.add_result(return_action.lineno, return_action.expression)
+        self.current_scope.add_result(return_action.expression, return_action.lineno)
         return_action.displacement = self.current_scope.parameters_displacement
 
     def visit_ResultAction(self, result: ResultAction):
         if self.current_scope.ret.raw_type == LTF.void_type():
-            # TODO: Error setting result on void return function.
-            pass
+            raise LyaGenericError(result.lineno, result, "Error setting a result on void return function.")
+
         self.visit(result.expression)
 
-        if not isinstance(result.expression.sub_expression, Location):
-            print("SHIT ResultAction")
-            #TODO: error not location
-            pass
-
-        result.expression.sub_expression.type.qualifier = self.current_scope.ret.qualifier
+        if isinstance(result.expression.sub_expression, Location):
+            result.expression.sub_expression.type.qualifier = self.current_scope.ret.qualifier
 
         self.current_scope.add_result(result.expression, result.lineno)
         result.displacement = self.current_scope.parameters_displacement
 
     def visit_BuiltinCall(self, builtin_call: BuiltinCall):
         n = len(builtin_call.expressions)
-        if n != 1:
+        if n != 1 and builtin_call.name != 'print':
             raise LyaProcedureCallError(builtin_call.lineno, builtin_call.name, None, n, 1)
 
         for exp in builtin_call.expressions:
@@ -373,7 +369,7 @@ class Visitor(ASTNodeVisitor):
                                       "Method length() only applies to 'chars' and 'array'. "
                                       "Received '{}'".format(expression.raw_type))
         else:
-            # SUCC, PRED, NUM??
+            # TODO SUCC, PRED, NUM??
             pass
 
     # Mode -------------------------------------------------------------------------------------------------------------
@@ -484,8 +480,13 @@ class Visitor(ASTNodeVisitor):
         referenced_location.raw_type = LTF.ref_type(referenced_location.loc.raw_type)
 
     def visit_Element(self, element: Element):
+        # TODO: More levels?
+        self.visit(element.location)
+        element.raw_type = element.location.raw_type
         for expression in element.expressions:
             self.visit(expression)
+            if expression.raw_type != LTF.int_type():
+                raise LyaTypeError(element.lineno, expression.raw_type, LTF.int_type())
 
         if isinstance(element.location, Identifier):
             self._lookup_identifier(element.location)
@@ -572,7 +573,7 @@ class Visitor(ASTNodeVisitor):
             raise LyaOperationError(relational_expression.lineno, op, right_type=right.raw_type)
 
         raw_type, exp_value = self._evaluate_relational_expression(op, left, right)
-        relational_expression.raw_type = raw_type
+        relational_expression.raw_type = LTF.bool_type()
         relational_expression.exp_value = exp_value
 
     def visit_UnaryExpression(self, unary_expression):

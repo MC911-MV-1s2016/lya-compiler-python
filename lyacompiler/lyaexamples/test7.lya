@@ -15,10 +15,10 @@ p: proc(x int, y ref int) returns (int);
   fi;
 end;
 
-//read(i);
-//r = -> i;
-//print(p(i,->j));
-//
+read(i);
+r = -> i;
+print(p(i,->j));
+
 //'''
 //Scope level for ProcStmt p: 1
 //  formal parameters & their offsets

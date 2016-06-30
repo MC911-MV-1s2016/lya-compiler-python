@@ -356,7 +356,7 @@ sum: proc (v vector) returns (int);
     i = 1;
     s = 0;
     do
-      while i<10;
+      while i<=10;
           s = s + v[i];
           i += 1;
     od;
@@ -435,29 +435,29 @@ print(uou);"""
 
 printtest_source = """
 dcl c chars[10] = "BANANA";
-
+print("Oi", "tudo bem?");
 print(c);"""
 
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = printtest_source
+lya_debug_source = test11_source
 
-lya_debug_source = """
-gcd: proc (x int, y int) returns (int);
-  dcl g int;
-  g = y;
-  do
-    while x > 0;
-      g = x;
-      x = y - (y/x) * x;
-      y = g;
-  od;
-  return g;
-end;
-
-dcl a, b int;
-print("give-me two integers separated by space:");
-read (a);
-read (b);
-print (gcd(a,b));"""
+# lya_debug_source = """
+# gcd: proc (x int, y int) returns (int);
+#   dcl g int;
+#   g = y;
+#   do
+#     while x > 0;
+#       g = x;
+#       x = y - (y/x) * x;
+#       y = g;
+#   od;
+#   return g;
+# end;
+#
+# dcl a, b int;
+# print("give-me two integers separated by space:");
+# read (a);
+# read (b);
+# print (gcd(a,b));"""

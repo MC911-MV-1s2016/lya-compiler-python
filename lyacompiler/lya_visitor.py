@@ -226,9 +226,6 @@ class Visitor(ASTNodeVisitor):
         self.current_scope.add_procedure(procedure.identifier, procedure)
         self.environment.start_new_scope(procedure)
 
-        procedure.start_label = self.environment.generate_label()
-        procedure.end_label = self.environment.generate_label()
-
         definition = procedure.definition
         parameters = definition.parameters
         result = definition.result
@@ -238,11 +235,15 @@ class Visitor(ASTNodeVisitor):
         ret.raw_type = LTF.void_type()
         ret.qualifier = QualifierType.none
 
+        procedure.start_label = self.environment.generate_label()
+
         if result is not None:
+            procedure.return_label = self.environment.generate_label()
             self.visit(result)
             ret.raw_type = result.raw_type
             ret.qualifier = result.loc
 
+        procedure.end_label = self.environment.generate_label()
         self.current_scope.add_return(ret)
 
         procedure.identifier.raw_type = ret.raw_type

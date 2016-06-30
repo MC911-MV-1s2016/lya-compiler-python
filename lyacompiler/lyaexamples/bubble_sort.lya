@@ -1,19 +1,19 @@
 /* Bubble sort code: */
 
-dcl v array[1:100] int;
+dcl v array[0:100] int;
 dcl n, c, d, swap  int;
 
 print("Enter number of elements: ");
 read(n);
 print("Enter ", n, " integers\n");
 do
-  for c = 1 to n;
+  for c = 0 to n-1;
     read(v[c]);
 od;
 do
-  for c = 1 to n-1;
+  for c = 0 to n-2;
     do
-      for d = 1 to n-c-1;
+      for d = 0 to n-c-2;
         // For decreasing order use "<"
         if v[d] > v[d+1] then
           swap   = v[d];
@@ -24,6 +24,6 @@ do
 od;
 print("Sorted list in ascending order:\n");
 do
-  for c = 1 to n;
+  for c = 0 to n-1;
     print(v[c], " ");
 od;

@@ -170,7 +170,10 @@ class LyaScope(object):
         self._add_symbol(identifier.name, SymbolEntry.parameter(identifier, self))
         self.parameters.add(identifier.name, parameter)
         identifier.displacement = self.parameters_displacement
-        self.parameters_displacement -= identifier.raw_type.memory_size
+        if isinstance(identifier.raw_type, LyaArrayType):
+            self.parameters_displacement -= 1
+        else:
+            self.parameters_displacement -= identifier.raw_type.memory_size
 
     # Synonyms
     def add_synonym(self, identifier: Identifier, synonym: SynonymDefinition):

@@ -46,9 +46,9 @@ class LyaVirtualMachine(object):
         self.program = []
         self.program_size = 0
         self.bp = 0
-        self.display = [None] * 100     # TODO: Make it dynamic.
+        self.display = [None] * 10000     # TODO: Make it dynamic.
         self.sp = 0
-        self.memory = [None] * 100
+        self.memory = [None] * 10000
         self.string_heap = []
         self.label_pc_map = {}
 

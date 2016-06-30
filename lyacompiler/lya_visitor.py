@@ -314,9 +314,10 @@ class Visitor(ASTNodeVisitor):
         if return_action.expression is not None and self.current_scope.ret.raw_type != LTF.void_type():
             # TODO: Returning on void function
             pass
-        self.visit(return_action.expression)
-        self.current_scope.add_result(return_action.expression, return_action.lineno)
-        return_action.displacement = self.current_scope.parameters_displacement
+        if return_action.expression is not None:
+            self.visit(return_action.expression)
+            self.current_scope.add_result(return_action.expression, return_action.lineno)
+            return_action.displacement = self.current_scope.parameters_displacement
 
     def visit_ResultAction(self, result: ResultAction):
         if self.current_scope.ret.raw_type == LTF.void_type():

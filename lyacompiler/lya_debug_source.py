@@ -441,9 +441,8 @@ print(c);"""
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test11_source
 
-lya_debug_source = """
+lya_gcd = """
 gcd: proc (x int, y int) returns (int);
   dcl g int;
   g = y;
@@ -461,4 +460,137 @@ print("give-me two integers separated by space:");
 read(a);
 read(b);
 print ("GCD of ", a, b, " is ", gcd(a,b));"""
+
+lya_gen_primes = """dcl n1, n2, i, j int, flag bool;
+
+print("Enter 2 numbers (intervals) separated by space: ");
+read(n1);
+read(n2);
+print("Prime numbers between ", n1, " and ", n2, " are:\n");
+do
+  for i = n1 to n2;
+    flag = true;
+    loop: do
+      for j = 2 to i/2;
+        if i % j == 0 then
+          flag = false;
+          exit loop;
+        fi;
+    od;
+    if flag then
+      print(i, "  ");
+    fi;
+od;
+"""
+
+lya_bubble_sort = """dcl v array[0:100] int;
+dcl n, c, d, swap  int;
+
+print("Enter number of elements: ");
+read(n);
+print("Enter ", n, " integers\n");
+do
+  for c = 0 to n-1;
+    read(v[c]);
+od;
+do
+  for c = 0 to n-2;
+    do
+      for d = 0 to n-c-2;
+        // For decreasing order use "<"
+        if v[d] > v[d+1] then
+          swap   = v[d];
+          v[d]   = v[d+1];
+          v[d+1] = swap;
+        fi;
+    od;
+od;
+print("Sorted list in ascending order:\n");
+do
+  for c = 0 to n-1;
+    print(v[c], " ");
+od;
+"""
+
+lya_palindrome = """dcl n,t int, reverse int = 0;
+
+print("Enter a number: ");
+read(n);
+t = n;
+do
+  while t != 0;
+    reverse = reverse * 10;
+    reverse = reverse + t % 10;
+    t = t / 10;
+od;
+if n == reverse then
+  print(n, " is a palindrome number.\n");
+else
+  print(n, " is not a palindrome number.\n");
+fi;"""
+
+lya_ref_example = """swapByRef: proc(x ref int, y ref int);
+  dcl t int = x->;
+  x-> = y->;
+  y-> = t;
+end;
+
+dcl i int = 10, j int = 20;
+// declaring reference to int
+dcl r ref int = ->i;
+
+swapByRef( r,  ->j );
+print(i, j);"""
+
+lya_fibo = """fibo: proc (n int, g int loc);
+  dcl h int;
+  if n < 0 then
+    print(g);
+    return;
+  else
+    h = g; fibo(n-1, h);
+    g = h; fibo(n-2, g);
+  fi;
+  print(n,g);
+end;
+
+dcl k int = 0;
+fibo(3,k);
+fibo(-1,k);"""
+
+lya_armstrong = """power: proc (n int, r int) returns (int);
+  dcl c int, p int = 1;
+  do
+    for c = 1 to r;
+      p = p*n;
+  od;
+  return p;
+end;
+
+dcl n int, sum int = 0;
+dcl temp, remainder int, digits int = 0;
+
+print("Input an integer: ");
+read(n);
+temp = n;
+do
+  while temp != 0;
+    digits += 1;
+    temp = temp / 10;
+od;
+temp = n;
+do
+  while temp != 0;
+    remainder = temp % 10;
+    sum = sum + power(remainder, digits);
+    temp = temp / 10;
+od;
+
+if n == sum then
+  print(n, " is an Armstrong number.\n");
+else
+  print(n, " is not an Armstrong number.\n");
+fi;"""
+
+lya_debug_source = test11_source
 

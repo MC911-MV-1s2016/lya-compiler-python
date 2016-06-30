@@ -156,7 +156,7 @@ class CodeGenerator(ASTNodeVisitor):
         if return_action.expression is not None:
             self.visit(return_action.expression)
             self._add_instruction(STV(self.current_scope.level, return_action.displacement))
-        self._add_instruction(JMP(procedure.return_label))
+            self._add_instruction(JMP(procedure.return_label))
 
     def visit_ResultAction(self, result: ResultAction):
         result.expression.sub_expression.qualifier = QualifierType.location

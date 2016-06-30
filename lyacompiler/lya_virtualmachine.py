@@ -185,7 +185,7 @@ class LyaVirtualMachine(object):
         (’div’)        # Division
                           M[sp-1]=M[sp-1] / M[sp];  sp=sp-1
         """
-        self.memory[self.sp - 1] /= self.memory[self.sp]
+        self.memory[self.sp - 1] //= int(self.memory[self.sp])
         self.sp -= 1
 
     def execute_MOD(self, mod: MOD):

@@ -55,7 +55,7 @@ class LyaCompiler(object):
         from lyacompiler.lya_parser import LyaParser
         from lyacompiler.lya_visitor import Visitor
         from lyacompiler.lya_codegen import CodeGenerator
-        from  lyacompiler.lya_virtualmachine import LyaVirtualMachine
+        from lyacompiler.lya_virtualmachine import LyaVirtualMachine
 
         print("\n--- Lya Source Code ---\n")
         i = 1

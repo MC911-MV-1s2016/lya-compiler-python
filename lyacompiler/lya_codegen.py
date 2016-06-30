@@ -135,6 +135,13 @@ class CodeGenerator(ASTNodeVisitor):
             if isinstance(sub_exp, Location) and isinstance(sub_exp.type, Identifier):
                 if isinstance(sub_exp.type.raw_type, LyaArrayType):
                     self._add_instruction(LDR(sub_exp.type.scope_level, sub_exp.type.displacement))
+                else:
+                    self.visit(expression)
+            elif isinstance(sub_exp, Expression):
+                if sub_exp.exp_value:
+                    self._add_instruction(LDC(sub_exp.exp_value))
+                else:
+                    self.visit(expression)
             else:
                 self.visit(expression)
 
@@ -154,7 +161,6 @@ class CodeGenerator(ASTNodeVisitor):
     def visit_ResultAction(self, result: ResultAction):
         result.expression.sub_expression.qualifier = QualifierType.location
         self.visit(result.expression)
-
         self._add_instruction(STV(self.current_scope.level, result.displacement))
 
     def visit_BuiltinCall(self, builtin_call: BuiltinCall):

@@ -21,7 +21,12 @@ pop: proc (s stack loc) returns (int);
     fi;
 end;
 
+init: proc (s stack loc);
+    s[top+1] = 0;
+end;
+
 dcl q stack, v1, v2 int;
+init(q);
 read(v1, v2);
 push(q,v1);
 push(q,v2);

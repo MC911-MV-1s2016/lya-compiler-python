@@ -592,5 +592,53 @@ else
   print(n, " is not an Armstrong number.\n");
 fi;"""
 
-lya_debug_source = test11_source
+lya_fat = """
+fat: proc (n int) returns (int);
+  if n==0 then
+    return 1;
+  else
+    return n * fat (n-1);
+  fi;
+end;
+
+dcl x int;
+print("give-me a positive integer:");
+read(x);
+print("fatorial of ", x, " = ", fat(x));"""
+
+lya_int_stack = """syn top int = 10;
+type stack = array [1:top+1] int;
+
+push: proc (s stack loc, elem int);
+    if s[top+1] == top then
+        print("stack is full");
+    else
+        s[top+1] += 1;
+	s[s[top+1]] = elem;
+    fi;
+end;
+
+pop: proc (s stack loc) returns (int);
+    if s[top+1] == 0 then
+        print("empty stack");
+	result 0;
+    else
+        result s[s[top+1]];
+	s[top+1] -= 1;
+    fi;
+end;
+
+init: proc (s stack loc);
+    s[top+1] = 0;
+end;
+
+dcl q stack, v1, v2 int;
+init(q);
+read(v1);
+read(v2);
+push(q,v1);
+push(q,v2);
+print(pop(q) + pop(q));"""
+
+lya_debug_source = lya_bubble_sort
 

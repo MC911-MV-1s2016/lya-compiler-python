@@ -86,6 +86,11 @@ class CodeGenerator(ASTNodeVisitor):
                     self.visit(declaration.init)
                 self._add_instruction(STV(self.current_scope.level, identifier.displacement))
 
+    # Mode -----------------------------------------------
+
+    def visit_ArrayMode(self, array_mode: ArrayMode):
+        pass
+
     # Procedure ------------------------------------------
 
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
@@ -105,10 +110,12 @@ class CodeGenerator(ASTNodeVisitor):
         if procedure.identifier.raw_type is not LyaVoidType:
             # Calculating the number of parameters received
             mem_size = 0
-            n_params = 0
             for p in procedure.definition.parameters:
                 for i in p.ids:
-                    mem_size += i.raw_type.memory_size
+                    if isinstance(i.raw_type, LyaArrayType):
+                        mem_size += 1
+                    else:
+                        mem_size += i.raw_type.memory_size
             self._add_instruction(RET(self.current_scope.level, mem_size))
 
         self._add_instruction(LBL(procedure.end_label))
@@ -121,12 +128,10 @@ class CodeGenerator(ASTNodeVisitor):
             self._add_instruction(ALC(ret.raw_type.memory_size))
 
         for expression in reversed(call.expressions):
-            exp = expression.sub_expression
-            if isinstance(exp, Expression):
-                if exp.exp_value:
-                    # TODO: Carregar str cte
-                    self._add_instruction(LDC(exp.exp_value))
-                    pass
+            sub_exp = expression.sub_expression
+            if isinstance(sub_exp, Location) and isinstance(sub_exp.type, Identifier):
+                if isinstance(sub_exp.type.raw_type, LyaArrayType):
+                    self._add_instruction(LDR(sub_exp.type.scope_level, sub_exp.type.displacement))
             else:
                 self.visit(expression)
 
@@ -142,7 +147,7 @@ class CodeGenerator(ASTNodeVisitor):
         if return_action.expression is not None:
             self.visit(return_action.expression)
             self._add_instruction(STV(self.current_scope.level, return_action.displacement))
-        self._add_instruction(JMP(end_label))
+        # self._add_instruction(JMP(end_label))
 
     def visit_ResultAction(self, result: ResultAction):
         result.expression.sub_expression.qualifier = QualifierType.location
@@ -222,18 +227,16 @@ class CodeGenerator(ASTNodeVisitor):
     # Location
 
     def visit_Location(self, location: Location):
-            if isinstance(location.type, Identifier):
-                # TODO: Other location types
-                if location.type.qualifier is QualifierType.location:
-                    self._add_instruction(LRV(location.type.scope_level, location.type.displacement))
-                elif location.type.qualifier is QualifierType.ref_location:
-                    self._add_instruction(LDR(location.type.scope_level, location.type.displacement))
-                else:
-                    self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
-            elif isinstance(location.type, Element):
-                self.visit(location.type)
+        if isinstance(location.type, Identifier):
+            # TODO: Other location types
+            if location.type.qualifier is QualifierType.location:
+                self._add_instruction(LRV(location.type.scope_level, location.type.displacement))
+            elif location.type.qualifier is QualifierType.ref_location:
+                self._add_instruction(LDR(location.type.scope_level, location.type.displacement))
             else:
-                self.visit(location.type)
+                self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
+        else:
+            self.visit(location.type)
 
     def visit_DereferencedReference(self, dereferenced_reference: DereferencedReference):
         if isinstance(dereferenced_reference.loc.type, Identifier):
@@ -250,7 +253,10 @@ class CodeGenerator(ASTNodeVisitor):
     def visit_Element(self, element: Element):
 
         if isinstance(element.location, Identifier):
-            self._add_instruction(LDR(element.location.scope_level, element.location.displacement))
+            if element.location.displacement < 0:   # Function Argument
+                self._add_instruction(LDV(element.location.scope_level, element.location.displacement))
+            else:
+                self._add_instruction(LDR(element.location.scope_level, element.location.displacement))
             # self.visit(location.type)
             # TODO: Not identifier?
         else:
@@ -307,18 +313,28 @@ class CodeGenerator(ASTNodeVisitor):
         if isinstance(left, Location):
             if isinstance(left.type, Identifier):
                 self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+            elif isinstance(left.type, Element):
+                self.visit(left)
+                self._add_instruction(GRC())
         elif isinstance(left, Expression):
             if left.exp_value and not isinstance(left.exp_value, StringConstant): # STRConstants are loaded into the heap
                 self._add_instruction(LDC(left.exp_value))
+            else:
+                self.visit(left)
         else:
             self.visit(left)
 
         if isinstance(right, Location):
             if isinstance(right.type, Identifier):
                 self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
-        elif isinstance(left, Expression):
+            elif isinstance(right.type, Element):
+                self.visit(right)
+                self._add_instruction(GRC())
+        elif isinstance(right, Expression):
             if right.exp_value and not isinstance(right.exp_value, StringConstant):
                 self._add_instruction(LDC(right.exp_value))
+            else:
+                self.visit(right)
         else:
             self.visit(right)
 
@@ -335,23 +351,32 @@ class CodeGenerator(ASTNodeVisitor):
         if isinstance(left, Location):
             if isinstance(left.type, Identifier):
                 self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+            elif isinstance(left.type, Element):
+                self.visit(left)
+                self._add_instruction(GRC())
         elif isinstance(left, Expression):
             if left.exp_value and not isinstance(left.exp_value, StringConstant):
                 self._add_instruction(LDC(left.exp_value))
+            else:
+                self.visit(left)
         else:
             self.visit(left)
 
         if isinstance(right, Location):
             if isinstance(right.type, Identifier):
                 self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
-        elif isinstance(left, Expression):
+            elif isinstance(right.type, Element):
+                self.visit(right)
+                self._add_instruction(GRC())
+        elif isinstance(right, Expression):
             if right.exp_value and not isinstance(right.exp_value, StringConstant):
                 self._add_instruction(LDC(right.exp_value))
+            else:
+                self.visit(right)
         else:
             self.visit(right)
 
         self._add_instruction(left.raw_type.get_relational_instruction(op))
-
 
     def visit_UnaryExpression(self, unary_expression: UnaryExpression):
         value = unary_expression.value
@@ -360,9 +385,14 @@ class CodeGenerator(ASTNodeVisitor):
         if isinstance(value, Location):
             if isinstance(value.type, Identifier):
                 self._add_instruction(LDV(value.type.scope_level, value.type.displacement))
+            elif isinstance(value.type, Element):
+                self.visit(value)
+                self._add_instruction(GRC())
         elif isinstance(value, Expression):
             if value.exp_value and not isinstance(value.exp_value, StringConstant):
                 self._add_instruction(LDC(value.exp_value))
+            else:
+                self.visit(value)
         else:
             self.visit(value)
 

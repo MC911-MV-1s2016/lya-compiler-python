@@ -16,6 +16,7 @@ from enum import Enum, unique
 
 from . import LyaColor
 from .lya_builtins import LyaType
+# from .lya_scope import LyaScope
 
 @unique
 class QualifierType(Enum):
@@ -107,12 +108,16 @@ class ASTNode(object):
 class Program(ASTNode):
     """
     :type statements: list[Statement]
+    :type offset: int
+    :type scope: LyaScope
     """
     _fields = ['statements']
 
     def __init__(self, statements, **kwargs):
         super().__init__(statements, **kwargs)
         self.statements = statements
+        self.offset = 0
+        self.scope = None
 
 
 # Statement
@@ -139,6 +144,8 @@ class ProcedureStatement(Statement):
     :type definition: ProcedureDefinition
     :type start_label: int
     :type end_label: int
+    :type offset: int
+    :type scope: LyaScope
     """
     _fields = ['identifier', 'definition']
 
@@ -148,6 +155,8 @@ class ProcedureStatement(Statement):
         self.definition = definition
         self.start_label = None
         self.end_label = None
+        self.offset = 0
+        self.scope = None
 
 
 class Declaration(ASTNode):

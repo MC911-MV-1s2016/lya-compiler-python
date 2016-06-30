@@ -104,6 +104,9 @@ class CodeGenerator(ASTNodeVisitor):
 
         self.visit(procedure.definition)
 
+        if procedure.return_label is not None:
+            self._add_instruction(LBL(procedure.return_label))
+
         if procedure.offset != 0:
             self._add_instruction(DLC(procedure.offset))
 
@@ -142,12 +145,11 @@ class CodeGenerator(ASTNodeVisitor):
 
     def visit_ReturnAction(self, return_action: ReturnAction):
         procedure = self.current_scope.enclosure    # type: ProcedureStatement
-        end_label = procedure.end_label
 
         if return_action.expression is not None:
             self.visit(return_action.expression)
             self._add_instruction(STV(self.current_scope.level, return_action.displacement))
-        # self._add_instruction(JMP(end_label))
+        self._add_instruction(JMP(procedure.return_label))
 
     def visit_ResultAction(self, result: ResultAction):
         result.expression.sub_expression.qualifier = QualifierType.location

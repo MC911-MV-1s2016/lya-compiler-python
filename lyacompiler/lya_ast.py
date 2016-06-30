@@ -16,7 +16,6 @@ from enum import Enum, unique
 
 from . import LyaColor
 from .lya_builtins import LyaType
-# from .lya_scope import LyaScope
 
 @unique
 class QualifierType(Enum):
@@ -43,6 +42,7 @@ class ASTNode(object):
                      'synonym_value',   # Identifier synonym value
                      'label',           # Label value
                      'start_label',     # Procedure start label
+                     'return_label',    # Procedure return label
                      'end_label',       # Procedure end label
                      'next_label',      # IfThenElse next label (If -> Then -> Else)
                      'exit_label',      # IfThenElse exit label
@@ -143,6 +143,7 @@ class ProcedureStatement(Statement):
     :type identifier: Identifier
     :type definition: ProcedureDefinition
     :type start_label: int
+    :type return_label: int
     :type end_label: int
     :type offset: int
     :type scope: LyaScope
@@ -154,6 +155,7 @@ class ProcedureStatement(Statement):
         self.identifier = label
         self.definition = definition
         self.start_label = None
+        self.return_label = None
         self.end_label = None
         self.offset = 0
         self.scope = None

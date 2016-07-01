@@ -642,5 +642,5 @@ push(q,v1);
 push(q,v2);
 print(pop(q) + pop(q));"""
 
-lya_debug_source = lya_bubble_sort
+lya_debug_source = lya_ref_example
 

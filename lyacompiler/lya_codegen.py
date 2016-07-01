@@ -451,6 +451,8 @@ class CodeGenerator(ASTNodeVisitor):
             self.visit(assignment.expression)
             if assignment.location.type.qualifier == QualifierType.location:
                 self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
+            elif assignment.location.type.qualifier == QualifierType.ref_location:
+                self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
             else:
                 self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
         elif isinstance(assignment.location.type, Element):
@@ -459,6 +461,10 @@ class CodeGenerator(ASTNodeVisitor):
             self.visit(assignment.expression)
             # TODO: String?
             self._add_instruction(SMV(assignment.location.type.raw_type.memory_size))
+        elif isinstance(assignment.location.type, DereferencedReference):
+            self.visit(assignment.expression)
+            identifier = assignment.location.type.loc.type    # type: Identifier
+            self._add_instruction(SRV(identifier.scope_level, identifier.displacement))
         else:
             self.visit(assignment.expression)
 

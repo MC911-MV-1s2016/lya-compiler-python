@@ -636,11 +636,10 @@ end;
 
 dcl q stack, v1, v2 int;
 init(q);
-read(v1);
-read(v2);
+read(v1, v2);
 push(q,v1);
 push(q,v2);
 print(pop(q) + pop(q));"""
 
-lya_debug_source = test2_source
+lya_debug_source = lya_bubble_sort
 

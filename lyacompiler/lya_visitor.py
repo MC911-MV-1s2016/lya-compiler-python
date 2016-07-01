@@ -334,8 +334,6 @@ class Visitor(ASTNodeVisitor):
 
     def visit_BuiltinCall(self, builtin_call: BuiltinCall):
         n = len(builtin_call.expressions)
-        if n != 1 and builtin_call.name != 'print':
-            raise LyaProcedureCallError(builtin_call.lineno, builtin_call.name, None, n, 1)
 
         for exp in builtin_call.expressions:
             self.visit(exp)
@@ -359,6 +357,9 @@ class Visitor(ASTNodeVisitor):
             builtin_call.raw_type = LTF.void_type()
 
         if name == 'lower' or name == 'upper':
+            if n != 1:
+                raise LyaProcedureCallError(builtin_call.lineno, builtin_call.name, None, n, 1)
+
             builtin_call.raw_type = LTF.int_type()
             # TODO: Only accept array?
             if not isinstance(expression.raw_type, LyaArrayType):
@@ -366,6 +367,9 @@ class Visitor(ASTNodeVisitor):
                                            expression.raw_type, 'array')
 
         if name == 'length':
+            if n != 1:
+                raise LyaProcedureCallError(builtin_call.lineno, builtin_call.name, None, n, 1)
+
             builtin_call.raw_type = LTF.int_type()
             if not isinstance(expression.raw_type, LyaArrayType) or not isinstance(expression.raw_type, LyaStringType):
                 raise LyaGenericError(builtin_call.lineno, builtin_call,

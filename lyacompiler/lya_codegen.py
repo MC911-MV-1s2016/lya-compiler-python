@@ -324,6 +324,8 @@ class CodeGenerator(ASTNodeVisitor):
             elif isinstance(left.type, Element):
                 self.visit(left)
                 self._add_instruction(GRC())
+            else:
+                self.visit(left)
         elif isinstance(left, Expression):
             if left.exp_value and not isinstance(left.exp_value, StringConstant): # STRConstants are loaded into the heap
                 self._add_instruction(LDC(left.exp_value))
@@ -338,6 +340,8 @@ class CodeGenerator(ASTNodeVisitor):
             elif isinstance(right.type, Element):
                 self.visit(right)
                 self._add_instruction(GRC())
+            else:
+                self.visit(right)
         elif isinstance(right, Expression):
             if right.exp_value and not isinstance(right.exp_value, StringConstant):
                 self._add_instruction(LDC(right.exp_value))
@@ -362,6 +366,8 @@ class CodeGenerator(ASTNodeVisitor):
             elif isinstance(left.type, Element):
                 self.visit(left)
                 self._add_instruction(GRC())
+            else:
+                self.visit(left)
         elif isinstance(left, Expression):
             if left.exp_value and not isinstance(left.exp_value, StringConstant):
                 self._add_instruction(LDC(left.exp_value))
@@ -376,6 +382,8 @@ class CodeGenerator(ASTNodeVisitor):
             elif isinstance(right.type, Element):
                 self.visit(right)
                 self._add_instruction(GRC())
+            else:
+                self.visit(right)
         elif isinstance(right, Expression):
             if right.exp_value and not isinstance(right.exp_value, StringConstant):
                 self._add_instruction(LDC(right.exp_value))
@@ -396,6 +404,8 @@ class CodeGenerator(ASTNodeVisitor):
             elif isinstance(value.type, Element):
                 self.visit(value)
                 self._add_instruction(GRC())
+            else:
+                self.visit(value)
         elif isinstance(value, Expression):
             if value.exp_value and not isinstance(value.exp_value, StringConstant):
                 self._add_instruction(LDC(value.exp_value))

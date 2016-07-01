@@ -556,7 +556,8 @@ end;
 
 dcl k int = 0;
 fibo(3,k);
-fibo(-1,k);"""
+//fibo(-1,k);
+"""
 
 lya_armstrong = """power: proc (n int, r int) returns (int);
   dcl c int, p int = 1;
@@ -640,5 +641,5 @@ push(q,v1);
 push(q,v2);
 print(pop(q) + pop(q));"""
 
-lya_debug_source = lya_fat
+lya_debug_source = lya_int_stack
 

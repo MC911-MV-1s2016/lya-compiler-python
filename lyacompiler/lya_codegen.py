@@ -104,8 +104,7 @@ class CodeGenerator(ASTNodeVisitor):
 
         self.visit(procedure.definition)
 
-        if procedure.return_label is not None:
-            self._add_instruction(LBL(procedure.return_label))
+        self._add_instruction(LBL(procedure.return_label))
 
         if procedure.offset != 0:
             self._add_instruction(DLC(procedure.offset))
@@ -156,7 +155,7 @@ class CodeGenerator(ASTNodeVisitor):
         if return_action.expression is not None:
             self.visit(return_action.expression)
             self._add_instruction(STV(self.current_scope.level, return_action.displacement))
-            self._add_instruction(JMP(procedure.return_label))
+        self._add_instruction(JMP(procedure.return_label))
 
     def visit_ResultAction(self, result: ResultAction):
         result.expression.sub_expression.qualifier = QualifierType.location
@@ -237,7 +236,9 @@ class CodeGenerator(ASTNodeVisitor):
     def visit_Location(self, location: Location):
         if isinstance(location.type, Identifier):
             # TODO: Other location types
-            if location.type.qualifier is QualifierType.location:
+            if location.type.synonym_value is not None:
+                self._add_instruction(LDC(location.type.synonym_value))
+            elif location.type.qualifier is QualifierType.location:
                 self._add_instruction(LRV(location.type.scope_level, location.type.displacement))
             elif location.type.qualifier is QualifierType.ref_location:
                 self._add_instruction(LDR(location.type.scope_level, location.type.displacement))
@@ -320,7 +321,10 @@ class CodeGenerator(ASTNodeVisitor):
 
         if isinstance(left, Location):
             if isinstance(left.type, Identifier):
-                self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+                if left.type.synonym_value is not None:
+                    self._add_instruction(LDC(left.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
             elif isinstance(left.type, Element):
                 self.visit(left)
                 self._add_instruction(GRC())
@@ -336,7 +340,10 @@ class CodeGenerator(ASTNodeVisitor):
 
         if isinstance(right, Location):
             if isinstance(right.type, Identifier):
-                self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
+                if right.type.synonym_value is not None:
+                    self._add_instruction(LDC(right.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
             elif isinstance(right.type, Element):
                 self.visit(right)
                 self._add_instruction(GRC())
@@ -362,7 +369,10 @@ class CodeGenerator(ASTNodeVisitor):
 
         if isinstance(left, Location):
             if isinstance(left.type, Identifier):
-                self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+                if left.type.synonym_value is not None:
+                    self._add_instruction(LDC(left.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
             elif isinstance(left.type, Element):
                 self.visit(left)
                 self._add_instruction(GRC())
@@ -378,7 +388,10 @@ class CodeGenerator(ASTNodeVisitor):
 
         if isinstance(right, Location):
             if isinstance(right.type, Identifier):
-                self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
+                if right.type.synonym_value is not None:
+                    self._add_instruction(LDC(right.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
             elif isinstance(right.type, Element):
                 self.visit(right)
                 self._add_instruction(GRC())
@@ -400,7 +413,10 @@ class CodeGenerator(ASTNodeVisitor):
 
         if isinstance(value, Location):
             if isinstance(value.type, Identifier):
-                self._add_instruction(LDV(value.type.scope_level, value.type.displacement))
+                if value.type is not None:
+                    self._add_instruction(LDC(value.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(value.type.scope_level, value.type.displacement))
             elif isinstance(value.type, Element):
                 self.visit(value)
                 self._add_instruction(GRC())

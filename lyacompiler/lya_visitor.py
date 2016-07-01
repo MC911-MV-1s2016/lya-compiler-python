@@ -15,6 +15,7 @@ from .lya_environment import Environment
 from .lya_ast import *
 from .lya_errors import *
 from .lya_builtins import *
+from .lya_scope import SymbolType
 
 
 class Visitor(ASTNodeVisitor):
@@ -62,6 +63,12 @@ class Visitor(ASTNodeVisitor):
         identifier.qualifier = entry_identifier.qualifier
         identifier.synonym_value = entry_identifier.synonym_value
         return entry_identifier
+
+    def _lookup_type(self, identifier: Identifier):
+        raw_type = self.current_scope.type_lookup(identifier.name, identifier.lineno)
+        if raw_type is None:
+            raise LyaNameError(identifier.lineno, identifier.name)
+        return raw_type
 
     def _lookup_procedure(self, proc_call: ProcedureCall):
         entry_procedure = self.current_scope.procedure_lookup(proc_call.identifier.name, proc_call.lineno)
@@ -208,7 +215,6 @@ class Visitor(ASTNodeVisitor):
         for identifier in synonym.identifiers:
             identifier.raw_type = synonym.raw_type
             identifier.synonym_value = synonym.expression.exp_value
-            # identifier.memory_size = synonym.mode.memory_size
             self.current_scope.add_synonym(identifier, synonym)
 
     def visit_NewModeStatement(self, node):
@@ -221,9 +227,6 @@ class Visitor(ASTNodeVisitor):
         self.current_scope.add_procedure(procedure.identifier, procedure)
         self.environment.start_new_scope(procedure)
 
-        procedure.start_label = self.environment.generate_label()
-        procedure.end_label = self.environment.generate_label()
-
         definition = procedure.definition
         parameters = definition.parameters
         result = definition.result
@@ -232,6 +235,10 @@ class Visitor(ASTNodeVisitor):
         ret = Identifier("_ret")
         ret.raw_type = LTF.void_type()
         ret.qualifier = QualifierType.none
+
+        procedure.start_label = self.environment.generate_label()
+        procedure.return_label = self.environment.generate_label()
+        procedure.end_label = self.environment.generate_label()
 
         if result is not None:
             self.visit(result)
@@ -292,6 +299,14 @@ class Visitor(ASTNodeVisitor):
                 raise LyaArgumentTypeError(call.lineno, call.identifier.name, i,
                                            expression.raw_type, parameter_id.raw_type)
 
+            if parameter_id.qualifier is QualifierType.location:
+                if not isinstance(expression, Location):
+                    #TODO raise error about not passing a variable as parameter
+                    pass
+
+                expression.sub_expression.type.qualifier = QualifierType.ref_location
+
+
     def visit_ResultSpec(self, spec: ResultSpec):
         self.visit(spec.mode)
         spec.raw_type = spec.mode.raw_type
@@ -300,21 +315,26 @@ class Visitor(ASTNodeVisitor):
         if return_action.expression is not None and self.current_scope.ret.raw_type != LTF.void_type():
             # TODO: Returning on void function
             pass
-        self.visit(return_action.expression)
-        self.current_scope.add_result(return_action.lineno, return_action.expression)
-        return_action.displacement = self.current_scope.parameters_displacement
+        if return_action.expression is not None:
+            self.visit(return_action.expression)
+            self.current_scope.add_result(return_action.expression, return_action.lineno)
+            return_action.displacement = self.current_scope.parameters_displacement
 
     def visit_ResultAction(self, result: ResultAction):
         if self.current_scope.ret.raw_type == LTF.void_type():
-            # TODO: Error setting result on void return function.
-            pass
+            raise LyaGenericError(result.lineno, result, "Error setting a result on void return function.")
+
         self.visit(result.expression)
+
+        if isinstance(result.expression.sub_expression, Location):
+            result.expression.sub_expression.type.qualifier = self.current_scope.ret.qualifier
+
         self.current_scope.add_result(result.expression, result.lineno)
         result.displacement = self.current_scope.parameters_displacement
 
     def visit_BuiltinCall(self, builtin_call: BuiltinCall):
         n = len(builtin_call.expressions)
-        if n != 1:
+        if n != 1 and builtin_call.name != 'print':
             raise LyaProcedureCallError(builtin_call.lineno, builtin_call.name, None, n, 1)
 
         for exp in builtin_call.expressions:
@@ -352,15 +372,25 @@ class Visitor(ASTNodeVisitor):
                                       "Method length() only applies to 'chars' and 'array'. "
                                       "Received '{}'".format(expression.raw_type))
         else:
-            # SUCC, PRED, NUM??
+            # TODO SUCC, PRED, NUM??
             pass
 
     # Mode -------------------------------------------------------------------------------------------------------------
 
+    def visit_ModeDefinition(self, mode_definition: ModeDefinition):
+        self.visit(mode_definition.mode)
+        mode_definition.raw_type = mode_definition.mode.raw_type
+
+        for identifier in mode_definition.identifiers:
+            identifier.raw_type = mode_definition.raw_type
+            self.current_scope.add_new_type(identifier, mode_definition)
+
     def visit_Mode(self, mode: Mode):
         self.visit(mode.base_mode)
-        # TODO: If base_mode is Identifier (mode_name), check if defined as type
-        mode.raw_type = mode.base_mode.raw_type
+        if isinstance(mode.base_mode, Identifier):
+            mode.raw_type = self._lookup_type(mode.base_mode)
+        else:
+            mode.raw_type = mode.base_mode.raw_type
 
     def visit_DiscreteMode(self, discrete_mode: DiscreteMode):
         discrete_mode.raw_type = LTF.base_type_from_string(discrete_mode.name)
@@ -369,7 +399,12 @@ class Visitor(ASTNodeVisitor):
 
     def visit_ReferenceMode(self, reference_mode: ReferenceMode):
         self.visit(reference_mode.mode)
-        # TODO: Improve Reference Mode management (Ref RawType + Mode RaType)
+
+        if reference_mode.mode.raw_type is LyaRefType:
+            raise LyaGenericError(reference_mode.lineno, reference_mode, "Unsupported multiple indirection.")
+        reference_mode.raw_type = LTF.ref_type(reference_mode.mode.raw_type)
+        # TODO: Improve Reference Mode management (Ref RawType + Mode RawType)
+        # and comparisons between types
 
     def visit_StringMode(self, string_mode: StringMode):
         string_mode.raw_type = LTF.string_type(string_mode.length.value)
@@ -434,6 +469,54 @@ class Visitor(ASTNodeVisitor):
             # identifier = self._lookup_identifier(location.type)
         location.raw_type = location.type.raw_type
 
+    def visit_DereferencedReference(self, dereferenced_reference: DereferencedReference):
+        self.visit(dereferenced_reference.loc)
+
+        if not isinstance(dereferenced_reference.loc.raw_type, LyaRefType):
+            raise LyaTypeError(dereferenced_reference.lineno, dereferenced_reference.loc.raw_type,
+                               LyaRefType._name)
+
+        dereferenced_reference.raw_type = dereferenced_reference.loc.raw_type.referenced_type
+
+    def visit_ReferencedLocation(self, referenced_location: ReferencedLocation):
+        self.visit(referenced_location.loc)
+        referenced_location.raw_type = LTF.ref_type(referenced_location.loc.raw_type)
+
+    def visit_Element(self, element: Element):
+        # TODO: More levels?
+        self.visit(element.location)
+        element.raw_type = element.location.raw_type
+        for expression in element.expressions:
+            self.visit(expression)
+            if expression.raw_type != LTF.int_type():
+                raise LyaTypeError(element.lineno, expression.raw_type, LTF.int_type())
+
+        if isinstance(element.location, Identifier):
+            self._lookup_identifier(element.location)
+        else:
+            self.visit(element.location)
+
+        depth = len(element.expressions)
+
+        if isinstance(element.location.raw_type, LyaStringType):
+            # StringElement only reduced from identifier (not loc)
+            # TODO: Check-n-raise
+            if depth != 1:
+                # StringElement doesn't suport multiple indexes.
+                raise LyaGenericError(element.lineno, element, "StringElement doesn't support multiple indexes.")
+            element.raw_type = LyaStringType(1)
+        elif isinstance(element.location.raw_type, LyaArrayType):
+            raw_type = element.location.raw_type.get_referenced_type(depth)
+            if raw_type is None:
+                raise LyaGenericError(element.lineno, element, "Array '{0}' out of range index "
+                                                               "depth ({1}) access.".format(element.location.raw_type,
+                                                                                            depth))
+            element.raw_type = raw_type
+        else:
+            raise LyaGenericError(element.lineno, element, "Unsupported element location "
+                                                           "type '{0}'.".format(element.location.raw_type))
+
+
     # Expression -------------------------------------------------------------------------------------------------------
 
     def visit_Expression(self, expression: Expression):
@@ -493,7 +576,7 @@ class Visitor(ASTNodeVisitor):
             raise LyaOperationError(relational_expression.lineno, op, right_type=right.raw_type)
 
         raw_type, exp_value = self._evaluate_relational_expression(op, left, right)
-        relational_expression.raw_type = raw_type
+        relational_expression.raw_type = LTF.bool_type()
         relational_expression.exp_value = exp_value
 
     def visit_UnaryExpression(self, unary_expression):
@@ -522,9 +605,29 @@ class Visitor(ASTNodeVisitor):
 
     def visit_AssignmentAction(self, assignment: AssignmentAction):
         self.visit(assignment.location)
+
+        if isinstance(assignment.location.type, Identifier):
+            identifier = assignment.location.type
+            entry = self.current_scope.entry_lookup(identifier.name)
+            if entry.symbol_type == SymbolType.synonym or \
+                            entry.symbol_type == SymbolType.type_definition or \
+                            entry.symbol_type == SymbolType.ret or\
+                            entry.symbol_type == SymbolType.label:
+                raise LyaGenericError(assignment.lineno, assignment,
+                                      "Assigning to invalid location '{0}'.".format(identifier.name))
+
+        if isinstance(assignment.location.type, ProcedureCall):
+            procedure_call = assignment.location.type
+            procedure_statement = self._lookup_procedure(procedure_call)        # type: ProcedureStatement
+
+            if procedure_statement.scope.ret.qualifier != QualifierType.ref_location:
+                raise LyaGenericError(assignment.lineno, assignment,
+                                      "Assigning to invalid "
+                                      "location '{0}'.".format(procedure_statement.identifier.name))
+
         self.visit(assignment.expression)
 
-        # TODO: Array, ArrayElement, Slices, Strings... other locs
+        # TODO: Array (array <- array?), ArrayElement, Slices, Strings... other locs
 
         if assignment.location.raw_type != assignment.expression.raw_type:
             raise LyaTypeError(assignment.lineno, assignment.expression.raw_type, assignment.location.raw_type)

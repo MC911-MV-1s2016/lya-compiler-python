@@ -16,3 +16,50 @@ dcl a, b int;
 print("give-me two integers separated by space:");
 read (a,b);
 print ("GCD of ", a, b, " is ", gcd(a,b));
+
+//0:	('stp',)            // Começa programa
+//1:	('alc', 2)          // Aloca memória para a, b (int)
+//2:	('jmp', 3)          // JMP3 - Pula para label 3 - Fim da definição da função gcd
+//3:	('lbl', 1)          // LBL1 - Label de início da função gcd
+//4:	('enf', 1)          // Entra na função GCD
+//5:	('alc', 1)          // Aloca memória para g (int)
+//6:	('ldv', 1, -4)      // y -> Carrega argumento y na memória (1, -4)
+//7:	('stv', 1, 0)       // y= Atribui topo do stack (y) para g (1, 0)
+//8:	('lbl', 4)          // LBL4 - Início do While
+//9:	('ldv', 1, -3)      // x -> Carrega argumento x na memória (1, -3)
+//10:	('ldc', 0)          // 0 -> Carrega constante 0 na memória
+//11:	('grt',)            // Compara x > 0
+//12:	('jof', 5)          // JOF5 Sai do while se x > 0
+//13:	('ldv', 1, -3)      // -> x - Carrega x no topo da memória (1, -3)
+//14:	('stv', 1, 0)       // g= Atribui topo da stack (x) para g
+//15:	('ldv', 1, -4)      // y -> Carrega y no topo da memória (1, -4)
+//16:	('ldv', 1, -4)      // y -> Carrega y no topo da memória (1, -4)
+//17:	('ldv', 1, -3)      // x -> Carrega x no topo da memória (1, -3)
+//18:	('div',)            // y/x -> topo da memória
+//19:	('ldv', 1, -3)      // x -> Carrega x no topo da memória (1, -3)
+//20:	('mul',)            // (y/x) * x -> topo da memória
+//21:	('sub',)            // y -> (y/x) * x -> topo da memória
+//22:	('stv', 1, -3)      // x= Salva topo da pilha em x (1, -3)
+//23:	('ldv', 1, 0)       // g -> Carrega g no topo da memória (1, 0)
+//24:	('stv', 1, -4)      // y= Salva topo da memória em y (1, -4)
+//25:	('jmp', 4)          // JMP4 - Volta para começo do While
+//26:	('lbl', 5)          // LBL5 - Fim do While
+//27:	('ldv', 1, 0)       // g -> Carrega g no topo da pilha
+//28:	('stv', 1, -5)      // ret= Salva topo da memória (g) no retorno.
+//29:	('jmp', 2)          // JMP2 - Pula para retorno da função gcd
+//30:	('lbl', 2)          // LB2 - Retrno da função gcd
+//31:	('dlc', 1)          // Desaloca memória de g (int)
+//32:	('ret', 1, 2)       // Retorna da função gcd (2 argumentos)
+//33:	('lbl', 3)          // LBL3 - Fim da função gcd
+//34:	('prc', 0)          // Print da string constante na posição 0
+//35:	('rdv',)            // Lê entrada e salva no topo da memória
+//36:	('stv', 0, 0)       // a= Salva topo da pilha em a (0, 0)
+//37:	('rdv',)            // Lê entrada e salva no topo da memória
+//38:	('stv', 0, 1)       // b= Salva topo da pilha em b (0, 1)
+//39:	('alc', 1)          // Aloca memória para retorno da função gcd
+//40:	('ldv', 0, 1)       // Carrega argumento y (b)
+//41:	('ldv', 0, 0)       // Carrega argumento x (a)
+//42:	('cfu', 1)          // Chama função gcd
+//43:	('prv',)            //
+//44:	('dlc', 2)          // Desaloca a e b
+//45:	('end',)            // Fim

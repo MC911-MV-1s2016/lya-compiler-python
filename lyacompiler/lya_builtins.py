@@ -207,18 +207,17 @@ class LyaRefType(LyaType):
     """Lya Type that references another LyaType.
     """
 
-    _name = "ref",
+    _name = "ref"
     _unary_ops = {"->"}
     _binary_ops = {}
     _rel_ops = {"==", "!="}
     _unary_opcodes = {"->": "ldr"}
-    _binary_opcodes = {},
+    _binary_opcodes = {}
     _rel_opcodes = {"==": "equ",
                     "!=": "neq"}
 
     def __init__(self, referenced_type: LyaType):
         super().__init__()
-        # TODO: Bloquear referenced_types não permitidos (como outro Ref)
         self.referenced_type = referenced_type  # type : LyaType
 
     # TODO: Can assign <- other
@@ -261,6 +260,13 @@ class LyaArrayType(LyaRefType):
     def memory_size(self):
         return self._memory_size
 
+    def get_referenced_type(self, depth) -> LyaType:
+        if depth == 1:
+            return self.referenced_type
+        if not isinstance(self.referenced_type, LyaArrayType):
+            return None
+        else:
+            return self.referenced_type.get_referenced_type(depth-1)
 
 class LyaStringType(LyaType):
     """Lya Type that represents a string.
@@ -327,20 +333,7 @@ class LyaTypeFactory(object):
 
 LTF = LyaTypeFactory
 
-# 0 - Parar em erro de sintaxe - OK
-# 1 - Arrumar ASTNode para ter apenas um lya_type (no lugar do raw_type) - OK
-# 2 - Refatorar visitação para pegar tipos da factory (LTF) - OK
-# 4 - Eval de expressions, se operandos forem números, - OK
-#     vai jogando resultado parcial para cima, junto com tipo.
-#     Se encontrar location -> id -> int, ver se id tem exp_val, se não tiver
-#     não joga nenhum resultado parcial para cima, só tipo. ConstExpress não podem
-#     ter var no meio. Arrays tem q ter tamanho conhecido em tempo de compilação.
-# 5 - Visitar sinonimos (guardar syn_val) - OK
 # 6 - Visitar Exps
-# 7 - Visitar Array: garantir range - OK
-# 8 - String - OK
-# 9 - Visitar typedefs
 # 10 - Visitar Locs
 # 11 - Visitar Assigns
 # 12 - Visitar Slices
-# 13 - Visitar

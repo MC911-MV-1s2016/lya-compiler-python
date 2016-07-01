@@ -1,0 +1,140 @@
+// Simple example using array and array indexing
+// https://groups.google.com/forum/#!topic/mc911-1s2016/5vSW_6vm0GE
+// Dear students,
+//
+// Pay special attention to the code generation of array indexing.
+
+dcl a array[3:10] int;
+dcl i,j int;
+
+read(j);
+a[3]=2*j;
+do
+  for i = 4 to 10;
+    a[i] = 5+i;
+od;
+print(a[j]);
+
+//'''
+//Scope level for Program : 0
+//  variables & their offsets
+//  a : 0
+//  j : 9
+//  i : 8
+//''
+//[
+//  ('stp'),
+//  ('alc', 10),
+//  ('rdv'),
+//  ('stv', 0, 9),
+//  ('ldr', 0, 0),
+//  ('ldc', 3),
+//  ('ldc', 3),
+//  ('sub'),
+//  ('idx', 1),
+//  ('ldc', 2),
+//  ('ldv', 0, 9),
+//  ('mul'),
+//  ('smv', 1),
+//  ('ldc', 4),
+//  ('stv', 0, 8),
+//  ('lbl', 1),
+//  ('ldr', 0, 0),
+//  ('ldv', 0, 8),
+//  ('ldc', 3),
+//  ('sub'),
+//  ('idx', 1),
+//  ('ldc', 5),
+//  ('ldv', 0, 8),
+//  ('add'),
+//  ('smv', 1),
+//  ('ldv', 0, 8),
+//  ('ldc', 1),
+//  ('add'),
+//  ('stv', 0, 8),
+//  ('ldv', 0, 8),
+//  ('ldc', 10),
+//  ('leq'),
+//  ('jof', 2),
+//  ('jmp', 1),
+//  ('lbl', 2),
+//  ('ldr', 0, 0),
+//  ('ldv', 0, 9),
+//  ('ldc', 3),
+//  ('sub'),
+//  ('idx', 1),
+//  ('grc'),
+//  ('prv'),
+//  ('dlc', 10),
+//  ('end'),
+//]
+//
+//Program: offset=10
+//  DeclStmt:
+//    Decl:
+//      ID: name=a, scope=0, value=0, start=['3'] (at line :1)
+//      Mode:
+//        ArrayMode:
+//          LiteralRange:
+//            Expr:
+//              Constant: value=3 (at line :1)
+//                DiscreteMode: name=int
+//            Expr:
+//              Constant: value=10 (at line :1)
+//                DiscreteMode: name=int
+//          Mode:
+//            DiscreteMode: name=int (at line :1)
+//  DeclStmt:
+//    Decl:
+//      ID: name=i, scope=0, value=8 (at line :2)
+//      ID: name=j, scope=0, value=9 (at line :2)
+//      Mode:
+//        DiscreteMode: name=int (at line :2)
+//  Action:
+//    BuiltinCall: name=read (at line :0)
+//      Expr:
+//        ID: name=j, scope=0, value=9 (at line :4)
+//  Action:
+//    Assignment: op== (at line :5)
+//      Location:
+//        Element:  (at line :5)
+//          ID: name=a, scope=0, value=0, start=['3'] (at line :5)
+//          Expr:
+//            Constant: value=3 (at line :5)
+//              DiscreteMode: name=int
+//      Expr:
+//        BinaryExpr: op=* (at line :5)
+//          Constant: value=2 (at line :5)
+//            DiscreteMode: name=int
+//          ID: name=j, scope=0, value=9 (at line :5)
+//  Action:
+//    DoAction: label_init=1, label_end=2
+//      DoControl:
+//        For:  (at line :7)
+//          StepIteration:  (at line :7)
+//            ID: name=i, scope=0, value=8 (at line :7)
+//            Expr:
+//              Constant: value=4 (at line :7)
+//                DiscreteMode: name=int
+//            Expr:
+//              Constant: value=10 (at line :7)
+//                DiscreteMode: name=int
+//      Action:
+//        Assignment: op== (at line :8)
+//          Location:
+//            Element:  (at line :8)
+//              ID: name=a, scope=0, value=0, start=['3'] (at line :8)
+//              Expr:
+//                ID: name=i, scope=0, value=8 (at line :8)
+//          Expr:
+//            BinaryExpr: op=+ (at line :8)
+//              Constant: value=5 (at line :8)
+//                DiscreteMode: name=int
+//              ID: name=i, scope=0, value=8 (at line :8)
+//  Action:
+//    BuiltinCall: name=print (at line :0)
+//      Expr:
+//        Element:  (at line :10)
+//          ID: name=a, scope=0, value=0, start=['3'] (at line :10)
+//          Expr:
+//            ID: name=j, scope=0, value=9 (at line :10)

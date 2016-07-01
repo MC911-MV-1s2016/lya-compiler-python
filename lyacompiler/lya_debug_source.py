@@ -242,9 +242,10 @@ test2_source = """dcl m int = 2, n int = 3;
 p: proc (x int);
   dcl s int;
   s = m * x;
-  print(s);
+  print("s = ", s);
 end;
-p(n);"""
+p(n);
+print(m);"""
 
 test3_source = """dcl m int = 2, n int = 3;
 p: proc (x, y int, b bool) returns (int);
@@ -290,6 +291,84 @@ do for i=1 to 10 while b;
     fi;
 od;
 print (soma);"""
+
+test7_source = """dcl i,j int, r ref int;
+
+p: proc(x int, y ref int) returns (int);
+  dcl b bool;
+  read(b);
+  if b then
+     y = -> i;
+     result y->;
+  else
+     y = r;
+     result r->;
+  fi;
+end;
+
+read(i);
+r = -> i;
+print(p(i,->j));"""
+
+test8_source = """dcl i int, j,k int = 2;
+
+p: proc(x int, y int loc) returns (int loc);
+    dcl z int = y;
+    y = x;
+    result k;
+    print(z); /* print 2 */
+end;
+
+i = p(3,j);
+print(i, j); /* print 2,3 */"""
+
+test9_source = """dcl a array[3:10] int;
+dcl i,j int;
+
+read(j);
+a[3]=2*j;
+do
+  for i = 4 to 10;
+    a[i] = 5+i;
+od;
+print(a[j]);"""
+
+test10_source = """dcl x, y int;
+
+p: proc (b bool) returns (int loc);
+  if b then
+    result x;
+  else
+    result y;
+  fi;
+end;
+
+dcl b bool = false;
+p(b)    = 20;
+p(true) = 10;
+print(x, y);  // display 10, 20
+"""
+
+test11_source = """type vector = array[1:10] int;
+dcl v vector, i int;
+
+sum: proc (v vector) returns (int);
+    dcl s, i int;
+    i = 1;
+    s = 0;
+    do
+      while i<=10;
+          s = s + v[i];
+          i += 1;
+    od;
+    return s;
+end;
+
+do
+  for i = 1 to 10;
+      read(v[i]);
+od;
+print(sum(v));"""
 
 syn_test_source = """syn sy1 = 20;
 syn sy6 = sy1;
@@ -341,9 +420,227 @@ dcl b bool = true;
 read (b);
 print (p(m, n, b));"""
 
+typedef_source = """type my_int = int;
+dcl x my_int = 2;
+type vector = array[1:10] int;
+dcl v vector;
+type p_int = ref int;
+dcl pi p_int;
+print(x);
+print(v);
+print(pi);
+type r_my_int = ref my_int;
+dcl uou r_my_int;
+print(uou);"""
+
+
+printtest_source = """
+dcl c chars[10] = "BANANA";
+print("Oi", "tudo bem?");
+print(c);"""
 
 # The only variable exported from this module.
 __all__ = ['lya_debug_source']
 
-lya_debug_source = test6_source
-#lya_debug_source = lya_source_do3
+
+lya_gcd = """
+gcd: proc (x int, y int) returns (int);
+  dcl g int;
+  g = y;
+  do
+    while x > 0;
+      g = x;
+      x = y - (y/x) * x;
+      y = g;
+  od;
+  return g;
+end;
+
+dcl a, b int;
+print("give-me two integers separated by space:");
+read(a);
+read(b);
+print ("GCD of ", a, b, " is ", gcd(a,b));"""
+
+lya_gen_primes = """dcl n1, n2, i, j int, flag bool;
+
+print("Enter 2 numbers (intervals) separated by space: ");
+read(n1);
+read(n2);
+print("Prime numbers between ", n1, " and ", n2, " are:\n");
+do
+  for i = n1 to n2;
+    flag = true;
+    loop: do
+      for j = 2 to i/2;
+        if i % j == 0 then
+          flag = false;
+          exit loop;
+        fi;
+    od;
+    if flag then
+      print(i, "  ");
+    fi;
+od;
+"""
+
+lya_bubble_sort = """dcl v array[0:100] int;
+dcl n, c, d, swap  int;
+
+print("Enter number of elements: ");
+read(n);
+print("Enter ", n, " integers\n");
+do
+  for c = 0 to n-1;
+    read(v[c]);
+od;
+do
+  for c = 0 to n-2;
+    do
+      for d = 0 to n-c-2;
+        // For decreasing order use "<"
+        if v[d] > v[d+1] then
+          swap   = v[d];
+          v[d]   = v[d+1];
+          v[d+1] = swap;
+        fi;
+    od;
+od;
+print("Sorted list in ascending order:\n");
+do
+  for c = 0 to n-1;
+    print(v[c], " ");
+od;
+"""
+
+lya_palindrome = """dcl n,t int, reverse int = 0;
+
+print("Enter a number: ");
+read(n);
+t = n;
+do
+  while t != 0;
+    reverse = reverse * 10;
+    reverse = reverse + t % 10;
+    t = t / 10;
+od;
+if n == reverse then
+  print(n, " is a palindrome number.\n");
+else
+  print(n, " is not a palindrome number.\n");
+fi;"""
+
+lya_ref_example = """swapByRef: proc(x ref int, y ref int);
+  dcl t int = x->;
+  x-> = y->;
+  y-> = t;
+end;
+
+dcl i int = 10, j int = 20;
+// declaring reference to int
+dcl r ref int = ->i;
+
+swapByRef( r,  ->j );
+print(i, j);"""
+
+lya_fibo = """fibo: proc (n int, g int loc);
+  dcl h int;
+  if n < 0 then
+    print(g);
+    return;
+  else
+    h = g; fibo(n-1, h);
+    g = h; fibo(n-2, g);
+  fi;
+  print(n,g);
+end;
+
+dcl k int = 0;
+fibo(3,k);
+//fibo(-1,k);
+"""
+
+lya_armstrong = """power: proc (n int, r int) returns (int);
+  dcl c int, p int = 1;
+  do
+    for c = 1 to r;
+      p = p*n;
+  od;
+  return p;
+end;
+
+dcl n int, sum int = 0;
+dcl temp, remainder int, digits int = 0;
+
+print("Input an integer: ");
+read(n);
+temp = n;
+do
+  while temp != 0;
+    digits += 1;
+    temp = temp / 10;
+od;
+temp = n;
+do
+  while temp != 0;
+    remainder = temp % 10;
+    sum = sum + power(remainder, digits);
+    temp = temp / 10;
+od;
+
+if n == sum then
+  print(n, " is an Armstrong number.\n");
+else
+  print(n, " is not an Armstrong number.\n");
+fi;"""
+
+lya_fat = """
+fat: proc (n int) returns (int);
+  if n==0 then
+    return 1;
+  else
+    return n * fat (n-1);
+  fi;
+end;
+
+dcl x int;
+print("give-me a positive integer:");
+read(x);
+print("fatorial of ", x, " = ", fat(x));"""
+
+lya_int_stack = """syn top int = 10;
+type stack = array [1:top+1] int;
+
+push: proc (s stack loc, elem int);
+    if s[top+1] == top then
+        print("stack is full");
+    else
+        s[top+1] += 1;
+	s[s[top+1]] = elem;
+    fi;
+end;
+
+pop: proc (s stack loc) returns (int);
+    if s[top+1] == 0 then
+        print("empty stack");
+	result 0;
+    else
+        result s[s[top+1]];
+	s[top+1] -= 1;
+    fi;
+end;
+
+init: proc (s stack loc);
+    s[top+1] = 0;
+end;
+
+dcl q stack, v1, v2 int;
+init(q);
+read(v1);
+read(v2);
+push(q,v1);
+push(q,v2);
+print(pop(q) + pop(q));"""
+
+lya_debug_source = test2_source
+

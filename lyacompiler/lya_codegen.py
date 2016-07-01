@@ -29,6 +29,7 @@ class CodeGenerator(ASTNodeVisitor):
         self.instructions_index = 0
         self.labels_map = {}
         self.errors = []
+        self.string_constants = []
 
     def visit(self, node):
         try:
@@ -62,12 +63,15 @@ class CodeGenerator(ASTNodeVisitor):
     def visit_Program(self, program: Program):
         self.current_scope = program.scope
         self._add_instruction(STP())
-        self._add_instruction(ALC(program.offset))
+
+        if program.offset != 0:
+            self._add_instruction(ALC(program.offset))
 
         for stmts in program.statements:
             self.visit(stmts)
 
-        self._add_instruction(DLC(program.offset))
+        if program.offset != 0:
+            self._add_instruction(DLC(program.offset))
         self._add_instruction(END())
 
     # Statement -------------------------------------------------
@@ -82,6 +86,11 @@ class CodeGenerator(ASTNodeVisitor):
                     self.visit(declaration.init)
                 self._add_instruction(STV(self.current_scope.level, identifier.displacement))
 
+    # Mode -----------------------------------------------
+
+    def visit_ArrayMode(self, array_mode: ArrayMode):
+        pass
+
     # Procedure ------------------------------------------
 
     def visit_ProcedureStatement(self, procedure: ProcedureStatement):
@@ -89,18 +98,27 @@ class CodeGenerator(ASTNodeVisitor):
         self._add_instruction(JMP(procedure.end_label))
         self._add_instruction(LBL(procedure.start_label))
         self._add_instruction(ENF(self.current_scope.level))
-        self._add_instruction(ALC(procedure.offset))
+
+        if procedure.offset != 0:
+            self._add_instruction(ALC(procedure.offset))
 
         self.visit(procedure.definition)
 
-        self._add_instruction(DLC(procedure.offset))
+        self._add_instruction(LBL(procedure.return_label))
+
+        if procedure.offset != 0:
+            self._add_instruction(DLC(procedure.offset))
 
         if procedure.identifier.raw_type is not LyaVoidType:
             # Calculating the number of parameters received
-            n_params = 0
+            mem_size = 0
             for p in procedure.definition.parameters:
-                n_params += len(p.ids)
-            self._add_instruction(RET(self.current_scope.level, n_params))
+                for i in p.ids:
+                    if isinstance(i.raw_type, LyaArrayType):
+                        mem_size += 1
+                    else:
+                        mem_size += i.raw_type.memory_size
+            self._add_instruction(RET(self.current_scope.level, mem_size))
 
         self._add_instruction(LBL(procedure.end_label))
         self.current_scope = self.current_scope.parent
@@ -112,27 +130,35 @@ class CodeGenerator(ASTNodeVisitor):
             self._add_instruction(ALC(ret.raw_type.memory_size))
 
         for expression in reversed(call.expressions):
-            exp = expression.sub_expression
-            if isinstance(exp, Expression):
-                if exp.exp_value:
-                    # TODO: Carregar str cte
-                    self._add_instruction(LDC(exp.exp_value))
-                    pass
+            sub_exp = expression.sub_expression
+            if isinstance(sub_exp, Location) and isinstance(sub_exp.type, Identifier):
+                if isinstance(sub_exp.type.raw_type, LyaArrayType):
+                    self._add_instruction(LDR(sub_exp.type.scope_level, sub_exp.type.displacement))
+                else:
+                    self.visit(expression)
+            elif isinstance(sub_exp, Expression):
+                if sub_exp.exp_value:
+                    self._add_instruction(LDC(sub_exp.exp_value))
+                else:
+                    self.visit(expression)
             else:
                 self.visit(expression)
 
         self._add_instruction(CFU(call.start_label))
 
+        # if procedure.definition.result.loc is QualifierType.ref_location:
+        #     self._add_instruction(GRC())
+
     def visit_ReturnAction(self, return_action: ReturnAction):
         procedure = self.current_scope.enclosure    # type: ProcedureStatement
-        end_label = procedure.end_label
 
         if return_action.expression is not None:
             self.visit(return_action.expression)
             self._add_instruction(STV(self.current_scope.level, return_action.displacement))
-        self._add_instruction(JMP(end_label))
+        self._add_instruction(JMP(procedure.return_label))
 
     def visit_ResultAction(self, result: ResultAction):
+        result.expression.sub_expression.qualifier = QualifierType.location
         self.visit(result.expression)
         self._add_instruction(STV(self.current_scope.level, result.displacement))
 
@@ -141,29 +167,50 @@ class CodeGenerator(ASTNodeVisitor):
         name = builtin_call.name
 
         if name == 'print':
-            print_arg = builtin_call.expressions[0]     # type: Expression
+            print_arg_list = builtin_call.expressions  # type: Expression
 
-            self.visit(print_arg)
-            if isinstance(print_arg.raw_type, LyaStringType):
-                self._add_instruction(PRS())
-            elif isinstance(print_arg.sub_expression, StringConstant):
-                self._add_instruction(PRC(print_arg.sub_expression.heap_position))
-            elif isinstance(print_arg.sub_expression, LyaArrayType):
-                # TODO: Improove array printing
-                self._add_instruction(PRT(print_arg.sub_expression.length))
-            else:
-                self._add_instruction(PRV())
+            for print_arg in print_arg_list:
+                self.visit(print_arg)
+                if isinstance(print_arg.raw_type, LyaStringType):
+                    if isinstance(print_arg.sub_expression, StringConstant):
+                        self._add_instruction(PRC(print_arg.sub_expression.heap_position))
+
+                #TODO: what to do if it's not constant?
+                elif isinstance(print_arg.sub_expression, LyaArrayType):
+                    # TODO: Improve array printing
+                    self._add_instruction(PRT(print_arg.sub_expression.length))
+                else:
+                    self._add_instruction(PRV())
+
+        # if name == 'print':
+        #     print_arg = builtin_call.expressions[0]     # type: Expression
+        #
+        #     self.visit(print_arg)
+        #     if isinstance(print_arg.raw_type, LyaStringType):
+        #         self._add_instruction(PRS())
+        #     elif isinstance(print_arg.sub_expression, StringConstant):
+        #         self._add_instruction(PRC(print_arg.sub_expression.heap_position))
+        #     elif isinstance(print_arg.sub_expression, LyaArrayType):
+        #         # TODO: Improove array printing
+        #         self._add_instruction(PRT(print_arg.sub_expression.length))
+        #     else:
+        #         self._add_instruction(PRV())
 
         if name == 'read':
             read_arg = builtin_call.expressions[0]      # type: Expression
             location = read_arg.sub_expression          # type: Location
-            identifier = location.type                  # type: Identifier
             if isinstance(read_arg.raw_type, LyaStringType):
                 self._add_instruction(RDS())
+                # TODO: Test String
                 self._add_instruction(STS(read_arg.raw_type.length))
             else:
-                self._add_instruction(RDV())
-                self._add_instruction(STV(identifier.scope_level, identifier.displacement))
+                if isinstance(location.type, Identifier):
+                    self._add_instruction(RDV())
+                    self._add_instruction(STV(location.type.scope_level, location.type.displacement))
+                elif isinstance(location.type, Element):
+                    self.visit(location.type)
+                    self._add_instruction(RDV())
+                    self._add_instruction(SMV(location.type.raw_type.memory_size))
 
         if name == 'lower':
             read_arg = builtin_call.expressions[0]      # type: Expression
@@ -187,55 +234,56 @@ class CodeGenerator(ASTNodeVisitor):
     # Location
 
     def visit_Location(self, location: Location):
-            if isinstance(location.type, Identifier):
-                # TODO: Other location types
-                self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
+        if isinstance(location.type, Identifier):
+            # TODO: Other location types
+            if location.type.synonym_value is not None:
+                self._add_instruction(LDC(location.type.synonym_value))
+            elif location.type.qualifier is QualifierType.location:
+                self._add_instruction(LRV(location.type.scope_level, location.type.displacement))
+            elif location.type.qualifier is QualifierType.ref_location:
+                self._add_instruction(LDR(location.type.scope_level, location.type.displacement))
             else:
-                self.visit(location.type)
+                self._add_instruction(LDV(location.type.scope_level, location.type.displacement))
+        else:
+            self.visit(location.type)
 
+    def visit_DereferencedReference(self, dereferenced_reference: DereferencedReference):
+        if isinstance(dereferenced_reference.loc.type, Identifier):
+            self._add_instruction(LRV(dereferenced_reference.loc.type.scope_level, dereferenced_reference.loc.type.displacement))
+        else:
+            self.visit(dereferenced_reference.loc.type)
 
-    # # Expression
-    #
-    # def visit_Expression(self, expression: Expression):
-    #     self.visit(expression.sub_expression)
-    #     expression.raw_type = expression.sub_expression.raw_type
-    #     if isinstance(expression.sub_expression, Constant):
-    #         expression.exp_value = expression.sub_expression.value
-    #
-    # # Do_Action
-    #
-    # def visit_StepEnumeration(self, step: StepEnumeration):
-    #     entry = self.current_scope.entry_lookup(step.counter)
-    #
-    #     if entry is None:
-    #         raise LyaNameError(step.lineno, step.counter)
-    #
-    #     self.visit(step.start_val)
-    #     self.visit(step.step_val)
-    #     self.visit(step.end_val)
-    #
-    #     if step.start_val.raw_type != LTF.int_type():
-    #         raise LyaTypeError(step.lineno, step.start_val.raw_type, LTF.int_type())
-    #
-    #     if step.step_val.sub_expression.raw_type != LTF.int_type():
-    #         raise LyaTypeError(step.lineno, step.step_val.sub_expression.raw_type, LTF.int_type())
-    #
-    #     if step.end_val.raw_type != LTF.int_type():
-    #         raise LyaTypeError(step.lineno, step.end_val.raw_type, LTF.int_type())
-    #
-    # def visit_RangeEnumeration(self, range_enum: RangeEnumeration):
-    #     entry = self.current_scope.entry_lookup(range_enum.counter)
-    #
-    #     if entry is None:
-    #         raise LyaNameError(range_enum.lineno, range_enum.counter)
-    #
-    #     self.visit(range_enum.mode)
-    #
-    # def visit_WhileControl(self, ctrl: WhileControl):
-    #     self.visit(ctrl.expr)
-    #
-    #     if ctrl.expr.sub_expression.raw_type != LTF.bool_type():
-    #         raise LyaTypeError(ctrl.lineno, ctrl.expr.sub_expression.raw_type, LTF.bool_type())
+    def visit_ReferencedLocation(self, referenced_location: ReferencedLocation):
+        if isinstance(referenced_location.loc.type, Identifier):
+            self._add_instruction(LDR(referenced_location.loc.type.scope_level, referenced_location.loc.type.displacement))
+        else:
+            self.visit(referenced_location.loc.type)
+
+    def visit_Element(self, element: Element):
+
+        if isinstance(element.location, Identifier):
+            if element.location.displacement < 0:   # Function Argument
+                self._add_instruction(LDV(element.location.scope_level, element.location.displacement))
+            else:
+                self._add_instruction(LDR(element.location.scope_level, element.location.displacement))
+            # self.visit(location.type)
+            # TODO: Not identifier?
+        else:
+            self.visit(element.location)
+
+        # TODO: More levels (len(expression) > 0)
+
+        exp = element.expressions[0]
+        self.visit(exp)
+        if isinstance(element.location.raw_type, LyaArrayType):
+            self._add_instruction(LDC(element.location.raw_type.index_range[0]))
+        # TODO: StringElement
+
+        self._add_instruction(SUB())
+
+        self._add_instruction(IDX(element.raw_type.memory_size))
+        # for expression in element.expressions:
+        #     self.visit(expression)
 
     # Constants / Literals ----------------------------------
 
@@ -255,6 +303,16 @@ class CodeGenerator(ASTNodeVisitor):
     #     sconst.heap_position = self.environment.store_string_constant(sconst.value)
     #     sconst.raw_type = LTF.string_type(sconst.length)
 
+    # Expression
+
+    def visit_Expression(self, expression: Expression):
+        self.visit(expression.sub_expression)
+        if isinstance(expression.sub_expression, Location):
+            if isinstance(expression.sub_expression.type, Element):
+                # TODO: What if Element is another array, or ref?
+                self._add_instruction(GRC())
+
+
     def visit_BinaryExpression(self, binary_expression: BinaryExpression):
 
         left = binary_expression.left
@@ -263,23 +321,39 @@ class CodeGenerator(ASTNodeVisitor):
 
         if isinstance(left, Location):
             if isinstance(left.type, Identifier):
-                self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+                if left.type.synonym_value is not None:
+                    self._add_instruction(LDC(left.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+            elif isinstance(left.type, Element):
+                self.visit(left)
+                self._add_instruction(GRC())
+            else:
+                self.visit(left)
         elif isinstance(left, Expression):
-            if left.exp_value:
-                # TODO: Otimização - carregar str cte
+            if left.exp_value and not isinstance(left.exp_value, StringConstant): # STRConstants are loaded into the heap
                 self._add_instruction(LDC(left.exp_value))
-                pass
+            else:
+                self.visit(left)
         else:
             self.visit(left)
 
         if isinstance(right, Location):
             if isinstance(right.type, Identifier):
-                self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
-        elif isinstance(left, Expression):
-            if right.exp_value:
-                # TODO: Otimização - carregar cte
+                if right.type.synonym_value is not None:
+                    self._add_instruction(LDC(right.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
+            elif isinstance(right.type, Element):
+                self.visit(right)
+                self._add_instruction(GRC())
+            else:
+                self.visit(right)
+        elif isinstance(right, Expression):
+            if right.exp_value and not isinstance(right.exp_value, StringConstant):
                 self._add_instruction(LDC(right.exp_value))
-                pass
+            else:
+                self.visit(right)
         else:
             self.visit(right)
 
@@ -295,28 +369,43 @@ class CodeGenerator(ASTNodeVisitor):
 
         if isinstance(left, Location):
             if isinstance(left.type, Identifier):
-                self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+                if left.type.synonym_value is not None:
+                    self._add_instruction(LDC(left.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(left.type.scope_level, left.type.displacement))
+            elif isinstance(left.type, Element):
+                self.visit(left)
+                self._add_instruction(GRC())
+            else:
+                self.visit(left)
         elif isinstance(left, Expression):
-            if left.exp_value:
-                # TODO: Carregar str cte
+            if left.exp_value and not isinstance(left.exp_value, StringConstant):
                 self._add_instruction(LDC(left.exp_value))
-                pass
+            else:
+                self.visit(left)
         else:
             self.visit(left)
 
         if isinstance(right, Location):
             if isinstance(right.type, Identifier):
-                self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
-        elif isinstance(left, Expression):
-            if right.exp_value:
-                # TODO: Carregar cte
+                if right.type.synonym_value is not None:
+                    self._add_instruction(LDC(right.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(right.type.scope_level, right.type.displacement))
+            elif isinstance(right.type, Element):
+                self.visit(right)
+                self._add_instruction(GRC())
+            else:
+                self.visit(right)
+        elif isinstance(right, Expression):
+            if right.exp_value and not isinstance(right.exp_value, StringConstant):
                 self._add_instruction(LDC(right.exp_value))
-                pass
+            else:
+                self.visit(right)
         else:
             self.visit(right)
 
         self._add_instruction(left.raw_type.get_relational_instruction(op))
-
 
     def visit_UnaryExpression(self, unary_expression: UnaryExpression):
         value = unary_expression.value
@@ -324,12 +413,20 @@ class CodeGenerator(ASTNodeVisitor):
 
         if isinstance(value, Location):
             if isinstance(value.type, Identifier):
-                self._add_instruction(LDV(value.type.scope_level, value.type.displacement))
+                if value.type is not None:
+                    self._add_instruction(LDC(value.type.synonym_value))
+                else:
+                    self._add_instruction(LDV(value.type.scope_level, value.type.displacement))
+            elif isinstance(value.type, Element):
+                self.visit(value)
+                self._add_instruction(GRC())
+            else:
+                self.visit(value)
         elif isinstance(value, Expression):
-            if value.exp_value:
-                # TODO: Carregar str cte
+            if value.exp_value and not isinstance(value.exp_value, StringConstant):
                 self._add_instruction(LDC(value.exp_value))
-                pass
+            else:
+                self.visit(value)
         else:
             self.visit(value)
 
@@ -346,9 +443,47 @@ class CodeGenerator(ASTNodeVisitor):
     # def visit_BracketedAction(self, bracketed_action: BracketedAction):
 
     def visit_AssignmentAction(self, assignment: AssignmentAction):
-        self.visit(assignment.expression)
+        if isinstance(assignment.location.type, ProcedureCall):
+            self.visit(assignment.location.type)
+
+        # Assignment Location
         if isinstance(assignment.location.type, Identifier):
-            self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
+            self.visit(assignment.expression)
+            if assignment.location.type.qualifier == QualifierType.location:
+                self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
+            elif assignment.location.type.qualifier == QualifierType.ref_location:
+                self._add_instruction(SRV(assignment.location.type.scope_level, assignment.location.type.displacement))
+            else:
+                self._add_instruction(STV(assignment.location.type.scope_level, assignment.location.type.displacement))
+        elif isinstance(assignment.location.type, Element):
+            # Element assignment. Array.
+            self.visit(assignment.location)
+            self.visit(assignment.expression)
+            # TODO: String?
+            self._add_instruction(SMV(assignment.location.type.raw_type.memory_size))
+        elif isinstance(assignment.location.type, DereferencedReference):
+            self.visit(assignment.expression)
+            identifier = assignment.location.type.loc.type    # type: Identifier
+            self._add_instruction(SRV(identifier.scope_level, identifier.displacement))
+        else:
+            self.visit(assignment.expression)
+
+        # Assignment Expression
+        if hasattr(assignment.expression, 'sub_expression'):
+            if isinstance(assignment.expression.sub_expression, Location):
+                if isinstance(assignment.expression.sub_expression.type, ProcedureCall):
+                    procedure_call = assignment.expression.sub_expression.type
+                    procedure_statement = self._lookup_procedure(procedure_call)
+
+                    if procedure_statement.definition.result.loc == QualifierType.ref_location:
+                        self._add_instruction(GRC())
+                # if isinstance(assignment.expression.sub_expression.type, Element):
+                #     # TODO: Resolver elemento e colocar instrução para grc
+                #     pass
+
+        if isinstance(assignment.location.type, ProcedureCall):
+            # TODO: Não tem que checar se o call tem retorno antes de fazer isso?
+            self._add_instruction(SMV(assignment.location.type.raw_type.memory_size))
 
     # IfAction ---------------------------------------------------------------------------------------------------------
 

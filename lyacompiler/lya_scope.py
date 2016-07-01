@@ -14,7 +14,7 @@ from enum import Enum, unique
 
 from .symboltable import SymbolTable
 from .lya_ast import ASTNode, Identifier, ProcedureStatement, \
-    Declaration, SynonymDefinition, FormalParameter, Expression
+    Declaration, SynonymDefinition, FormalParameter, Expression, ModeDefinition
 from .lya_builtins import *
 from .lya_errors import *
 
@@ -142,8 +142,8 @@ class LyaScope(object):
             SymbolType.procedure: self.procedures,
             SymbolType.label: self.labels
         }
-        self.ret = None
-        self.result = None #holds a node of the return call
+        self.ret = None #holds a node of the identifier returned
+        self.result = None #result value
 
     def add_child(self, scope):
         scope.parent = self
@@ -170,19 +170,20 @@ class LyaScope(object):
         self._add_symbol(identifier.name, SymbolEntry.parameter(identifier, self))
         self.parameters.add(identifier.name, parameter)
         identifier.displacement = self.parameters_displacement
-        self.parameters_displacement -= identifier.raw_type.memory_size
+        if isinstance(identifier.raw_type, LyaArrayType):
+            self.parameters_displacement -= 1
+        else:
+            self.parameters_displacement -= identifier.raw_type.memory_size
 
     # Synonyms
-    # Evaluated constant (int, char, bool, chars) (Array?)
     def add_synonym(self, identifier: Identifier, synonym: SynonymDefinition):
         self._add_symbol(identifier.name, SymbolEntry.synonym(identifier, self))
         self.synonyms.add(identifier.name, synonym)
 
     # Types
-    # TODO: Improve new types management.
-    def add_new_type(self, identifier: Identifier, raw_type: LyaType):
+    def add_new_type(self, identifier: Identifier, newmode: ModeDefinition):
         self._add_symbol(identifier.name, SymbolEntry.type_definition(identifier, self))
-        self.type_definitions.add(identifier.name, raw_type)
+        self.type_definitions.add(identifier.name, newmode)
 
     # Procedures
 
@@ -209,7 +210,7 @@ class LyaScope(object):
 
     # Lookup
 
-    def entry_lookup(self, name):
+    def entry_lookup(self, name) -> SymbolEntry:
         entry = self.symbols.get(name)
         if entry is not None:
             return entry
@@ -217,16 +218,18 @@ class LyaScope(object):
             return self.parent.entry_lookup(name)
         return None
 
-    def identifier_lookup(self, name):
+    def identifier_lookup(self, name) -> Identifier:
         entry = self.entry_lookup(name)
         if entry is not None:
             return entry.identifier
         return None
 
-    def type_lookup(self, name):
+    def type_lookup(self, name, lineno: int) -> LyaType:
         entry = self.entry_lookup(name)
         if entry is not None:
-            return entry.raw_type
+            if entry.symbol_type != SymbolType.type_definition:
+                raise LyaNotATypeError(lineno, name)
+            return entry.identifier.raw_type
         return None
 
     def procedure_lookup(self, name, lineno: int):
@@ -236,14 +239,3 @@ class LyaScope(object):
                 raise LyaProcedureCallError(lineno, name, entry.symbol_type)
             return entry.scope.procedures.lookup(name)
         return None
-
-    # def _lookup(self, identifier: Identifier, entry: SymbolEntry):
-    #     table = self.tables.get(entry.symbol_type)
-    #     if table is None:
-    #         raise LyaUnknownError(identifier.lineno, identifier)
-    #
-    #     for table in reversed(stack):
-    #         hit = table.lookup(name)
-    #         if hit is not None:
-    #             return hit
-    #     return None

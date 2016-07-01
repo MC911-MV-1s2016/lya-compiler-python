@@ -1,0 +1,165 @@
+//examples with references
+//https://groups.google.com/forum/#!topic/mc911-1s2016/yjiEgj-spSE
+
+dcl i,j int, r ref int;
+
+p: proc(x int, y ref int) returns (int);
+  dcl b bool;
+  read(b);
+  if b then
+     y = -> i;
+     result y->;
+  else
+     y = r;
+     result r->;
+  fi;
+end;
+
+read(i);
+r = -> i;
+print(p(i,->j));
+
+//'''
+//Scope level for ProcStmt p: 1
+//  formal parameters & their offsets
+//  x : -3
+//  _ret : -5
+//  y : -4
+//  variables & their offsets
+//  b : 0
+// Scope level for Program : 0
+//  variables & their offsets
+//  r : 2
+//  i : 0
+//  j : 1
+//  functions, return types & labels
+//  p : int, labels start=1, end=3
+//'''
+//[
+//  ('stp'),
+//  ('alc', 3),
+//  ('jmp', 3),
+//  ('lbl', 1),
+//  ('enf', 1),
+//  ('alc', 1),
+//  ('rdv'),
+//  ('stv', 1, 0),
+//  ('ldv', 1, 0),
+//  ('jof', 4),
+//  ('ldr', 0, 0),
+//  ('stv', 1, -4),
+//  ('lrv', 1, -4),
+//  ('stv', 1, -5),
+//  ('jmp', 5),
+//  ('lbl', 4),
+//  ('ldv', 0, 2),
+//  ('stv', 1, -4),
+//  ('lrv', 0, 2),
+//  ('stv', 1, -5),
+//  ('lbl', 5),
+//  ('lbl', 2),
+//  ('dlc', 1),
+//  ('ret', 1, 2),
+//  ('lbl', 3),
+//  ('rdv'),
+//  ('stv', 0, 0),
+//  ('ldr', 0, 0),
+//  ('stv', 0, 2),
+//  ('alc', 1),
+//  ('ldr', 0, 1),
+//  ('ldv', 0, 0),
+//  ('cfu', 1),
+//  ('prv'),
+//  ('dlc', 3),
+//  ('end'),
+//]
+//
+//
+//Program: offset=3
+//  DeclStmt:
+//    Decl:
+//      ID: name=i, scope=0, value=0 (at line :1)
+//      ID: name=j, scope=0, value=1 (at line :1)
+//      Mode:
+//        DiscreteMode: name=int (at line :1)
+//    Decl:
+//      ID: name=r, scope=0, value=2 (at line :1)
+//      Mode:
+//        RefMode:
+//          Mode:
+//            DiscreteMode: name=int (at line :1)
+//  ProcStmt: offset=1
+//    ID: name=p, start=1, end=3 (at line :3)
+//    ProcDef:  (at line :3)
+//      FormalParam:  (at line :3)
+//        ID: name=x, scope=1, value=-3 (at line :3)
+//        Mode:
+//          DiscreteMode: name=int (at line :3)
+//      FormalParam:  (at line :3)
+//        ID: name=y, scope=1, value=-4 (at line :3)
+//        Mode:
+//          RefMode:
+//            Mode:
+//              DiscreteMode: name=int (at line :3)
+//      Returns:  (at line :3)
+//        Mode:
+//          DiscreteMode: name=int (at line :3)
+//      DeclStmt:
+//        Decl:
+//          ID: name=b, scope=1, value=0 (at line :4)
+//          Mode:
+//            DiscreteMode: name=bool (at line :4)
+//      Action:
+//        BuiltinCall: name=read (at line :0)
+//          Expr:
+//            ID: name=b, scope=1, value=0 (at line :5)
+//      Action:
+//        IfAction:
+//          BoolExpr:
+//            Expr:
+//              ID: name=b, scope=1, value=0 (at line :6)
+//          ThenClause:
+//            Action:
+//              Assignment: op== (at line :7)
+//                Location:
+//                  ID: name=y, scope=1, value=-4 (at line :7)
+//                Expr:
+//                  UnaryExpr: op=->
+//                    ID: name=i, scope=0, value=0 (at line :7)
+//            Action:
+//              Result:
+//                Expr:
+//                  Deref:  (at line :8)
+//                    ID: name=y, scope=1, value=-4 (at line :8)
+//          ElseClause:
+//            Action:
+//              Assignment: op== (at line :10)
+//                Location:
+//                  ID: name=y, scope=1, value=-4 (at line :10)
+//                Expr:
+//                  ID: name=r, scope=0, value=2 (at line :10)
+//            Action:
+//              Result:
+//                Expr:
+//                  Deref:  (at line :11)
+//                    ID: name=r, scope=0, value=2 (at line :11)
+//  Action:
+//    BuiltinCall: name=read (at line :0)
+//      Expr:
+//        ID: name=i, scope=0, value=0 (at line :15)
+//  Action:
+//    Assignment: op== (at line :16)
+//      Location:
+//        ID: name=r, scope=0, value=2 (at line :16)
+//      Expr:
+//        UnaryExpr: op=->
+//          ID: name=i, scope=0, value=0 (at line :16)
+//  Action:
+//    BuiltinCall: name=print (at line :0)
+//      Expr:
+//        ProcCall: name=p (at line :17)
+//          Expr:
+//            ID: name=i, scope=0, value=0 (at line :17)
+//          Expr:
+//            UnaryExpr: op=->
+//              ID: name=j, scope=0, value=1 (at line :17)

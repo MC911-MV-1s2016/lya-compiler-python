@@ -21,6 +21,7 @@ from .lya_builtins import LyaType
 class QualifierType(Enum):
     none = 0
     location = 1
+    ref_location = 2
 
 
 class ASTNode(object):
@@ -41,6 +42,7 @@ class ASTNode(object):
                      'synonym_value',   # Identifier synonym value
                      'label',           # Label value
                      'start_label',     # Procedure start label
+                     'return_label',    # Procedure return label
                      'end_label',       # Procedure end label
                      'next_label',      # IfThenElse next label (If -> Then -> Else)
                      'exit_label',      # IfThenElse exit label
@@ -106,12 +108,16 @@ class ASTNode(object):
 class Program(ASTNode):
     """
     :type statements: list[Statement]
+    :type offset: int
+    :type scope: LyaScope
     """
     _fields = ['statements']
 
     def __init__(self, statements, **kwargs):
         super().__init__(statements, **kwargs)
         self.statements = statements
+        self.offset = 0
+        self.scope = None
 
 
 # Statement
@@ -137,7 +143,10 @@ class ProcedureStatement(Statement):
     :type identifier: Identifier
     :type definition: ProcedureDefinition
     :type start_label: int
+    :type return_label: int
     :type end_label: int
+    :type offset: int
+    :type scope: LyaScope
     """
     _fields = ['identifier', 'definition']
 
@@ -146,7 +155,10 @@ class ProcedureStatement(Statement):
         self.identifier = label
         self.definition = definition
         self.start_label = None
+        self.return_label = None
         self.end_label = None
+        self.offset = 0
+        self.scope = None
 
 
 class Declaration(ASTNode):
@@ -184,8 +196,18 @@ class SynonymDefinition(ASTNode):
 
 # Assign to define or type -> ilegal operation.
 
+
 class ModeDefinition(ASTNode):
-    _fields = ['ids', 'mode']
+    """
+    :type identifiers: List[Identifier]
+    :type mode: Mode
+    """
+    _fields = ['identifiers', 'mode']
+
+    def __init__(self, identifiers, mode, **kwargs):
+        super().__init__(identifiers, mode, **kwargs)
+        self.identifiers = identifiers
+        self.mode = mode
 
 
 class Mode(ASTNode):
@@ -319,8 +341,8 @@ class DereferencedReference(ASTNode):
     _fields = ['loc']
 
 
-class StringElement(ASTNode):
-    _fields = ['ids', 'st_element']
+# class StringElement(ASTNode):
+#     _fields = ['ids', 'st_element']
 
 
 class StartElement(ASTNode):
@@ -331,12 +353,27 @@ class StringSlice(ASTNode):
     _fields = ['ids', 'l_elem', 'r_elem']
 
 
-class ArrayElement(ASTNode):
-    _fields = ['loc', 'expr']
+# class ArrayElement(ASTNode):
+#     _fields = ['loc', 'expr']
 
 
 class ArraySlice(ASTNode):
     _fields = ['loc', 'l_bound', 'u_bound']
+
+
+class Element(ASTNode):
+    """ Represents a string or array element.
+
+    :type location: Location if string, location is Identifier
+    :type expressions: List[Expression] if string, only one expression
+    """
+    _fields = ['location', 'expressions']
+
+    def __init__(self, location: 'Location', expressions: List['Expression'], **kwargs):
+        self.lineno = None
+        super().__init__(location, expressions, **kwargs)
+        self.location = location
+        self.expressions = expressions
 
 
 class Constant(ASTNode):

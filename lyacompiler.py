@@ -55,7 +55,7 @@ class LyaCompiler(object):
         from lyacompiler.lya_parser import LyaParser
         from lyacompiler.lya_visitor import Visitor
         from lyacompiler.lya_codegen import CodeGenerator
-        from  lyacompiler.lya_virtualmachine import LyaVirtualMachine
+        from lyacompiler.lya_virtualmachine import LyaVirtualMachine
 
         print("\n--- Lya Source Code ---\n")
         i = 1
@@ -73,6 +73,7 @@ class LyaCompiler(object):
         # Semantic Analysis
         print("\nAnalysing semantics...")
         semantic_visitor = Visitor()
+        # semantic_visitor.show(ast)
         semantic_visitor.visit(ast)
         print("\n--- Decorated AST ---\n")
         semantic_visitor.show(ast)
@@ -82,6 +83,7 @@ class LyaCompiler(object):
         print("Generating code...")
         code_generator = CodeGenerator()
         code_generator.environment = ast.environment
+        code_generator.string_constants = semantic_visitor.environment.string_constant_heap
         code_generator.visit(ast)
         print("\n--- Generated Code ---\n")
         for i in range(len(code_generator.instructions)):

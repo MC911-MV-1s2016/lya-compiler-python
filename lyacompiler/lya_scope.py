@@ -193,7 +193,6 @@ class LyaScope(object):
 
     # Procedure return
 
-
     def add_return(self, identifier: Identifier):
         self._add_symbol(identifier.name, SymbolEntry(SymbolType.ret, identifier, self))
         self.ret = identifier

@@ -242,6 +242,7 @@ test2_source = """dcl m int = 2, n int = 3;
 p: proc (x int);
   dcl s int;
   s = m * x;
+  print("s = ", s);
 end;
 p(n);
 print(m);"""
@@ -641,5 +642,5 @@ push(q,v1);
 push(q,v2);
 print(pop(q) + pop(q));"""
 
-lya_debug_source = lya_int_stack
+lya_debug_source = lya_bubble_sort
 

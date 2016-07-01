@@ -15,6 +15,7 @@ from .lya_environment import Environment
 from .lya_ast import *
 from .lya_errors import *
 from .lya_builtins import *
+from .lya_scope import SymbolType
 
 
 class Visitor(ASTNodeVisitor):
@@ -605,13 +606,24 @@ class Visitor(ASTNodeVisitor):
     def visit_AssignmentAction(self, assignment: AssignmentAction):
         self.visit(assignment.location)
 
+        if isinstance(assignment.location.type, Identifier):
+            identifier = assignment.location.type
+            entry = self.current_scope.entry_lookup(identifier.name)
+            if entry.symbol_type == SymbolType.synonym or \
+                            entry.symbol_type == SymbolType.type_definition or \
+                            entry.symbol_type == SymbolType.ret or\
+                            entry.symbol_type == SymbolType.label:
+                raise LyaGenericError(assignment.lineno, assignment,
+                                      "Assigning to invalid location '{0}'.".format(identifier.name))
+
         if isinstance(assignment.location.type, ProcedureCall):
             procedure_call = assignment.location.type
-            procedure_statement = self._lookup_procedure(procedure_call)
+            procedure_statement = self._lookup_procedure(procedure_call)        # type: ProcedureStatement
 
-            if procedure_statement.definition.result.loc != QualifierType.ref_location:
+            if procedure_statement.scope.ret.qualifier != QualifierType.ref_location:
                 raise LyaGenericError(assignment.lineno, assignment,
-                                      "Atributing result to non-LOC function call.")
+                                      "Assigning to invalid "
+                                      "location '{0}'.".format(procedure_statement.identifier.name))
 
         self.visit(assignment.expression)
 
